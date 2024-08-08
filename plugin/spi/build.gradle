@@ -1,4 +1,0 @@
-dependencies {
-    implementation "io.temporal:temporal-sdk"
-    implementation "io.quarkus:quarkus-arc-deployment"
-}

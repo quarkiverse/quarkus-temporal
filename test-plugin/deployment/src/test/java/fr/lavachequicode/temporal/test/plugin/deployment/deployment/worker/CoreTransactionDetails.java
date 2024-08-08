@@ -1,6 +1,6 @@
-package fr.lavachequicode.temporal.app.worker;
+package fr.lavachequicode.temporal.test.plugin.deployment.deployment.worker;
 
-import fr.lavachequicode.temporal.app.shared.TransactionDetails;
+import fr.lavachequicode.temporal.test.plugin.deployment.deployment.api.TransactionDetails;
 
 public class CoreTransactionDetails implements TransactionDetails {
 

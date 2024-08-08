@@ -1,4 +1,4 @@
-package fr.lavachequicode.temporal.app.shared;
+package fr.lavachequicode.temporal.test.plugin.deployment.deployment.api;
 
 import io.temporal.activity.ActivityInterface;
 import io.temporal.activity.ActivityMethod;

@@ -1,7 +1,8 @@
 package fr.lavachequicode.temporal.test.plugin.deployment;
 
-import fr.lavachequicode.temporal.plugin.spi.WorkerFactoryBuildItem;
-import fr.lavachequicode.temporal.plugin.spi.WorkflowClientBuildItem;
+import fr.lavachequicode.temporal.plugin.deployment.TemporalProcessor;
+import fr.lavachequicode.temporal.plugin.deployment.WorkerFactoryBuildItem;
+import fr.lavachequicode.temporal.plugin.deployment.WorkflowClientBuildItem;
 import fr.lavachequicode.temporal.test.plugin.TestWorkflowRecorder;
 import io.quarkus.deployment.annotations.BuildProducer;
 import io.quarkus.deployment.annotations.BuildStep;
@@ -22,19 +23,33 @@ public class TemporalTestProcessor {
 
     @BuildStep
     void capabilities(BuildProducer<CapabilityBuildItem> capabilityProducer) {
-        capabilityProducer.produce(new CapabilityBuildItem("fr.lavachequicode.temporal.test"));
+        capabilityProducer.produce(new CapabilityBuildItem("fr.lavachequicode.temporal.test", "temporal"));
     }
 
-
-    @BuildStep
     @Record(ExecutionTime.RUNTIME_INIT)
-    void recordWorkflowClient(
-            BuildProducer<WorkflowClientBuildItem> workflowClientProducer,
-            BuildProducer<WorkerFactoryBuildItem> workerFactoryProducer,
-            TestWorkflowRecorder recorder
-    ) {
+    @BuildStep(onlyIf = TemporalProcessor.EnableMock.class)
+    TestWorkflowEnvironmentBuildItem recordTestEnvironment(
+            TestWorkflowRecorder recorder) {
         TestWorkflowEnvironment testWorkflowEnvironment = recorder.createTestWorkflowEnvironment();
-        workflowClientProducer.produce(new WorkflowClientBuildItem(recorder.createTestWorkflowClient(testWorkflowEnvironment)));
-        workerFactoryProducer.produce(new WorkerFactoryBuildItem(recorder.createTestWorkerFactory(testWorkflowEnvironment)));
+        return new TestWorkflowEnvironmentBuildItem(testWorkflowEnvironment);
+    }
+
+    @Record(ExecutionTime.RUNTIME_INIT)
+    @BuildStep(onlyIf = TemporalProcessor.EnableMock.class)
+    WorkflowClientBuildItem recordWorkflowClient(
+            TestWorkflowEnvironmentBuildItem testWorkflowEnvironmentBuildItem,
+            TestWorkflowRecorder recorder) {
+        return new WorkflowClientBuildItem(
+                recorder.createTestWorkflowClient(testWorkflowEnvironmentBuildItem.testWorkflowEnvironment));
+
+    }
+
+    @Record(ExecutionTime.RUNTIME_INIT)
+    @BuildStep(onlyIf = TemporalProcessor.EnableMock.class)
+    WorkerFactoryBuildItem recordWorkerFactory(
+            TestWorkflowEnvironmentBuildItem testWorkflowEnvironmentBuildItem,
+            TestWorkflowRecorder recorder) {
+        return new WorkerFactoryBuildItem(
+                recorder.createTestWorkerFactory(testWorkflowEnvironmentBuildItem.testWorkflowEnvironment));
     }
 }

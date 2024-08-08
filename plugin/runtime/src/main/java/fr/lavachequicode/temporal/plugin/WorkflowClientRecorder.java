@@ -8,6 +8,6 @@ import io.temporal.serviceclient.WorkflowServiceStubs;
 public class WorkflowClientRecorder {
 
     public WorkflowClient createWorkflowClient(WorkflowServiceStubs serviceStubs) {
-        return  WorkflowClient.newInstance(serviceStubs);
+        return WorkflowClient.newInstance(serviceStubs);
     }
 }

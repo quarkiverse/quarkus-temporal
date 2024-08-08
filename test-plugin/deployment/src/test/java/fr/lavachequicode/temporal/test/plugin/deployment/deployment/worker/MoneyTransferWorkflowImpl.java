@@ -1,12 +1,12 @@
-package fr.lavachequicode.temporal.app.worker;
+package fr.lavachequicode.temporal.test.plugin.deployment.deployment.worker;
 
 import java.time.Duration;
 import java.util.HashMap;
 import java.util.Map;
 
-import fr.lavachequicode.temporal.app.shared.AccountActivity;
-import fr.lavachequicode.temporal.app.shared.MoneyTransferWorkflow;
-import fr.lavachequicode.temporal.app.shared.TransactionDetails;
+import fr.lavachequicode.temporal.test.plugin.deployment.deployment.api.AccountActivity;
+import fr.lavachequicode.temporal.test.plugin.deployment.deployment.api.MoneyTransferWorkflow;
+import fr.lavachequicode.temporal.test.plugin.deployment.deployment.api.TransactionDetails;
 import io.temporal.activity.ActivityOptions;
 import io.temporal.common.RetryOptions;
 import io.temporal.workflow.Workflow;

@@ -1,6 +1,4 @@
-package fr.lavachequicode.temporal.app.client;
-
-import static fr.lavachequicode.temporal.app.shared.Shared.MONEY_TRANSFER_TASK_QUEUE;
+package fr.lavachequicode.temporal.test.plugin.deployment.deployment;
 
 import java.security.SecureRandom;
 import java.time.Instant;
@@ -9,21 +7,37 @@ import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import jakarta.ws.rs.GET;
-import jakarta.ws.rs.Path;
 
-import fr.lavachequicode.temporal.app.shared.MoneyTransferWorkflow;
-import fr.lavachequicode.temporal.app.shared.TransactionDetails;
-import fr.lavachequicode.temporal.app.worker.CoreTransactionDetails;
+import org.jboss.shrinkwrap.api.ShrinkWrap;
+import org.jboss.shrinkwrap.api.asset.StringAsset;
+import org.jboss.shrinkwrap.api.spec.JavaArchive;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
+
+import fr.lavachequicode.temporal.test.plugin.deployment.deployment.api.AccountActivity;
+import fr.lavachequicode.temporal.test.plugin.deployment.deployment.api.MoneyTransferWorkflow;
+import fr.lavachequicode.temporal.test.plugin.deployment.deployment.api.TransactionDetails;
+import fr.lavachequicode.temporal.test.plugin.deployment.deployment.worker.AccountActivityImpl;
+import fr.lavachequicode.temporal.test.plugin.deployment.deployment.worker.CoreTransactionDetails;
+import fr.lavachequicode.temporal.test.plugin.deployment.deployment.worker.MoneyTransferWorkflowImpl;
+import io.quarkus.test.QuarkusUnitTest;
 import io.temporal.api.common.v1.WorkflowExecution;
 import io.temporal.client.WorkflowClient;
 import io.temporal.client.WorkflowOptions;
 
-@Path("/hello")
-@ApplicationScoped
-public class TransferApp {
+class TemporalWorkerTest {
+
+    @RegisterExtension
+    static final QuarkusUnitTest unitTest = new QuarkusUnitTest()
+            .setArchiveProducer(() -> ShrinkWrap.create(JavaArchive.class)
+                    .addClass(AccountActivity.class)
+                    .addClass(MoneyTransferWorkflow.class)
+                    .addClass(AccountActivityImpl.class)
+                    .addClass(TransactionDetails.class)
+                    .addClass(CoreTransactionDetails.class)
+                    .addClass(MoneyTransferWorkflowImpl.class)
+                    .addAsResource(new StringAsset("quarkus.temporal.enable-mock: true\n"), "application.properties"));
 
     @Inject
     WorkflowClient client;
@@ -42,12 +56,12 @@ public class TransferApp {
                 .collect(Collectors.joining());
     }
 
-    @GET
-    public String hello() {
+    @Test
+    public void testWorker() {
         // Workflow options configure  Workflow stubs.
         // A WorkflowId prevents duplicate instances, which are removed.
         WorkflowOptions options = WorkflowOptions.newBuilder()
-                .setTaskQueue(MONEY_TRANSFER_TASK_QUEUE)
+                .setTaskQueue("MONEY_TRANSFER_TASK_QUEUE")
                 .setWorkflowId("money-transfer-workflow")
                 .build();
 
@@ -71,7 +85,6 @@ public class TransferApp {
                 amountToTransfer, fromAccount, toAccount);
         System.out.printf("[WorkflowID: %s]\n[RunID: %s]\n[Transaction Reference: %s]\n\n", we.getWorkflowId(), we.getRunId(),
                 referenceId);
-
-        return "Hello";
     }
+
 }

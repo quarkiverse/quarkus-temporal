@@ -1,5 +1,7 @@
 package fr.lavachequicode.temporal.plugin.config;
 
+import java.util.Map;
+
 import io.quarkus.runtime.annotations.ConfigDocMapKey;
 import io.quarkus.runtime.annotations.ConfigPhase;
 import io.quarkus.runtime.annotations.ConfigRoot;
@@ -7,9 +9,6 @@ import io.smallrye.config.ConfigMapping;
 import io.smallrye.config.WithDefaults;
 import io.smallrye.config.WithParentName;
 import io.smallrye.config.WithUnnamedKey;
-
-import java.util.Map;
-
 
 @ConfigMapping(prefix = "quarkus.temporal.worker")
 @ConfigRoot(phase = ConfigPhase.RUN_TIME)
