@@ -1,0 +1,13 @@
+plugins {
+    id "java"
+    id "io.quarkus.extension"
+}
+
+quarkusExtension {
+    deploymentModule = "deployment"
+}
+
+dependencies {
+    implementation "io.temporal:temporal-sdk"
+    implementation "io.quarkus:quarkus-arc"
+}

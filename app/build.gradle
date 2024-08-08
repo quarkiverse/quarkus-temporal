@@ -1,0 +1,12 @@
+apply plugin: 'io.quarkus'
+
+dependencies {
+    implementation project(":plugin:deployment")
+    implementation "io.quarkus:quarkus-arc"
+    implementation "io.quarkus:quarkus-rest"
+    implementation "io.quarkus:quarkus-rest-jackson"
+    implementation "io.temporal:temporal-sdk:1.24.1"
+    testImplementation platform("org.junit:junit-bom:5.10.0")
+    testImplementation "org.junit.jupiter:junit-jupiter"
+    testImplementation "io.temporal:temporal-testing:1.24.1"
+}

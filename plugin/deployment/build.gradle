@@ -1,0 +1,9 @@
+
+dependencies {
+    implementation project(":plugin:spi")
+    implementation project(":plugin:runtime")
+    implementation "io.quarkus:quarkus-arc-deployment"
+    implementation "io.temporal:temporal-sdk"
+    testImplementation "io.temporal:temporal-testing"
+    testImplementation "io.quarkus:quarkus-junit5-internal"
+}
