@@ -1,0 +1,10 @@
+= Quarkus Temporal
+
+include::./includes/attributes.adoc[]
+
+A Quarkus extension that lets you utilize https://temporal.io/[Temporal], orchestrating both mission critical and mainstream workloads.
+
+[[extension-configuration-reference]]
+== Extension Configuration Reference
+
+include::includes/quarkus-temporal.adoc[leveloffset=+1, opts=optional]
