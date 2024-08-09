@@ -3,48 +3,40 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>io.quarkiverse.temporal</groupId>
-        <artifactId>quarkus-temporal-test-plugin-parent</artifactId>
+        <artifactId>quarkus-temporal-extension-parent</artifactId>
         <version>999-SNAPSHOT</version>
     </parent>
-    <artifactId>quarkus-temporal-test-deployment</artifactId>
-    <name>Quarkus Temporal Test - Deployment</name>
+    <artifactId>quarkus-temporal</artifactId>
+    <name>Quarkus Temporal - Runtime</name>
     <dependencies>
         <dependency>
             <groupId>io.quarkus</groupId>
-            <artifactId>quarkus-arc-deployment</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>io.quarkiverse.temporal</groupId>
-            <artifactId>quarkus-temporal-deployment</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>io.quarkiverse.temporal</groupId>
-            <artifactId>quarkus-temporal-test</artifactId>
-            <version>${project.version}</version>
+            <artifactId>quarkus-arc</artifactId>
         </dependency>
         <dependency>
             <groupId>io.temporal</groupId>
             <artifactId>temporal-sdk</artifactId>
         </dependency>
-        <dependency>
-            <groupId>io.temporal</groupId>
-            <artifactId>temporal-testing</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>io.quarkus</groupId>
-            <artifactId>quarkus-junit5-internal</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.assertj</groupId>
-            <artifactId>assertj-core</artifactId>
-            <version>3.26.3</version>
-            <scope>test</scope>
-        </dependency>
     </dependencies>
     <build>
         <plugins>
+            <plugin>
+                <groupId>io.quarkus</groupId>
+                <artifactId>quarkus-extension-maven-plugin</artifactId>
+                <version>${quarkus.version}</version>
+                <executions>
+                    <execution>
+                        <phase>compile</phase>
+                        <goals>
+                            <goal>extension-descriptor</goal>
+                        </goals>
+                        <configuration>
+                            <deployment>${project.groupId}:${project.artifactId}-deployment:${project.version}
+                            </deployment>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
             <plugin>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <configuration>
