@@ -1,0 +1,27 @@
+{
+  "files": [
+    "README.md"
+  ],
+  "imageSize": 100,
+  "commit": false,
+  "commitType": "docs",
+  "commitConvention": "angular",
+  "contributors": [
+    {
+      "login": "rmanibus",
+      "name": "Loïc Hermann",
+      "avatar_url": "https://avatars.githubusercontent.com/u/10419172?v=4",
+      "profile": "http://loic.pandore2015.fr",
+      "contributions": [
+        "maintenance",
+        "code"
+      ]
+    }
+  ],
+  "contributorsPerLine": 7,
+  "skipCi": true,
+  "repoType": "github",
+  "repoHost": "https://github.com",
+  "projectName": "quarkus-temporal",
+  "projectOwner": "quarkiverse"
+}
