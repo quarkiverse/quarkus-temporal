@@ -103,7 +103,7 @@ public class TemporalProcessor {
     @BuildStep(onlyIf = EnableMock.class)
     @Produce(ConfigValidatedBuildItem.class)
     void recordWorkflowClient(Capabilities capabilities) {
-        if (capabilities.isMissing("fr.lavachequicode.temporal.test")) {
+        if (capabilities.isMissing("io.quarkiverse.temporal.test")) {
             throw new ConfigurationException("Please add the quarkus-temporal-test extension to enable mocking");
         }
     }

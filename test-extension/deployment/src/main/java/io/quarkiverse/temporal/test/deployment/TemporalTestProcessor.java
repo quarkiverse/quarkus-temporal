@@ -23,7 +23,7 @@ public class TemporalTestProcessor {
 
     @BuildStep
     void capabilities(BuildProducer<CapabilityBuildItem> capabilityProducer) {
-        capabilityProducer.produce(new CapabilityBuildItem("fr.lavachequicode.temporal.test", "temporal"));
+        capabilityProducer.produce(new CapabilityBuildItem("io.quarkiverse.temporal.test", "temporal"));
     }
 
     @Record(ExecutionTime.RUNTIME_INIT)
