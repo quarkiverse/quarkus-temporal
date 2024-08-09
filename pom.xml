@@ -13,9 +13,9 @@
     <name>Quarkus Temporal - Parent</name>
     <description>Temporal is a developer-first, open source platform that ensures the successful execution of services and applications.</description>
     <modules>
-        <module>plugin</module>
-        <module>test-plugin</module>
-        <module>app</module>
+        <module>extension</module>
+        <module>test-extension</module>
+        <module>integration-test</module>
         <module>docs</module>
     </modules>
     <scm>

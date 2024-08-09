@@ -3,19 +3,28 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>io.quarkiverse.temporal</groupId>
-        <artifactId>quarkus-temporal-plugin-parent</artifactId>
+        <artifactId>quarkus-temporal-test-extension-parent</artifactId>
         <version>999-SNAPSHOT</version>
     </parent>
-    <artifactId>quarkus-temporal</artifactId>
-    <name>Quarkus Temporal - Runtime</name>
+    <artifactId>quarkus-temporal-test</artifactId>
+    <name>Quarkus Temporal Test - Runtime</name>
     <dependencies>
         <dependency>
             <groupId>io.quarkus</groupId>
             <artifactId>quarkus-arc</artifactId>
         </dependency>
         <dependency>
+            <groupId>io.quarkiverse.temporal</groupId>
+            <artifactId>quarkus-temporal</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
             <groupId>io.temporal</groupId>
             <artifactId>temporal-sdk</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.temporal</groupId>
+            <artifactId>temporal-testing</artifactId>
         </dependency>
     </dependencies>
     <build>
