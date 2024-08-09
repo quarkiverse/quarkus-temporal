@@ -1,0 +1,4 @@
+release:
+  current-version: "0.0.1"
+  next-version: "999-SNAPSHOT"
+

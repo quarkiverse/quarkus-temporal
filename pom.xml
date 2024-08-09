@@ -16,6 +16,7 @@
         <module>plugin</module>
         <module>test-plugin</module>
         <module>app</module>
+        <module>docs</module>
     </modules>
     <scm>
         <connection>scm:git:git@github.com:quarkiverse/quarkus-bucket4j.git</connection>
