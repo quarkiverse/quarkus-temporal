@@ -15,7 +15,7 @@
     <modules>
         <module>extension</module>
         <module>test-extension</module>
-        <module>integration-test</module>
+        <module>integration-tests</module>
         <module>docs</module>
     </modules>
     <scm>

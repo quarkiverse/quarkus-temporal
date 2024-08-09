@@ -1,6 +1,6 @@
-package io.quarkiverse.temporal.app.worker;
+package io.quarkiverse.temporal.it.worker;
 
-import io.quarkiverse.temporal.app.shared.AccountActivity;
+import io.quarkiverse.temporal.it.shared.AccountActivity;
 import io.temporal.activity.Activity;
 
 public class AccountActivityImpl implements AccountActivity {

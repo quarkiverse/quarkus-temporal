@@ -1,4 +1,4 @@
-package io.quarkiverse.temporal.app.shared;
+package io.quarkiverse.temporal.it.shared;
 
 import io.temporal.activity.ActivityInterface;
 import io.temporal.activity.ActivityMethod;
