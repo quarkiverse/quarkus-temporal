@@ -1,6 +1,6 @@
-package io.quarkiverse.temporal.app.worker;
+package io.quarkiverse.temporal.it.worker;
 
-import io.quarkiverse.temporal.app.shared.TransactionDetails;
+import io.quarkiverse.temporal.it.shared.TransactionDetails;
 
 public class CoreTransactionDetails implements TransactionDetails {
 

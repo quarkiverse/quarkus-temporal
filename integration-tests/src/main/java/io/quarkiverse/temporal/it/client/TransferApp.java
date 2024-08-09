@@ -1,6 +1,6 @@
-package io.quarkiverse.temporal.app.client;
+package io.quarkiverse.temporal.it.client;
 
-import static io.quarkiverse.temporal.app.shared.Shared.MONEY_TRANSFER_TASK_QUEUE;
+import static io.quarkiverse.temporal.it.shared.Shared.MONEY_TRANSFER_TASK_QUEUE;
 
 import java.security.SecureRandom;
 import java.time.Instant;
@@ -14,9 +14,9 @@ import jakarta.inject.Inject;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
 
-import io.quarkiverse.temporal.app.shared.MoneyTransferWorkflow;
-import io.quarkiverse.temporal.app.shared.TransactionDetails;
-import io.quarkiverse.temporal.app.worker.CoreTransactionDetails;
+import io.quarkiverse.temporal.it.shared.MoneyTransferWorkflow;
+import io.quarkiverse.temporal.it.shared.TransactionDetails;
+import io.quarkiverse.temporal.it.worker.CoreTransactionDetails;
 import io.temporal.api.common.v1.WorkflowExecution;
 import io.temporal.client.WorkflowClient;
 import io.temporal.client.WorkflowOptions;
