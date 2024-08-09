@@ -1,8 +1,5 @@
 <div align="center">
-<!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
-[![All Contributors](https://img.shields.io/badge/all_contributors-2-orange.svg?style=flat-square)](#contributors-)
-<!-- ALL-CONTRIBUTORS-BADGE:END -->
-<img src="https://github.com/quarkiverse/quarkus-temporal/blob/main/docs/modules/ROOT/assets/images/quarkus.svg" width="67" height="70" ><img src="https://github.com/quarkiverse/quarkus-temporal/blob/main/docs/modules/ROOT/assets/images/plus-sign.svg" height="70" ><img src="https://github.com/quarkiverse/quarkus-temporal/blob/main/docs/modules/ROOT/assets/images/temporal.svg" height="70" >
+<img src="https://raw.githubusercontent.com/quarkiverse/quarkus-temporal/master/docs/modules/ROOT/assets/images/quarkus.svg" width="67" height="70" ><img src="https://raw.githubusercontent.com/quarkiverse/quarkus-temporal/master/docs/modules/ROOT/assets/images/plus-sign.svg" height="70" ><img src="https://raw.githubusercontent.com/quarkiverse/quarkus-temporal/master/docs/modules/ROOT/assets/images/temporal.svg" height="70" >
 
 # Quarkus Temporal
 </div>
