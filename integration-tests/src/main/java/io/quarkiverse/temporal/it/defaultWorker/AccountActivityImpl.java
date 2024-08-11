@@ -1,4 +1,4 @@
-package io.quarkiverse.temporal.it.worker;
+package io.quarkiverse.temporal.it.defaultWorker;
 
 import io.quarkiverse.temporal.it.shared.AccountActivity;
 import io.temporal.activity.Activity;
