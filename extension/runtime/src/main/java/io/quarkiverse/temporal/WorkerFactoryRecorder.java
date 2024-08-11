@@ -18,9 +18,10 @@ public class WorkerFactoryRecorder {
         return new RuntimeValue<>(WorkerFactory.newInstance(workflowClient));
     }
 
-    public void createWorker(RuntimeValue<WorkerFactory> runtimeValue, List<Class<?>> workflows, List<Class<?>> activities) {
+    public void createWorker(RuntimeValue<WorkerFactory> runtimeValue, String queueName, List<Class<?>> workflows,
+            List<Class<?>> activities) {
         WorkerFactory workerFactory = runtimeValue.getValue();
-        Worker worker = workerFactory.newWorker("MONEY_TRANSFER_TASK_QUEUE");
+        Worker worker = workerFactory.newWorker(queueName);
         for (var workflow : workflows) {
             worker.registerWorkflowImplementationTypes(workflow);
         }
