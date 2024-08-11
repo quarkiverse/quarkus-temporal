@@ -2,8 +2,12 @@ package io.quarkiverse.temporal.deployment;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.BooleanSupplier;
 
 import jakarta.enterprise.context.ApplicationScoped;
@@ -14,8 +18,10 @@ import org.jboss.jandex.AnnotationTarget;
 import org.jboss.jandex.ClassInfo;
 import org.jboss.jandex.DotName;
 
+import io.quarkiverse.temporal.ActivityImpl;
 import io.quarkiverse.temporal.WorkerFactoryRecorder;
 import io.quarkiverse.temporal.WorkflowClientRecorder;
+import io.quarkiverse.temporal.WorkflowImpl;
 import io.quarkiverse.temporal.WorkflowServiceStubsRecorder;
 import io.quarkiverse.temporal.config.ConnectionRuntimeConfig;
 import io.quarkiverse.temporal.config.TemporalBuildtimeConfig;
@@ -23,9 +29,16 @@ import io.quarkus.arc.deployment.AdditionalBeanBuildItem;
 import io.quarkus.arc.deployment.BeanArchiveIndexBuildItem;
 import io.quarkus.arc.deployment.SyntheticBeanBuildItem;
 import io.quarkus.deployment.Capabilities;
-import io.quarkus.deployment.annotations.*;
+import io.quarkus.deployment.annotations.BuildProducer;
+import io.quarkus.deployment.annotations.BuildStep;
+import io.quarkus.deployment.annotations.Consume;
+import io.quarkus.deployment.annotations.ExecutionTime;
+import io.quarkus.deployment.annotations.Produce;
 import io.quarkus.deployment.annotations.Record;
-import io.quarkus.deployment.builditem.*;
+import io.quarkus.deployment.builditem.CombinedIndexBuildItem;
+import io.quarkus.deployment.builditem.FeatureBuildItem;
+import io.quarkus.deployment.builditem.ServiceStartBuildItem;
+import io.quarkus.deployment.builditem.ShutdownContextBuildItem;
 import io.quarkus.deployment.pkg.builditem.ArtifactResultBuildItem;
 import io.quarkus.runtime.RuntimeValue;
 import io.quarkus.runtime.configuration.ConfigurationException;
@@ -37,6 +50,10 @@ import io.temporal.worker.WorkerFactory;
 import io.temporal.workflow.WorkflowInterface;
 
 public class TemporalProcessor {
+
+    public static final DotName ACTIVITY_IMPL = DotName.createSimple(ActivityImpl.class);
+
+    public static final DotName WORKFLOW_IMPL = DotName.createSimple(WorkflowImpl.class);
 
     public static final DotName WORKFLOW_INTERFACE = DotName.createSimple(WorkflowInterface.class);
 
@@ -63,7 +80,10 @@ public class TemporalProcessor {
                 throw new IllegalStateException("Workflow " + target.asClass().name() + " must have exactly one implementor");
             }
             allKnownImplementors.forEach(implementor -> {
-                producer.produce(new WorkflowImplBuildItem(implementor));
+                AnnotationInstance annotation = implementor.annotation(WORKFLOW_IMPL);
+                String[] workers = annotation == null ? new String[] { "<default>" }
+                        : annotation.value("workers").asStringArray();
+                producer.produce(new WorkflowImplBuildItem(loadClass(implementor), workers));
             });
         }
     }
@@ -81,8 +101,44 @@ public class TemporalProcessor {
                 throw new IllegalStateException("Activity " + target.asClass().name() + " must have exactly one implementor");
             }
             allKnownImplementors.forEach(implementor -> {
-                producer.produce(new ActivityImplBuildItem(implementor));
+                AnnotationInstance annotation = implementor.annotation(ACTIVITY_IMPL);
+                String[] workers = annotation == null ? new String[] { "<default>" }
+                        : annotation.value("workers").asStringArray();
+                producer.produce(new ActivityImplBuildItem(loadClass(implementor), workers));
             });
+        }
+    }
+
+    @BuildStep
+    void produceWorkers(
+            List<WorkflowImplBuildItem> workflowImplBuildItems,
+            List<ActivityImplBuildItem> activityImplBuildItems,
+            BuildProducer<WorkerBuildItem> producer) {
+
+        Set<String> workers = new HashSet<>();
+
+        Map<String, List<Class<?>>> workflowsByWorker = new HashMap<>();
+
+        for (WorkflowImplBuildItem workflowImplBuildItem : workflowImplBuildItems) {
+            for (String worker : workflowImplBuildItem.workers) {
+                workers.add(worker);
+                workflowsByWorker.computeIfAbsent(worker, (w) -> new ArrayList<>())
+                        .add(workflowImplBuildItem.clazz);
+            }
+        }
+
+        Map<String, List<Class<?>>> activitiesByWorker = new HashMap<>();
+
+        for (ActivityImplBuildItem activityImplBuildItem : activityImplBuildItems) {
+            for (String worker : activityImplBuildItem.workers) {
+                workers.add(worker);
+                activitiesByWorker.computeIfAbsent(worker, (w) -> new ArrayList<>())
+                        .add(activityImplBuildItem.clazz);
+            }
+        }
+
+        for (String worker : workers) {
+            producer.produce(new WorkerBuildItem(worker, workflowsByWorker.get(worker), activitiesByWorker.get(worker)));
         }
 
     }
@@ -93,7 +149,7 @@ public class TemporalProcessor {
             BuildProducer<AdditionalBeanBuildItem> producer) {
         activities.forEach(activity -> {
             producer.produce(AdditionalBeanBuildItem.builder()
-                    .addBeanClass(activity.classInfo.name().toString())
+                    .addBeanClass(activity.clazz)
                     .setDefaultScope(DotName.createSimple(ApplicationScoped.class))
                     .setUnremovable()
                     .build());
@@ -157,25 +213,14 @@ public class TemporalProcessor {
     @Consume(ConfigValidatedBuildItem.class)
     Optional<InitializedWorkerFactoryBuildItem> setupWorkflowFactory(
             Optional<WorkerFactoryBuildItem> workerFactoryBuildItem,
-            List<WorkflowImplBuildItem> workflowImplBuildItems,
-            List<ActivityImplBuildItem> activityImplBuildItems,
+            List<WorkerBuildItem> workerBuildItems,
             WorkerFactoryRecorder workerFactoryRecorder) {
 
         return workerFactoryBuildItem.map(buildItem -> {
-            List<Class<?>> workflows = new ArrayList<>();
-
-            for (var workflowBuildItem : workflowImplBuildItems) {
-                workflows.add(loadClass(workflowBuildItem.classInfo));
+            for (WorkerBuildItem workerBuildItem : workerBuildItems) {
+                workerFactoryRecorder.createWorker(buildItem.workerFactory, workerBuildItem.name,
+                        workerBuildItem.workflows, workerBuildItem.activities);
             }
-
-            List<Class<?>> activities = new ArrayList<>();
-
-            for (var activityBuildItem : activityImplBuildItems) {
-                activities.add(loadClass(activityBuildItem.classInfo));
-            }
-
-            workerFactoryRecorder.createWorker(buildItem.workerFactory, workflows, activities);
-
             return new InitializedWorkerFactoryBuildItem(buildItem.workerFactory);
         });
 
