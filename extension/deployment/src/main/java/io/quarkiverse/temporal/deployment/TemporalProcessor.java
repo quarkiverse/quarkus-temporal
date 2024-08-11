@@ -1,7 +1,9 @@
 package io.quarkiverse.temporal.deployment;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -76,13 +78,17 @@ public class TemporalProcessor {
             AnnotationTarget target = instance.target();
             Collection<ClassInfo> allKnownImplementors = beanArchiveBuildItem.getIndex()
                     .getAllKnownImplementors(target.asClass().name());
-            if (allKnownImplementors.size() != 1) {
-                throw new IllegalStateException("Workflow " + target.asClass().name() + " must have exactly one implementor");
-            }
+            Set<String> seenWorkers = new HashSet<>();
             allKnownImplementors.forEach(implementor -> {
                 AnnotationInstance annotation = implementor.annotation(WORKFLOW_IMPL);
                 String[] workers = annotation == null ? new String[] { "<default>" }
                         : annotation.value("workers").asStringArray();
+
+                if (!Collections.disjoint(seenWorkers, Arrays.asList(workers))) {
+                    throw new IllegalStateException(
+                            "Workflow " + target.asClass().name() + " has more than one implementor on worker");
+                }
+                Collections.addAll(seenWorkers, workers);
                 producer.produce(new WorkflowImplBuildItem(loadClass(implementor), workers));
             });
         }
@@ -97,13 +103,16 @@ public class TemporalProcessor {
             AnnotationTarget target = instance.target();
             Collection<ClassInfo> allKnownImplementors = beanArchiveBuildItem.getIndex()
                     .getAllKnownImplementors(target.asClass().name());
-            if (allKnownImplementors.size() != 1) {
-                throw new IllegalStateException("Activity " + target.asClass().name() + " must have exactly one implementor");
-            }
+            Set<String> seenWorkers = new HashSet<>();
             allKnownImplementors.forEach(implementor -> {
                 AnnotationInstance annotation = implementor.annotation(ACTIVITY_IMPL);
                 String[] workers = annotation == null ? new String[] { "<default>" }
                         : annotation.value("workers").asStringArray();
+                if (!Collections.disjoint(seenWorkers, Arrays.asList(workers))) {
+                    throw new IllegalStateException(
+                            "Activity " + target.asClass().name() + " has more than one implementor on worker");
+                }
+                Collections.addAll(seenWorkers, workers);
                 producer.produce(new ActivityImplBuildItem(loadClass(implementor), workers));
             });
         }

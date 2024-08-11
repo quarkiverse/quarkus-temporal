@@ -1,4 +1,4 @@
-package io.quarkiverse.temporal.it.worker;
+package io.quarkiverse.temporal.it.namedWorker;
 
 import io.quarkiverse.temporal.it.shared.TransactionDetails;
 
