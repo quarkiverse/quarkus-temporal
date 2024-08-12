@@ -14,4 +14,10 @@ public interface TemporalBuildtimeConfig {
      */
     @WithDefault("false")
     Boolean enableMock();
+
+    /**
+     * enable mock for testing
+     */
+    @WithDefault("true")
+    Boolean startWorkers();
 }
