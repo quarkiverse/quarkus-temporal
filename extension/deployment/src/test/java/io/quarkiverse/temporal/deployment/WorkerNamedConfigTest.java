@@ -51,7 +51,7 @@ public class WorkerNamedConfigTest {
     WorkerFactory factory;
 
     @Test
-    public void test() throws IllegalAccessException {
+    public void testNamedConfiguration() throws IllegalAccessException {
         Worker worker = factory.getWorker("namedWorker");
         Assertions.assertNotNull(worker);
         // worker config is not visible;

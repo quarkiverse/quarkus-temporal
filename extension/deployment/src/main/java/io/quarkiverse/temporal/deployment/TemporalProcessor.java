@@ -25,7 +25,6 @@ import io.quarkiverse.temporal.WorkerFactoryRecorder;
 import io.quarkiverse.temporal.WorkflowClientRecorder;
 import io.quarkiverse.temporal.WorkflowImpl;
 import io.quarkiverse.temporal.WorkflowServiceStubsRecorder;
-import io.quarkiverse.temporal.config.ConnectionRuntimeConfig;
 import io.quarkiverse.temporal.config.TemporalBuildtimeConfig;
 import io.quarkus.arc.deployment.AdditionalBeanBuildItem;
 import io.quarkus.arc.deployment.BeanArchiveIndexBuildItem;
@@ -47,7 +46,6 @@ import io.quarkus.runtime.configuration.ConfigurationException;
 import io.temporal.activity.ActivityInterface;
 import io.temporal.client.WorkflowClient;
 import io.temporal.serviceclient.WorkflowServiceStubs;
-import io.temporal.serviceclient.WorkflowServiceStubsOptions;
 import io.temporal.worker.WorkerFactory;
 import io.temporal.workflow.WorkflowInterface;
 
@@ -177,13 +175,10 @@ public class TemporalProcessor {
     @BuildStep(onlyIfNot = EnableMock.class)
     @Record(ExecutionTime.RUNTIME_INIT)
     WorkflowClientBuildItem recordWorkflowClient(
-            ConnectionRuntimeConfig runtimeConfig,
             WorkflowServiceStubsRecorder recorder,
             WorkflowClientRecorder clientRecorder) {
 
-        RuntimeValue<WorkflowServiceStubsOptions> workflowServiceStubsOptions = recorder
-                .createWorkflowServiceStubsOptions(runtimeConfig);
-        WorkflowServiceStubs workflowServiceStubs = recorder.createWorkflowServiceStubs(workflowServiceStubsOptions);
+        WorkflowServiceStubs workflowServiceStubs = recorder.createWorkflowServiceStubs();
         return new WorkflowClientBuildItem(clientRecorder.createWorkflowClient(workflowServiceStubs));
     }
 
