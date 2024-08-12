@@ -14,6 +14,10 @@
             <artifactId>quarkus-arc-deployment</artifactId>
         </dependency>
         <dependency>
+            <groupId>io.quarkus</groupId>
+            <artifactId>quarkus-grpc-common-deployment</artifactId>
+        </dependency>
+        <dependency>
             <groupId>io.quarkiverse.temporal</groupId>
             <artifactId>quarkus-temporal</artifactId>
             <version>${project.version}</version>
