@@ -51,7 +51,7 @@ public class WorkerUnnamedConfigTest {
     WorkerFactory factory;
 
     @Test
-    public void test() throws IllegalAccessException {
+    public void testUnamedConfiguration() throws IllegalAccessException {
         Worker worker = factory.getWorker("<default>");
         Assertions.assertNotNull(worker);
         // worker config is not visible;

@@ -1,7 +1,6 @@
 package io.quarkiverse.temporal;
 
 import io.quarkiverse.temporal.config.ConnectionRuntimeConfig;
-import io.quarkus.runtime.RuntimeValue;
 import io.quarkus.runtime.annotations.Recorder;
 import io.temporal.serviceclient.WorkflowServiceStubs;
 import io.temporal.serviceclient.WorkflowServiceStubsOptions;
@@ -9,13 +8,23 @@ import io.temporal.serviceclient.WorkflowServiceStubsOptions;
 @Recorder
 public class WorkflowServiceStubsRecorder {
 
-    public RuntimeValue<WorkflowServiceStubsOptions> createWorkflowServiceStubsOptions(ConnectionRuntimeConfig runtimeConfig) {
-        WorkflowServiceStubsOptions.Builder builder = WorkflowServiceStubsOptions.newBuilder();
-        runtimeConfig.target().ifPresent(builder::setTarget);
-        return new RuntimeValue<>(builder.build());
+    public WorkflowServiceStubsRecorder(ConnectionRuntimeConfig runtimeConfig) {
+        this.runtimeConfig = runtimeConfig;
     }
 
-    public WorkflowServiceStubs createWorkflowServiceStubs(RuntimeValue<WorkflowServiceStubsOptions> options) {
-        return WorkflowServiceStubs.newServiceStubs(options.getValue());
+    final ConnectionRuntimeConfig runtimeConfig;
+
+    public WorkflowServiceStubsOptions createWorkflowServiceStubsOptions() {
+        if (runtimeConfig == null) {
+            return WorkflowServiceStubsOptions.getDefaultInstance();
+        }
+        WorkflowServiceStubsOptions.Builder builder = WorkflowServiceStubsOptions.newBuilder()
+                .setTarget(runtimeConfig.target())
+                .setEnableHttps(runtimeConfig.enableHttps());
+        return builder.build();
+    }
+
+    public WorkflowServiceStubs createWorkflowServiceStubs() {
+        return WorkflowServiceStubs.newServiceStubs(createWorkflowServiceStubsOptions());
     }
 }
