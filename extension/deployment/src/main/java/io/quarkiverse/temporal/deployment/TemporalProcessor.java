@@ -248,9 +248,9 @@ public class TemporalProcessor {
                 .done();
     }
 
-    @BuildStep
+    @BuildStep(onlyIf = StartWorkers.class)
     @Record(ExecutionTime.RUNTIME_INIT)
-    ServiceStartBuildItem startService(
+    ServiceStartBuildItem startWorkers(
             InitializedWorkerFactoryBuildItem workerFactoryBuildItem,
             WorkerFactoryRecorder workerFactoryRecorder,
             ShutdownContextBuildItem shutdownContextBuildItem) {
@@ -272,6 +272,14 @@ public class TemporalProcessor {
 
         public boolean getAsBoolean() {
             return config.enableMock();
+        }
+    }
+
+    public static class StartWorkers implements BooleanSupplier {
+        TemporalBuildtimeConfig config;
+
+        public boolean getAsBoolean() {
+            return config.startWorkers();
         }
     }
 
