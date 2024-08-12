@@ -26,6 +26,15 @@
         "maintenance",
         "code"
       ]
+    },
+    {
+      "login": "ggrebert",
+      "name": "Geoffrey GREBERT",
+      "avatar_url": "https://avatars.githubusercontent.com/u/1737774?v=4",
+      "profile": "https://github.com/ggrebert",
+      "contributions": [
+        "code"
+      ]
     }
   ],
   "contributorsPerLine": 7,
