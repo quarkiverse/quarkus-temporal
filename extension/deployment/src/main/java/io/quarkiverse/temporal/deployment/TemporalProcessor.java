@@ -147,7 +147,8 @@ public class TemporalProcessor {
         }
 
         for (String worker : workers) {
-            producer.produce(new WorkerBuildItem(worker, workflowsByWorker.get(worker), activitiesByWorker.get(worker)));
+            producer.produce(new WorkerBuildItem(worker, workflowsByWorker.getOrDefault(worker, List.of()),
+                    activitiesByWorker.getOrDefault(worker, List.of())));
         }
 
     }
