@@ -1,11 +1,16 @@
 package io.quarkiverse.temporal.config;
 
+import java.util.Map;
 import java.util.Optional;
 
+import io.quarkus.runtime.annotations.ConfigDocMapKey;
+import io.quarkus.runtime.annotations.ConfigDocSection;
 import io.quarkus.runtime.annotations.ConfigPhase;
 import io.quarkus.runtime.annotations.ConfigRoot;
 import io.smallrye.config.ConfigMapping;
 import io.smallrye.config.WithDefault;
+import io.smallrye.config.WithDefaults;
+import io.smallrye.config.WithUnnamedKey;
 
 @ConfigMapping(prefix = "quarkus.temporal")
 @ConfigRoot(phase = ConfigPhase.RUN_TIME)
@@ -23,4 +28,18 @@ public interface TemporalRuntimeConfig {
      * worker identity as a field. Default is whatever (ManagementFactory. getRuntimeMXBean().getName() returns.
      */
     Optional<String> identity();
+
+    /**
+     * Connection to the temporal server.
+     */
+    @ConfigDocSection
+    ConnectionRuntimeConfig connection();
+
+    /**
+     * Workers Configuration.
+     */
+    @ConfigDocMapKey("worker-name")
+    @WithDefaults
+    @WithUnnamedKey("<default>")
+    Map<String, WorkerRuntimeConfig> worker();
 }

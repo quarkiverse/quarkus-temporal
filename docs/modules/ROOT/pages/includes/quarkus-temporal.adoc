@@ -27,7 +27,7 @@ endif::add-copy-button-to-env-var[]
 |`false`
 
 
-a|icon:lock[title=Fixed at build time] [[quarkus-temporal_quarkus-temporal-enable-mock]]`link:#quarkus-temporal_quarkus-temporal-enable-mock[quarkus.temporal.enable-mock]`
+a|icon:lock[title=Fixed at build time] [[quarkus-temporal_quarkus-temporal-start-workers]]`link:#quarkus-temporal_quarkus-temporal-start-workers[quarkus.temporal.start-workers]`
 
 
 [.description]
@@ -35,12 +35,450 @@ a|icon:lock[title=Fixed at build time] [[quarkus-temporal_quarkus-temporal-enabl
 enable mock for testing
 
 ifdef::add-copy-button-to-env-var[]
-Environment variable: env_var_with_copy_button:+++QUARKUS_TEMPORAL_ENABLE_MOCK+++[]
+Environment variable: env_var_with_copy_button:+++QUARKUS_TEMPORAL_START_WORKERS+++[]
 endif::add-copy-button-to-env-var[]
 ifndef::add-copy-button-to-env-var[]
-Environment variable: `+++QUARKUS_TEMPORAL_ENABLE_MOCK+++`
+Environment variable: `+++QUARKUS_TEMPORAL_START_WORKERS+++`
+endif::add-copy-button-to-env-var[]
+--|boolean 
+|`true`
+
+
+a| [[quarkus-temporal_quarkus-temporal-namespace]]`link:#quarkus-temporal_quarkus-temporal-namespace[quarkus.temporal.namespace]`
+
+
+[.description]
+--
+A Namespace is a unit of isolation within the Temporal Platform.
+
+ifdef::add-copy-button-to-env-var[]
+Environment variable: env_var_with_copy_button:+++QUARKUS_TEMPORAL_NAMESPACE+++[]
+endif::add-copy-button-to-env-var[]
+ifndef::add-copy-button-to-env-var[]
+Environment variable: `+++QUARKUS_TEMPORAL_NAMESPACE+++`
+endif::add-copy-button-to-env-var[]
+--|string 
+|`default`
+
+
+a| [[quarkus-temporal_quarkus-temporal-identity]]`link:#quarkus-temporal_quarkus-temporal-identity[quarkus.temporal.identity]`
+
+
+[.description]
+--
+Override human readable identity of the worker. Identity is used to identify a worker and is recorded in the workflow history events. For example when a worker gets an activity task the correspondent ActivityTaskStarted event contains the worker identity as a field. Default is whatever (ManagementFactory. getRuntimeMXBean().getName() returns.
+
+ifdef::add-copy-button-to-env-var[]
+Environment variable: env_var_with_copy_button:+++QUARKUS_TEMPORAL_IDENTITY+++[]
+endif::add-copy-button-to-env-var[]
+ifndef::add-copy-button-to-env-var[]
+Environment variable: `+++QUARKUS_TEMPORAL_IDENTITY+++`
+endif::add-copy-button-to-env-var[]
+--|string 
+|
+
+
+a| [[quarkus-temporal_quarkus-temporal-worker-task-queue]]`link:#quarkus-temporal_quarkus-temporal-worker-task-queue[quarkus.temporal.worker.task-queue]`
+
+`link:#quarkus-temporal_quarkus-temporal-worker-task-queue[quarkus.temporal.worker."worker-name".task-queue]`
+
+
+[.description]
+--
+task queue name worker uses to poll. It uses this name for both workflow and activity task queue polls
+
+ifdef::add-copy-button-to-env-var[]
+Environment variable: env_var_with_copy_button:+++QUARKUS_TEMPORAL_WORKER_TASK_QUEUE+++[]
+endif::add-copy-button-to-env-var[]
+ifndef::add-copy-button-to-env-var[]
+Environment variable: `+++QUARKUS_TEMPORAL_WORKER_TASK_QUEUE+++`
+endif::add-copy-button-to-env-var[]
+--|string 
+|`default`
+
+
+a| [[quarkus-temporal_quarkus-temporal-worker-max-worker-activities-per-second]]`link:#quarkus-temporal_quarkus-temporal-worker-max-worker-activities-per-second[quarkus.temporal.worker.max-worker-activities-per-second]`
+
+`link:#quarkus-temporal_quarkus-temporal-worker-max-worker-activities-per-second[quarkus.temporal.worker."worker-name".max-worker-activities-per-second]`
+
+
+[.description]
+--
+Maximum number of activities started per second by this worker. Default is 0 which means unlimited.
+
+ifdef::add-copy-button-to-env-var[]
+Environment variable: env_var_with_copy_button:+++QUARKUS_TEMPORAL_WORKER_MAX_WORKER_ACTIVITIES_PER_SECOND+++[]
+endif::add-copy-button-to-env-var[]
+ifndef::add-copy-button-to-env-var[]
+Environment variable: `+++QUARKUS_TEMPORAL_WORKER_MAX_WORKER_ACTIVITIES_PER_SECOND+++`
+endif::add-copy-button-to-env-var[]
+--|double 
+|`0`
+
+
+a| [[quarkus-temporal_quarkus-temporal-worker-max-concurrent-activity-execution-size]]`link:#quarkus-temporal_quarkus-temporal-worker-max-concurrent-activity-execution-size[quarkus.temporal.worker.max-concurrent-activity-execution-size]`
+
+`link:#quarkus-temporal_quarkus-temporal-worker-max-concurrent-activity-execution-size[quarkus.temporal.worker."worker-name".max-concurrent-activity-execution-size]`
+
+
+[.description]
+--
+Maximum number of activities executed in parallel. Default is 200, which is chosen if set to zero.
+
+ifdef::add-copy-button-to-env-var[]
+Environment variable: env_var_with_copy_button:+++QUARKUS_TEMPORAL_WORKER_MAX_CONCURRENT_ACTIVITY_EXECUTION_SIZE+++[]
+endif::add-copy-button-to-env-var[]
+ifndef::add-copy-button-to-env-var[]
+Environment variable: `+++QUARKUS_TEMPORAL_WORKER_MAX_CONCURRENT_ACTIVITY_EXECUTION_SIZE+++`
+endif::add-copy-button-to-env-var[]
+--|int 
+|`200`
+
+
+a| [[quarkus-temporal_quarkus-temporal-worker-max-concurrent-workflow-task-execution-size]]`link:#quarkus-temporal_quarkus-temporal-worker-max-concurrent-workflow-task-execution-size[quarkus.temporal.worker.max-concurrent-workflow-task-execution-size]`
+
+`link:#quarkus-temporal_quarkus-temporal-worker-max-concurrent-workflow-task-execution-size[quarkus.temporal.worker."worker-name".max-concurrent-workflow-task-execution-size]`
+
+
+[.description]
+--
+Maximum number of simultaneously executed workflow tasks. Default is 200, which is chosen if set to zero.
+
+ifdef::add-copy-button-to-env-var[]
+Environment variable: env_var_with_copy_button:+++QUARKUS_TEMPORAL_WORKER_MAX_CONCURRENT_WORKFLOW_TASK_EXECUTION_SIZE+++[]
+endif::add-copy-button-to-env-var[]
+ifndef::add-copy-button-to-env-var[]
+Environment variable: `+++QUARKUS_TEMPORAL_WORKER_MAX_CONCURRENT_WORKFLOW_TASK_EXECUTION_SIZE+++`
+endif::add-copy-button-to-env-var[]
+--|int 
+|`200`
+
+
+a| [[quarkus-temporal_quarkus-temporal-worker-max-concurrent-local-activity-execution-size]]`link:#quarkus-temporal_quarkus-temporal-worker-max-concurrent-local-activity-execution-size[quarkus.temporal.worker.max-concurrent-local-activity-execution-size]`
+
+`link:#quarkus-temporal_quarkus-temporal-worker-max-concurrent-local-activity-execution-size[quarkus.temporal.worker."worker-name".max-concurrent-local-activity-execution-size]`
+
+
+[.description]
+--
+Maximum number of local activities executed in parallel. Default is 200, which is chosen if set to zero.
+
+ifdef::add-copy-button-to-env-var[]
+Environment variable: env_var_with_copy_button:+++QUARKUS_TEMPORAL_WORKER_MAX_CONCURRENT_LOCAL_ACTIVITY_EXECUTION_SIZE+++[]
+endif::add-copy-button-to-env-var[]
+ifndef::add-copy-button-to-env-var[]
+Environment variable: `+++QUARKUS_TEMPORAL_WORKER_MAX_CONCURRENT_LOCAL_ACTIVITY_EXECUTION_SIZE+++`
+endif::add-copy-button-to-env-var[]
+--|int 
+|`200`
+
+
+a| [[quarkus-temporal_quarkus-temporal-worker-max-task-queue-activities-per-second]]`link:#quarkus-temporal_quarkus-temporal-worker-max-task-queue-activities-per-second[quarkus.temporal.worker.max-task-queue-activities-per-second]`
+
+`link:#quarkus-temporal_quarkus-temporal-worker-max-task-queue-activities-per-second[quarkus.temporal.worker."worker-name".max-task-queue-activities-per-second]`
+
+
+[.description]
+--
+Sets the rate limiting on number of activities that can be executed per second. This is managed by the server and controls activities per second for the entire task queue across all the workers. Notice that the number is represented in double, so that you can set it to less than 1 if needed. For example, set the number to 0.1 means you want your activity to be executed once every 10 seconds. This can be used to protect down stream services from flooding. The zero value of this uses the default value. Default is unlimited.
+
+ifdef::add-copy-button-to-env-var[]
+Environment variable: env_var_with_copy_button:+++QUARKUS_TEMPORAL_WORKER_MAX_TASK_QUEUE_ACTIVITIES_PER_SECOND+++[]
+endif::add-copy-button-to-env-var[]
+ifndef::add-copy-button-to-env-var[]
+Environment variable: `+++QUARKUS_TEMPORAL_WORKER_MAX_TASK_QUEUE_ACTIVITIES_PER_SECOND+++`
+endif::add-copy-button-to-env-var[]
+--|double 
+|`0`
+
+
+a| [[quarkus-temporal_quarkus-temporal-worker-max-concurrent-workflow-task-pollers]]`link:#quarkus-temporal_quarkus-temporal-worker-max-concurrent-workflow-task-pollers[quarkus.temporal.worker.max-concurrent-workflow-task-pollers]`
+
+`link:#quarkus-temporal_quarkus-temporal-worker-max-concurrent-workflow-task-pollers[quarkus.temporal.worker."worker-name".max-concurrent-workflow-task-pollers]`
+
+
+[.description]
+--
+Sets the maximum number of simultaneous long poll requests to the Temporal Server to retrieve workflow tasks. Changing this value will affect the rate at which the worker is able to consume tasks from a task queue. Due to internal logic where pollers alternate between sticky and non-sticky queues, this value cannot be 1 and will be adjusted to 2 if set to that value. Default is 5, which is chosen if set to zero.
+
+ifdef::add-copy-button-to-env-var[]
+Environment variable: env_var_with_copy_button:+++QUARKUS_TEMPORAL_WORKER_MAX_CONCURRENT_WORKFLOW_TASK_POLLERS+++[]
+endif::add-copy-button-to-env-var[]
+ifndef::add-copy-button-to-env-var[]
+Environment variable: `+++QUARKUS_TEMPORAL_WORKER_MAX_CONCURRENT_WORKFLOW_TASK_POLLERS+++`
+endif::add-copy-button-to-env-var[]
+--|int 
+|`5`
+
+
+a| [[quarkus-temporal_quarkus-temporal-worker-max-concurrent-activity-task-pollers]]`link:#quarkus-temporal_quarkus-temporal-worker-max-concurrent-activity-task-pollers[quarkus.temporal.worker.max-concurrent-activity-task-pollers]`
+
+`link:#quarkus-temporal_quarkus-temporal-worker-max-concurrent-activity-task-pollers[quarkus.temporal.worker."worker-name".max-concurrent-activity-task-pollers]`
+
+
+[.description]
+--
+Number of simultaneous poll requests on activity task queue. Consider incrementing if the worker is not throttled due to `MaxActivitiesPerSecond` or `MaxConcurrentActivityExecutionSize` options and still cannot keep up with the request rate. Default is 5, which is chosen if set to zero.
+
+ifdef::add-copy-button-to-env-var[]
+Environment variable: env_var_with_copy_button:+++QUARKUS_TEMPORAL_WORKER_MAX_CONCURRENT_ACTIVITY_TASK_POLLERS+++[]
+endif::add-copy-button-to-env-var[]
+ifndef::add-copy-button-to-env-var[]
+Environment variable: `+++QUARKUS_TEMPORAL_WORKER_MAX_CONCURRENT_ACTIVITY_TASK_POLLERS+++`
+endif::add-copy-button-to-env-var[]
+--|int 
+|`5`
+
+
+a| [[quarkus-temporal_quarkus-temporal-worker-local-activity-worker-only]]`link:#quarkus-temporal_quarkus-temporal-worker-local-activity-worker-only[quarkus.temporal.worker.local-activity-worker-only]`
+
+`link:#quarkus-temporal_quarkus-temporal-worker-local-activity-worker-only[quarkus.temporal.worker."worker-name".local-activity-worker-only]`
+
+
+[.description]
+--
+If set to true worker would only handle workflow tasks and local activities. Non-local activities will not be executed by this worker. Default is false.
+
+ifdef::add-copy-button-to-env-var[]
+Environment variable: env_var_with_copy_button:+++QUARKUS_TEMPORAL_WORKER_LOCAL_ACTIVITY_WORKER_ONLY+++[]
+endif::add-copy-button-to-env-var[]
+ifndef::add-copy-button-to-env-var[]
+Environment variable: `+++QUARKUS_TEMPORAL_WORKER_LOCAL_ACTIVITY_WORKER_ONLY+++`
+endif::add-copy-button-to-env-var[]
+--|boolean 
+|`false`
+
+
+a| [[quarkus-temporal_quarkus-temporal-worker-default-deadlock-detection-timeout]]`link:#quarkus-temporal_quarkus-temporal-worker-default-deadlock-detection-timeout[quarkus.temporal.worker.default-deadlock-detection-timeout]`
+
+`link:#quarkus-temporal_quarkus-temporal-worker-default-deadlock-detection-timeout[quarkus.temporal.worker."worker-name".default-deadlock-detection-timeout]`
+
+
+[.description]
+--
+time period in ms that will be used to detect workflows deadlock. Default is 1000ms, which is chosen if set to zero. Specifies an amount of time in milliseconds that workflow tasks are allowed to execute without interruption. If workflow task runs longer than specified interval without yielding (like calling an Activity), it will fail automatically.
+
+ifdef::add-copy-button-to-env-var[]
+Environment variable: env_var_with_copy_button:+++QUARKUS_TEMPORAL_WORKER_DEFAULT_DEADLOCK_DETECTION_TIMEOUT+++[]
+endif::add-copy-button-to-env-var[]
+ifndef::add-copy-button-to-env-var[]
+Environment variable: `+++QUARKUS_TEMPORAL_WORKER_DEFAULT_DEADLOCK_DETECTION_TIMEOUT+++`
+endif::add-copy-button-to-env-var[]
+--|long 
+|`1000`
+
+
+a| [[quarkus-temporal_quarkus-temporal-worker-max-heartbeat-throttle-interval]]`link:#quarkus-temporal_quarkus-temporal-worker-max-heartbeat-throttle-interval[quarkus.temporal.worker.max-heartbeat-throttle-interval]`
+
+`link:#quarkus-temporal_quarkus-temporal-worker-max-heartbeat-throttle-interval[quarkus.temporal.worker."worker-name".max-heartbeat-throttle-interval]`
+
+
+[.description]
+--
+the maximum amount of time between sending each pending heartbeat to the server. Regardless of heartbeat timeout, no pending heartbeat will wait longer than this amount of time to send. Default is 60s, which is chosen if set to null or 0.
+
+ifdef::add-copy-button-to-env-var[]
+Environment variable: env_var_with_copy_button:+++QUARKUS_TEMPORAL_WORKER_MAX_HEARTBEAT_THROTTLE_INTERVAL+++[]
+endif::add-copy-button-to-env-var[]
+ifndef::add-copy-button-to-env-var[]
+Environment variable: `+++QUARKUS_TEMPORAL_WORKER_MAX_HEARTBEAT_THROTTLE_INTERVAL+++`
+endif::add-copy-button-to-env-var[]
+--|link:https://docs.oracle.com/javase/8/docs/api/java/time/Duration.html[Duration]
+  link:#duration-note-anchor-{summaryTableId}[icon:question-circle[title=More information about the Duration format]]
+|`60s`
+
+
+a| [[quarkus-temporal_quarkus-temporal-worker-default-heartbeat-throttle-interval]]`link:#quarkus-temporal_quarkus-temporal-worker-default-heartbeat-throttle-interval[quarkus.temporal.worker.default-heartbeat-throttle-interval]`
+
+`link:#quarkus-temporal_quarkus-temporal-worker-default-heartbeat-throttle-interval[quarkus.temporal.worker."worker-name".default-heartbeat-throttle-interval]`
+
+
+[.description]
+--
+the default amount of time between sending each pending heartbeat to the server. This is used if the ActivityOptions do not provide a HeartbeatTimeout. Otherwise, the interval becomes a value a bit smaller than the given HeartbeatTimeout. Default is 30s, which is chosen if set to null or 0.
+
+ifdef::add-copy-button-to-env-var[]
+Environment variable: env_var_with_copy_button:+++QUARKUS_TEMPORAL_WORKER_DEFAULT_HEARTBEAT_THROTTLE_INTERVAL+++[]
+endif::add-copy-button-to-env-var[]
+ifndef::add-copy-button-to-env-var[]
+Environment variable: `+++QUARKUS_TEMPORAL_WORKER_DEFAULT_HEARTBEAT_THROTTLE_INTERVAL+++`
+endif::add-copy-button-to-env-var[]
+--|link:https://docs.oracle.com/javase/8/docs/api/java/time/Duration.html[Duration]
+  link:#duration-note-anchor-{summaryTableId}[icon:question-circle[title=More information about the Duration format]]
+|`30s`
+
+
+a| [[quarkus-temporal_quarkus-temporal-worker-sticky-queue-schedule-to-start-timeout]]`link:#quarkus-temporal_quarkus-temporal-worker-sticky-queue-schedule-to-start-timeout[quarkus.temporal.worker.sticky-queue-schedule-to-start-timeout]`
+
+`link:#quarkus-temporal_quarkus-temporal-worker-sticky-queue-schedule-to-start-timeout[quarkus.temporal.worker."worker-name".sticky-queue-schedule-to-start-timeout]`
+
+
+[.description]
+--
+Timeout for a workflow task routed to the "sticky worker" - host that has the workflow instance cached in memory. Once it times out, then it can be picked up by any worker. Default value is 5 seconds.
+
+ifdef::add-copy-button-to-env-var[]
+Environment variable: env_var_with_copy_button:+++QUARKUS_TEMPORAL_WORKER_STICKY_QUEUE_SCHEDULE_TO_START_TIMEOUT+++[]
+endif::add-copy-button-to-env-var[]
+ifndef::add-copy-button-to-env-var[]
+Environment variable: `+++QUARKUS_TEMPORAL_WORKER_STICKY_QUEUE_SCHEDULE_TO_START_TIMEOUT+++`
+endif::add-copy-button-to-env-var[]
+--|link:https://docs.oracle.com/javase/8/docs/api/java/time/Duration.html[Duration]
+  link:#duration-note-anchor-{summaryTableId}[icon:question-circle[title=More information about the Duration format]]
+|`5s`
+
+
+a| [[quarkus-temporal_quarkus-temporal-worker-disable-eager-execution]]`link:#quarkus-temporal_quarkus-temporal-worker-disable-eager-execution[quarkus.temporal.worker.disable-eager-execution]`
+
+`link:#quarkus-temporal_quarkus-temporal-worker-disable-eager-execution[quarkus.temporal.worker."worker-name".disable-eager-execution]`
+
+
+[.description]
+--
+Disable eager activities. If set to true, eager execution will not be requested for activities requested from workflows bound to this Worker. Eager activity execution means the server returns requested eager activities directly from the workflow task back to this worker which is faster than non-eager which may be dispatched to a separate worker. Defaults to false, meaning that eager activity execution is permitted
+
+ifdef::add-copy-button-to-env-var[]
+Environment variable: env_var_with_copy_button:+++QUARKUS_TEMPORAL_WORKER_DISABLE_EAGER_EXECUTION+++[]
+endif::add-copy-button-to-env-var[]
+ifndef::add-copy-button-to-env-var[]
+Environment variable: `+++QUARKUS_TEMPORAL_WORKER_DISABLE_EAGER_EXECUTION+++`
+endif::add-copy-button-to-env-var[]
+--|boolean 
+|`false`
+
+
+a| [[quarkus-temporal_quarkus-temporal-worker-use-build-id-for-versioning]]`link:#quarkus-temporal_quarkus-temporal-worker-use-build-id-for-versioning[quarkus.temporal.worker.use-build-id-for-versioning]`
+
+`link:#quarkus-temporal_quarkus-temporal-worker-use-build-id-for-versioning[quarkus.temporal.worker."worker-name".use-build-id-for-versioning]`
+
+
+[.description]
+--
+Opts the worker in to the Build-ID-based versioning feature. This ensures that the worker will only receive tasks which it is compatible with. For more information see: TODO: Doc link Defaults to false
+
+ifdef::add-copy-button-to-env-var[]
+Environment variable: env_var_with_copy_button:+++QUARKUS_TEMPORAL_WORKER_USE_BUILD_ID_FOR_VERSIONING+++[]
+endif::add-copy-button-to-env-var[]
+ifndef::add-copy-button-to-env-var[]
+Environment variable: `+++QUARKUS_TEMPORAL_WORKER_USE_BUILD_ID_FOR_VERSIONING+++`
+endif::add-copy-button-to-env-var[]
+--|boolean 
+|`false`
+
+
+a| [[quarkus-temporal_quarkus-temporal-worker-build-id]]`link:#quarkus-temporal_quarkus-temporal-worker-build-id[quarkus.temporal.worker.build-id]`
+
+`link:#quarkus-temporal_quarkus-temporal-worker-build-id[quarkus.temporal.worker."worker-name".build-id]`
+
+
+[.description]
+--
+Set a unique identifier for this worker. The identifier should be stable with respect to the code the worker uses for workflows, activities, and interceptors. For more information see: TODO: Doc link A Build Id must be set if useBuildIdForVersioning is set true.
+
+ifdef::add-copy-button-to-env-var[]
+Environment variable: env_var_with_copy_button:+++QUARKUS_TEMPORAL_WORKER_BUILD_ID+++[]
+endif::add-copy-button-to-env-var[]
+ifndef::add-copy-button-to-env-var[]
+Environment variable: `+++QUARKUS_TEMPORAL_WORKER_BUILD_ID+++`
+endif::add-copy-button-to-env-var[]
+--|string 
+|
+
+
+a| [[quarkus-temporal_quarkus-temporal-worker-sticky-task-queue-drain-timeout]]`link:#quarkus-temporal_quarkus-temporal-worker-sticky-task-queue-drain-timeout[quarkus.temporal.worker.sticky-task-queue-drain-timeout]`
+
+`link:#quarkus-temporal_quarkus-temporal-worker-sticky-task-queue-drain-timeout[quarkus.temporal.worker."worker-name".sticky-task-queue-drain-timeout]`
+
+
+[.description]
+--
+During graceful shutdown, as when calling WorkerFactory. shutdown(), if the workflow cache is enabled, this timeout controls how long to wait for the sticky task queue to drain before shutting down the worker. If set the worker will stop making new poll requests on the normal task queue, but will continue to poll the sticky task queue until the timeout is reached. This value should always be greater than clients rpc long poll timeout, which can be set via WorkflowServiceStubsOptions. Builder. setRpcLongPollTimeout(Duration). Default is not to wait.
+
+ifdef::add-copy-button-to-env-var[]
+Environment variable: env_var_with_copy_button:+++QUARKUS_TEMPORAL_WORKER_STICKY_TASK_QUEUE_DRAIN_TIMEOUT+++[]
+endif::add-copy-button-to-env-var[]
+ifndef::add-copy-button-to-env-var[]
+Environment variable: `+++QUARKUS_TEMPORAL_WORKER_STICKY_TASK_QUEUE_DRAIN_TIMEOUT+++`
+endif::add-copy-button-to-env-var[]
+--|link:https://docs.oracle.com/javase/8/docs/api/java/time/Duration.html[Duration]
+  link:#duration-note-anchor-{summaryTableId}[icon:question-circle[title=More information about the Duration format]]
+|`0s`
+
+
+a| [[quarkus-temporal_quarkus-temporal-worker-identity]]`link:#quarkus-temporal_quarkus-temporal-worker-identity[quarkus.temporal.worker.identity]`
+
+`link:#quarkus-temporal_quarkus-temporal-worker-identity[quarkus.temporal.worker."worker-name".identity]`
+
+
+[.description]
+--
+Override identity of the worker primary specified in a WorkflowClient options.
+
+ifdef::add-copy-button-to-env-var[]
+Environment variable: env_var_with_copy_button:+++QUARKUS_TEMPORAL_WORKER_IDENTITY+++[]
+endif::add-copy-button-to-env-var[]
+ifndef::add-copy-button-to-env-var[]
+Environment variable: `+++QUARKUS_TEMPORAL_WORKER_IDENTITY+++`
+endif::add-copy-button-to-env-var[]
+--|string 
+|
+
+
+h|[[quarkus-temporal_quarkus-temporal-connection-connection-to-the-temporal-server]]link:#quarkus-temporal_quarkus-temporal-connection-connection-to-the-temporal-server[Connection to the temporal server]
+
+h|Type
+h|Default
+
+a| [[quarkus-temporal_quarkus-temporal-connection-target]]`link:#quarkus-temporal_quarkus-temporal-connection-target[quarkus.temporal.connection.target]`
+
+
+[.description]
+--
+target string, which can be either a valid NameResolver-compliant URI, or an authority string
+
+ifdef::add-copy-button-to-env-var[]
+Environment variable: env_var_with_copy_button:+++QUARKUS_TEMPORAL_CONNECTION_TARGET+++[]
+endif::add-copy-button-to-env-var[]
+ifndef::add-copy-button-to-env-var[]
+Environment variable: `+++QUARKUS_TEMPORAL_CONNECTION_TARGET+++`
+endif::add-copy-button-to-env-var[]
+--|string 
+|`127.0.0.1:7233`
+
+
+a| [[quarkus-temporal_quarkus-temporal-connection-enable-https]]`link:#quarkus-temporal_quarkus-temporal-connection-enable-https[quarkus.temporal.connection.enable-https]`
+
+
+[.description]
+--
+Sets option to enable SSL/ TLS/ HTTPS for gRPC
+
+ifdef::add-copy-button-to-env-var[]
+Environment variable: env_var_with_copy_button:+++QUARKUS_TEMPORAL_CONNECTION_ENABLE_HTTPS+++[]
+endif::add-copy-button-to-env-var[]
+ifndef::add-copy-button-to-env-var[]
+Environment variable: `+++QUARKUS_TEMPORAL_CONNECTION_ENABLE_HTTPS+++`
 endif::add-copy-button-to-env-var[]
 --|boolean 
 |`false`
 
 |===
+ifndef::no-duration-note[]
+[NOTE]
+[id='duration-note-anchor-{summaryTableId}']
+.About the Duration format
+====
+To write duration values, use the standard `java.time.Duration` format.
+See the link:https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/time/Duration.html#parse(java.lang.CharSequence)[Duration#parse() Java API documentation] for more information.
+
+You can also use a simplified format, starting with a number:
+
+* If the value is only a number, it represents time in seconds.
+* If the value is a number followed by `ms`, it represents time in milliseconds.
+
+In other cases, the simplified format is translated to the `java.time.Duration` format for parsing:
+
+* If the value is a number followed by `h`, `m`, or `s`, it is prefixed with `PT`.
+* If the value is a number followed by `d`, it is prefixed with `P`.
+====
+endif::no-duration-note[]

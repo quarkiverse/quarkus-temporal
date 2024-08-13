@@ -4,8 +4,8 @@ import java.util.List;
 
 import jakarta.enterprise.inject.spi.CDI;
 
+import io.quarkiverse.temporal.config.TemporalRuntimeConfig;
 import io.quarkiverse.temporal.config.WorkerRuntimeConfig;
-import io.quarkiverse.temporal.config.WorkersRuntimeConfig;
 import io.quarkus.runtime.RuntimeValue;
 import io.quarkus.runtime.ShutdownContext;
 import io.quarkus.runtime.annotations.Recorder;
@@ -17,11 +17,11 @@ import io.temporal.worker.WorkerOptions;
 @Recorder
 public class WorkerFactoryRecorder {
 
-    public WorkerFactoryRecorder(WorkersRuntimeConfig config) {
+    public WorkerFactoryRecorder(TemporalRuntimeConfig config) {
         this.config = config;
     }
 
-    final WorkersRuntimeConfig config;
+    final TemporalRuntimeConfig config;
 
     public RuntimeValue<WorkerFactory> createWorkerFactory(WorkflowClient workflowClient) {
         return new RuntimeValue<>(WorkerFactory.newInstance(workflowClient));
@@ -59,7 +59,7 @@ public class WorkerFactoryRecorder {
     public void createWorker(RuntimeValue<WorkerFactory> runtimeValue, String name, List<Class<?>> workflows,
             List<Class<?>> activities) {
         WorkerFactory workerFactory = runtimeValue.getValue();
-        Worker worker = workerFactory.newWorker(name, createWorkerOptions(config.workers().get(name)));
+        Worker worker = workerFactory.newWorker(name, createWorkerOptions(config.worker().get(name)));
         for (var workflow : workflows) {
             worker.registerWorkflowImplementationTypes(workflow);
         }
