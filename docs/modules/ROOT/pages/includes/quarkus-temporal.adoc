@@ -66,7 +66,7 @@ a| [[quarkus-temporal_quarkus-temporal-identity]]`link:#quarkus-temporal_quarkus
 
 [.description]
 --
-Override human readable identity of the worker. Identity is used to identify a worker and is recorded in the workflow history events. For example when a worker gets an activity task the correspondent ActivityTaskStarted event contains the worker identity as a field. Default is whatever (ManagementFactory. getRuntimeMXBean().getName() returns.
+Override human-readable identity of the worker. Identity is used to identify a worker and is recorded in the workflow history events. For example when a worker gets an activity task the correspondent ActivityTaskStarted event contains the worker identity as a field. Default is whatever (ManagementFactory. getRuntimeMXBean().getName() returns.
 
 ifdef::add-copy-button-to-env-var[]
 Environment variable: env_var_with_copy_button:+++QUARKUS_TEMPORAL_IDENTITY+++[]
@@ -85,7 +85,7 @@ a| [[quarkus-temporal_quarkus-temporal-worker-task-queue]]`link:#quarkus-tempora
 
 [.description]
 --
-task queue name worker uses to poll. It uses this name for both workflow and activity task queue polls
+Task queue name worker uses to poll. It uses this name for both workflow and activity task queue polls.
 
 ifdef::add-copy-button-to-env-var[]
 Environment variable: env_var_with_copy_button:+++QUARKUS_TEMPORAL_WORKER_TASK_QUEUE+++[]
@@ -180,7 +180,7 @@ a| [[quarkus-temporal_quarkus-temporal-worker-max-task-queue-activities-per-seco
 
 [.description]
 --
-Sets the rate limiting on number of activities that can be executed per second. This is managed by the server and controls activities per second for the entire task queue across all the workers. Notice that the number is represented in double, so that you can set it to less than 1 if needed. For example, set the number to 0.1 means you want your activity to be executed once every 10 seconds. This can be used to protect down stream services from flooding. The zero value of this uses the default value. Default is unlimited.
+Sets the rate limiting on number of activities that can be executed per second. This is managed by the server and controls activities per second for the entire task queue across all the workers. Notice that the number is represented in double, so that you can set it to less than 1 if needed. For example, set the number to 0.1 means you want your activity to be executed once every 10 seconds. This can be used to protect down stream services from flooding. The zero value of these uses the default value. Default is unlimited.
 
 ifdef::add-copy-button-to-env-var[]
 Environment variable: env_var_with_copy_button:+++QUARKUS_TEMPORAL_WORKER_MAX_TASK_QUEUE_ACTIVITIES_PER_SECOND+++[]
@@ -256,7 +256,7 @@ a| [[quarkus-temporal_quarkus-temporal-worker-default-deadlock-detection-timeout
 
 [.description]
 --
-time period in ms that will be used to detect workflows deadlock. Default is 1000ms, which is chosen if set to zero. Specifies an amount of time in milliseconds that workflow tasks are allowed to execute without interruption. If workflow task runs longer than specified interval without yielding (like calling an Activity), it will fail automatically.
+Time period in ms that will be used to detect workflows deadlock. Default is 1000ms, which is chosen if set to zero. Specifies an amount of time in milliseconds that workflow tasks are allowed to execute without interruption. If workflow task runs longer than specified interval without yielding (like calling an Activity), it will fail automatically.
 
 ifdef::add-copy-button-to-env-var[]
 Environment variable: env_var_with_copy_button:+++QUARKUS_TEMPORAL_WORKER_DEFAULT_DEADLOCK_DETECTION_TIMEOUT+++[]
@@ -275,7 +275,7 @@ a| [[quarkus-temporal_quarkus-temporal-worker-max-heartbeat-throttle-interval]]`
 
 [.description]
 --
-the maximum amount of time between sending each pending heartbeat to the server. Regardless of heartbeat timeout, no pending heartbeat will wait longer than this amount of time to send. Default is 60s, which is chosen if set to null or 0.
+The maximum amount of time between sending each pending heartbeat to the server. Regardless of heartbeat timeout, no pending heartbeat will wait longer than this amount of time to send. Default is 60s, which is chosen if set to null or 0.
 
 ifdef::add-copy-button-to-env-var[]
 Environment variable: env_var_with_copy_button:+++QUARKUS_TEMPORAL_WORKER_MAX_HEARTBEAT_THROTTLE_INTERVAL+++[]
@@ -295,7 +295,7 @@ a| [[quarkus-temporal_quarkus-temporal-worker-default-heartbeat-throttle-interva
 
 [.description]
 --
-the default amount of time between sending each pending heartbeat to the server. This is used if the ActivityOptions do not provide a HeartbeatTimeout. Otherwise, the interval becomes a value a bit smaller than the given HeartbeatTimeout. Default is 30s, which is chosen if set to null or 0.
+The default amount of time between sending each pending heartbeat to the server. This is used if the ActivityOptions do not provide a HeartbeatTimeout. Otherwise, the interval becomes a value a bit smaller than the given HeartbeatTimeout. Default is 30s, which is chosen if set to null or 0.
 
 ifdef::add-copy-button-to-env-var[]
 Environment variable: env_var_with_copy_button:+++QUARKUS_TEMPORAL_WORKER_DEFAULT_HEARTBEAT_THROTTLE_INTERVAL+++[]
@@ -434,7 +434,7 @@ a| [[quarkus-temporal_quarkus-temporal-connection-target]]`link:#quarkus-tempora
 
 [.description]
 --
-target string, which can be either a valid NameResolver-compliant URI, or an authority string
+Sets a target string, which can be either a valid `NameResolver`-compliant URI, or an authority string. See `ManagedChannelBuilder++#++forTarget(String)` for more information about parameter format. Default is 127.0.0.1:7233
 
 ifdef::add-copy-button-to-env-var[]
 Environment variable: env_var_with_copy_button:+++QUARKUS_TEMPORAL_CONNECTION_TARGET+++[]
@@ -451,7 +451,7 @@ a| [[quarkus-temporal_quarkus-temporal-connection-enable-https]]`link:#quarkus-t
 
 [.description]
 --
-Sets option to enable SSL/ TLS/ HTTPS for gRPC
+Sets option to enable SSL/ TLS/ HTTPS for gRPC.
 
 ifdef::add-copy-button-to-env-var[]
 Environment variable: env_var_with_copy_button:+++QUARKUS_TEMPORAL_CONNECTION_ENABLE_HTTPS+++[]

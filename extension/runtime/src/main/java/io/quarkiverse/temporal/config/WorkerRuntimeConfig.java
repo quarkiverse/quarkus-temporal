@@ -12,7 +12,7 @@ import io.smallrye.config.WithDefault;
 public interface WorkerRuntimeConfig {
 
     /**
-     * task queue name worker uses to poll. It uses this name for both workflow and activity task queue polls
+     * Task queue name worker uses to poll. It uses this name for both workflow and activity task queue polls.
      */
     @WithDefault("default")
     String taskQueue();
@@ -46,7 +46,7 @@ public interface WorkerRuntimeConfig {
      * controls activities per second for the entire task queue across all the workers. Notice that the number is represented in
      * double, so that you can set it to less than 1 if needed. For example, set the number to 0.1 means you want your activity
      * to be executed once every 10 seconds. This can be used to protect down stream services from flooding. The zero value of
-     * this uses the default value. Default is unlimited.
+     * these uses the default value. Default is unlimited.
      */
     @WithDefault("0")
     Double maxTaskQueueActivitiesPerSecond();
@@ -78,7 +78,7 @@ public interface WorkerRuntimeConfig {
     Boolean localActivityWorkerOnly();
 
     /**
-     * time period in ms that will be used to detect workflows deadlock. Default is 1000ms, which is chosen if set to zero.
+     * Time period in ms that will be used to detect workflows deadlock. Default is 1000ms, which is chosen if set to zero.
      * Specifies an amount of time in milliseconds that workflow tasks are allowed to execute without interruption. If workflow
      * task runs longer than specified interval without yielding (like calling an Activity), it will fail automatically.
      */
@@ -86,7 +86,7 @@ public interface WorkerRuntimeConfig {
     Long defaultDeadlockDetectionTimeout();
 
     /**
-     * the maximum amount of time between sending each pending heartbeat to the server. Regardless of heartbeat timeout, no
+     * The maximum amount of time between sending each pending heartbeat to the server. Regardless of heartbeat timeout, no
      * pending heartbeat will wait longer than this amount of time to send. Default is 60s, which is chosen if set to null or 0.
      */
     @WithDefault("60s")
@@ -94,7 +94,7 @@ public interface WorkerRuntimeConfig {
     Duration maxHeartbeatThrottleInterval();
 
     /**
-     * the default amount of time between sending each pending heartbeat to the server. This is used if the ActivityOptions do
+     * The default amount of time between sending each pending heartbeat to the server. This is used if the ActivityOptions do
      * not provide a HeartbeatTimeout. Otherwise, the interval becomes a value a bit smaller than the given HeartbeatTimeout.
      * Default is 30s, which is chosen if set to null or 0.
      */
