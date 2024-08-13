@@ -1,9 +1,10 @@
-package io.quarkiverse.temporal.it.defaultWorker;
+package io.quarkiverse.temporal.it.moneyTransfer.defaultWorker;
 
-import io.quarkiverse.temporal.it.shared.AccountActivity;
+import io.quarkiverse.temporal.it.moneyTransfer.shared.AccountActivity;
 import io.temporal.activity.Activity;
 
 public class AccountActivityImpl implements AccountActivity {
+
     // Mock up the withdrawal of an amount of money from the source account
     @Override
     public void withdraw(String accountId, String referenceId, int amount) {
@@ -15,7 +16,6 @@ public class AccountActivityImpl implements AccountActivity {
     @Override
     public void deposit(String accountId, String referenceId, int amount) {
         boolean activityShouldSucceed = true;
-
         if (!activityShouldSucceed) {
             System.out.println("Deposit failed");
             System.out.flush();

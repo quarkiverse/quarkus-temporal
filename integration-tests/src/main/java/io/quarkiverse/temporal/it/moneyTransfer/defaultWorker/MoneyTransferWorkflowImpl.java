@@ -1,12 +1,12 @@
-package io.quarkiverse.temporal.it.defaultWorker;
+package io.quarkiverse.temporal.it.moneyTransfer.defaultWorker;
 
 import java.time.Duration;
 import java.util.HashMap;
 import java.util.Map;
 
-import io.quarkiverse.temporal.it.shared.AccountActivity;
-import io.quarkiverse.temporal.it.shared.MoneyTransferWorkflow;
-import io.quarkiverse.temporal.it.shared.TransactionDetails;
+import io.quarkiverse.temporal.it.moneyTransfer.shared.AccountActivity;
+import io.quarkiverse.temporal.it.moneyTransfer.shared.MoneyTransferWorkflow;
+import io.quarkiverse.temporal.it.moneyTransfer.shared.TransactionDetails;
 import io.temporal.activity.ActivityOptions;
 import io.temporal.common.RetryOptions;
 import io.temporal.workflow.Workflow;
@@ -111,4 +111,5 @@ public class MoneyTransferWorkflowImpl implements MoneyTransferWorkflow {
             throw (e);
         }
     }
+
 }

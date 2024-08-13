@@ -1,8 +1,8 @@
-package io.quarkiverse.temporal.it.shared;
+package io.quarkiverse.temporal.it.moneyTransfer.shared;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
-import io.quarkiverse.temporal.it.defaultWorker.CoreTransactionDetails;
+import io.quarkiverse.temporal.it.moneyTransfer.defaultWorker.CoreTransactionDetails;
 
 @JsonDeserialize(as = CoreTransactionDetails.class)
 public interface TransactionDetails {

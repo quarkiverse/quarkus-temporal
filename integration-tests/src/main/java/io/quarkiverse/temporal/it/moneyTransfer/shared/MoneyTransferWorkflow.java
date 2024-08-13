@@ -1,4 +1,4 @@
-package io.quarkiverse.temporal.it.shared;
+package io.quarkiverse.temporal.it.moneyTransfer.shared;
 
 import io.temporal.workflow.WorkflowInterface;
 import io.temporal.workflow.WorkflowMethod;
@@ -9,4 +9,5 @@ public interface MoneyTransferWorkflow {
     // from the 'temporal' CLI utility.
     @WorkflowMethod
     void transfer(TransactionDetails transaction);
+
 }
