@@ -4,6 +4,144 @@ include::./includes/attributes.adoc[]
 
 A Quarkus extension that lets you utilize https://temporal.io/[Temporal], orchestrating both mission critical and mainstream workloads.
 
+== Installation
+
+If you want to use this extension, you need to add the `io.quarkiverse.temporal:quarkus-temporal` extension first to your build file.
+
+For instance, with Maven, add the following dependency to your POM file:
+
+[source,xml,subs=attributes+]
+----
+<dependency>
+    <groupId>io.quarkiverse.temporal</groupId>
+    <artifactId>quarkus-temporal</artifactId>
+    <version>{project-version}</version>
+</dependency>
+----
+
+[#getting-started]
+== Getting Started
+
+Activities and Workflow are detected automatically.
+All you need to do is implementing an interface annotated with @ActivityInterface or @WorkflowInterface.
+
+=== Create a Workflow
+
+[source,java]
+----
+@WorkflowInterface
+public interface SendEmailWorkflow {
+
+    @WorkflowMethod
+    public void run(WorkflowData data);
+
+    @QueryMethod
+    public EmailDetails details();
+}
+----
+
+The following workflow definition will be added automatically to the default worker:
+
+[source,java]
+----
+public class SendEmailWorkflowImpl implements SendEmailWorkflow {
+    @Override
+    public void run(WorkflowData data) {
+    }
+}
+----
+
+It is possible to associate the workflow to a named worker instead:
+
+[source,java]
+----
+@WorkflowImpl(workers = "named-worker")
+public class SendEmailWorkflowImpl implements SendEmailWorkflow {
+    @Override
+    public void run(WorkflowData data) {
+    }
+}
+----
+
+Each worker can have at most one implementation of a given workflow, but a workflow can have implementations across multiple workers.
+
+Workflow are not provided as CDI bean since Dependency Injection into Workflow instances is strongly discouraged.
+Dependency Injection into Workflow Instances is a direct way to cause changes that are incompatible with the persisted histories and cause NonDeterministicException.
+To provide an external configuration to a workflow in a deterministic way, use a Local Activity that returns configuration to the workflow.
+Dependency Injection into Activity instances is allowed. This way, the configuration is persisted into the history and maintained same during replay.
+
+=== Create an Activity
+
+[source,java]
+----
+@ActivityInterface
+public interface SendEmailActivities {
+    @ActivityMethod
+    public String sendEmail(EmailDetails details);
+}
+----
+
+The following activity definition will be added automatically to the default worker:
+
+[source,java]
+----
+public class SendEmailActivitiesImpl implements SendEmailActivities {
+
+    @Inject // <1>
+    AgroalDataSource defaultDataSource;
+
+    @Override
+    public String sendEmail(EmailDetails details) {
+
+    }
+}
+----
+
+<1> CDI Dependency Injection is allowed in activity definition.
+
+It is possible to associate the activity to a named worker instead:
+
+[source,java]
+----
+@ActivityImpl(workers = "named-worker")
+public class SendEmailActivitiesImpl implements SendEmailActivities {
+    @Override
+    public String sendEmail(EmailDetails details) {
+
+    }
+}
+----
+
+Similarly, each worker can have at most one implementation of a given activity, but an activity can have implementations across multiple workers.
+
+
+=== Using the client
+
+[source,java]
+----
+public class MyService {
+
+    @Inject
+    WorkflowClient client; // <1>
+
+    public void startSubscription(WorkflowData data) {
+
+        WorkflowOptions options = WorkflowOptions.newBuilder()
+                .setWorkflowId(data.getEmail())
+                .setTaskQueue("<default>") // <2>
+                .build();
+
+        SendEmailWorkflow workflow = client.newWorkflowStub(SendEmailWorkflow.class, options);
+        WorkflowClient.start(workflow::run,data);
+
+    }
+
+}
+----
+
+<1> The client can be injected as a CDI bean
+<2> The default worker queue is <default>. for named worker, use the name of the worker
+
 [[extension-configuration-reference]]
 == Extension Configuration Reference
 

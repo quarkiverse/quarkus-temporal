@@ -1,12 +1,9 @@
 package io.quarkiverse.temporal.config;
 
-import io.quarkus.runtime.annotations.ConfigPhase;
-import io.quarkus.runtime.annotations.ConfigRoot;
-import io.smallrye.config.ConfigMapping;
+import io.quarkus.runtime.annotations.ConfigGroup;
 import io.smallrye.config.WithDefault;
 
-@ConfigMapping(prefix = "quarkus.temporal.connection")
-@ConfigRoot(phase = ConfigPhase.RUN_TIME)
+@ConfigGroup
 public interface ConnectionRuntimeConfig {
 
     /**
