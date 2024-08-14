@@ -8,7 +8,7 @@ import org.junit.jupiter.api.extension.RegisterExtension;
 
 import io.quarkus.test.QuarkusUnitTest;
 
-class TemporalProcessorTest {
+class MockEnabledTest {
 
     @RegisterExtension
     static final QuarkusUnitTest unitTest = new QuarkusUnitTest()
@@ -17,6 +17,7 @@ class TemporalProcessorTest {
 
     @Test
     public void testEnableMockWithTestExtension() {
+        //this should succeed
     }
 
 }
