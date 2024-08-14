@@ -13,8 +13,8 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
-import io.quarkiverse.temporal.deployment.discovery.DefaultSimpleActivityImpl;
-import io.quarkiverse.temporal.deployment.discovery.SimpleActivity;
+import io.quarkiverse.temporal.deployment.config.DefaultSimpleActivityImpl;
+import io.quarkiverse.temporal.deployment.config.SimpleActivity;
 import io.quarkus.test.QuarkusUnitTest;
 import io.temporal.worker.Worker;
 import io.temporal.worker.WorkerFactory;
@@ -44,7 +44,8 @@ public class WorkerUnnamedConfigTest {
                                     "quarkus.temporal.worker.disable-eager-execution: true\n" +
                                     "quarkus.temporal.worker.use-build-id-for-versioning: true\n" +
                                     "quarkus.temporal.worker.build-id: buildId\n" +
-                                    "quarkus.temporal.worker.sticky-task-queue-drain-timeout: 47s\n"),
+                                    "quarkus.temporal.worker.sticky-task-queue-drain-timeout: 47s\n" +
+                                    "quarkus.temporal.worker.task-queue: customQueueName"),
                             "application.properties"));
 
     @Inject
@@ -52,7 +53,7 @@ public class WorkerUnnamedConfigTest {
 
     @Test
     public void testUnamedConfiguration() throws IllegalAccessException {
-        Worker worker = factory.getWorker("<default>");
+        Worker worker = factory.getWorker("customQueueName");
         Assertions.assertNotNull(worker);
         // worker config is not visible;
         WorkerOptions options = (WorkerOptions) FieldUtils.readField(worker, "options", true);
