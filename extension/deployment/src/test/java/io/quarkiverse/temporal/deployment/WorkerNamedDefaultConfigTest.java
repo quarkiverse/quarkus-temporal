@@ -10,7 +10,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
 import io.quarkiverse.temporal.deployment.config.NamedSimpleActivityImpl;
-import io.quarkiverse.temporal.deployment.discovery.SimpleActivity;
+import io.quarkiverse.temporal.deployment.config.SimpleActivity;
 import io.quarkus.test.QuarkusUnitTest;
 import io.temporal.worker.Worker;
 import io.temporal.worker.WorkerFactory;
