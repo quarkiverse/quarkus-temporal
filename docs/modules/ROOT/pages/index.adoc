@@ -2,7 +2,7 @@
 
 include::./includes/attributes.adoc[]
 
-A Quarkus extension that lets you utilize https://temporal.io/[Temporal], orchestrating both mission critical and mainstream workloads.
+A Quarkus extension that lets you utilize https://temporal.io/[Temporal], orchestrating both mission-critical and mainstream workloads.
 
 == Installation
 
@@ -22,8 +22,7 @@ For instance, with Maven, add the following dependency to your POM file:
 [#getting-started]
 == Getting Started
 
-Activities and Workflow are detected automatically.
-All you need to do is implementing an interface annotated with @ActivityInterface or @WorkflowInterface.
+Activities and workflows are automatically detected. Simply implement an interface annotated with `@ActivityInterface` or `@WorkflowInterface`.
 
 === Create a Workflow
 
@@ -65,10 +64,7 @@ public class SendEmailWorkflowImpl implements SendEmailWorkflow {
 
 Each worker can have at most one implementation of a given workflow, but a workflow can have implementations across multiple workers.
 
-Workflow are not provided as CDI bean since Dependency Injection into Workflow instances is strongly discouraged.
-Dependency Injection into Workflow Instances is a direct way to cause changes that are incompatible with the persisted histories and cause NonDeterministicException.
-To provide an external configuration to a workflow in a deterministic way, use a Local Activity that returns configuration to the workflow.
-Dependency Injection into Activity instances is allowed. This way, the configuration is persisted into the history and maintained same during replay.
+Workflows are not provided as CDI beans because dependency injection into workflow instances is strongly discouraged. Injecting dependencies into workflow instances can lead to changes that are incompatible with persisted histories, resulting in `NonDeterministicException` errors. To provide external configuration to a workflow in a deterministic way, use a Local Activity that returns the configuration to the workflow. Dependency injection into activity instances is allowed, ensuring that the configuration is persisted into the history and remains consistent during replay.
 
 === Create an Activity
 
