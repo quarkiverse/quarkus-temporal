@@ -9,8 +9,8 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
-import io.quarkiverse.temporal.deployment.discovery.DefaultSimpleActivityImpl;
-import io.quarkiverse.temporal.deployment.discovery.SimpleActivity;
+import io.quarkiverse.temporal.deployment.config.DefaultSimpleActivityImpl;
+import io.quarkiverse.temporal.deployment.config.SimpleActivity;
 import io.quarkus.test.QuarkusUnitTest;
 import io.temporal.client.WorkflowClient;
 import io.temporal.client.WorkflowClientOptions;

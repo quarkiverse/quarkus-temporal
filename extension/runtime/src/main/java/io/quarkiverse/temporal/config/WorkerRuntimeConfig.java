@@ -12,10 +12,10 @@ import io.smallrye.config.WithDefault;
 public interface WorkerRuntimeConfig {
 
     /**
-     * Task queue name worker uses to poll. It uses this name for both workflow and activity task queue polls.
+     * Task queue name worker uses to poll. It uses this name for both workflow and activity task queue polls. Default is worker
+     * name
      */
-    @WithDefault("default")
-    String taskQueue();
+    Optional<String> taskQueue();
 
     /**
      * Maximum number of activities started per second by this worker. Default is 0 which means unlimited.

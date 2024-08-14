@@ -85,7 +85,7 @@ a| [[quarkus-temporal_quarkus-temporal-worker-task-queue]]`link:#quarkus-tempora
 
 [.description]
 --
-Task queue name worker uses to poll. It uses this name for both workflow and activity task queue polls.
+Task queue name worker uses to poll. It uses this name for both workflow and activity task queue polls. Default is worker name
 
 ifdef::add-copy-button-to-env-var[]
 Environment variable: env_var_with_copy_button:+++QUARKUS_TEMPORAL_WORKER_TASK_QUEUE+++[]
@@ -94,7 +94,7 @@ ifndef::add-copy-button-to-env-var[]
 Environment variable: `+++QUARKUS_TEMPORAL_WORKER_TASK_QUEUE+++`
 endif::add-copy-button-to-env-var[]
 --|string 
-|`default`
+|
 
 
 a| [[quarkus-temporal_quarkus-temporal-worker-max-worker-activities-per-second]]`link:#quarkus-temporal_quarkus-temporal-worker-max-worker-activities-per-second[quarkus.temporal.worker.max-worker-activities-per-second]`

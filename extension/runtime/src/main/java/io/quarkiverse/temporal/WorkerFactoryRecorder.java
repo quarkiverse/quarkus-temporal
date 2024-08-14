@@ -56,10 +56,19 @@ public class WorkerFactoryRecorder {
 
     }
 
+    public String createQueueName(String name, WorkerRuntimeConfig config) {
+        if (config == null) {
+            return name;
+        }
+        return config.taskQueue().orElse(name);
+    }
+
     public void createWorker(RuntimeValue<WorkerFactory> runtimeValue, String name, List<Class<?>> workflows,
             List<Class<?>> activities) {
         WorkerFactory workerFactory = runtimeValue.getValue();
-        Worker worker = workerFactory.newWorker(name, createWorkerOptions(config.worker().get(name)));
+        WorkerRuntimeConfig workerRuntimeConfig = config.worker().get(name);
+        Worker worker = workerFactory.newWorker(createQueueName(name, workerRuntimeConfig),
+                createWorkerOptions(workerRuntimeConfig));
         for (var workflow : workflows) {
             worker.registerWorkflowImplementationTypes(workflow);
         }
