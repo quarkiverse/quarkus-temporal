@@ -18,6 +18,7 @@ import jakarta.inject.Singleton;
 import org.jboss.jandex.AnnotationInstance;
 import org.jboss.jandex.AnnotationTarget;
 import org.jboss.jandex.ClassInfo;
+import org.jboss.jandex.ClassType;
 import org.jboss.jandex.DotName;
 
 import io.quarkiverse.temporal.ActivityImpl;
@@ -29,6 +30,7 @@ import io.quarkiverse.temporal.config.TemporalBuildtimeConfig;
 import io.quarkus.arc.deployment.AdditionalBeanBuildItem;
 import io.quarkus.arc.deployment.BeanArchiveIndexBuildItem;
 import io.quarkus.arc.deployment.SyntheticBeanBuildItem;
+import io.quarkus.arc.deployment.SyntheticBeansRuntimeInitBuildItem;
 import io.quarkus.deployment.Capabilities;
 import io.quarkus.deployment.annotations.BuildProducer;
 import io.quarkus.deployment.annotations.BuildStep;
@@ -41,7 +43,6 @@ import io.quarkus.deployment.builditem.FeatureBuildItem;
 import io.quarkus.deployment.builditem.ServiceStartBuildItem;
 import io.quarkus.deployment.builditem.ShutdownContextBuildItem;
 import io.quarkus.deployment.pkg.builditem.ArtifactResultBuildItem;
-import io.quarkus.runtime.RuntimeValue;
 import io.quarkus.runtime.configuration.ConfigurationException;
 import io.temporal.activity.ActivityInterface;
 import io.temporal.client.WorkflowClient;
@@ -200,57 +201,41 @@ public class TemporalProcessor {
 
     @BuildStep(onlyIfNot = EnableMock.class)
     @Record(ExecutionTime.RUNTIME_INIT)
-    Optional<WorkerFactoryBuildItem> recordWorkflowFactory(
-            Optional<WorkflowClientBuildItem> workflowClientBuildItem,
-            WorkerFactoryRecorder workerFactoryRecorder) {
-
-        return workflowClientBuildItem.map(buildItem -> {
-            RuntimeValue<WorkerFactory> workerFactory = workerFactoryRecorder
-                    .createWorkerFactory(buildItem.workflowClient);
-            return new WorkerFactoryBuildItem(workerFactory);
-
-        });
-
-    }
-
-    @BuildStep
-    @Record(ExecutionTime.RUNTIME_INIT)
-    @Consume(ConfigValidatedBuildItem.class)
-    Optional<InitializedWorkerFactoryBuildItem> setupWorkflowFactory(
-            Optional<WorkerFactoryBuildItem> workerFactoryBuildItem,
-            List<WorkerBuildItem> workerBuildItems,
-            WorkerFactoryRecorder workerFactoryRecorder) {
-
-        return workerFactoryBuildItem.map(buildItem -> {
-            for (WorkerBuildItem workerBuildItem : workerBuildItems) {
-                workerFactoryRecorder.createWorker(buildItem.workerFactory, workerBuildItem.name,
-                        workerBuildItem.workflows, workerBuildItem.activities);
-            }
-            return new InitializedWorkerFactoryBuildItem(buildItem.workerFactory);
-        });
-
-    }
-
-    @BuildStep
     SyntheticBeanBuildItem produceWorkerFactorySyntheticBean(
-            InitializedWorkerFactoryBuildItem workerFactoryBuildItem) {
+            WorkerFactoryRecorder workerFactoryRecorder) {
         return SyntheticBeanBuildItem
                 .configure(WorkerFactory.class)
                 .scope(Singleton.class)
                 .unremovable()
                 .defaultBean()
-                .runtimeValue(workerFactoryBuildItem.workerFactory)
+                .addInjectionPoint(ClassType.create(WorkflowClient.class))
+                .createWith(workerFactoryRecorder.createWorkerFactory())
                 .setRuntimeInit()
                 .done();
     }
 
+    @BuildStep
+    @Record(ExecutionTime.RUNTIME_INIT)
+    @Consume(ConfigValidatedBuildItem.class)
+    @Consume(SyntheticBeansRuntimeInitBuildItem.class)
+    @Produce(WorkerFactoryInitializedBuildItem.class)
+    void setupWorkerFactory(
+            List<WorkerBuildItem> workerBuildItems,
+            WorkerFactoryRecorder workerFactoryRecorder) {
+
+        for (WorkerBuildItem workerBuildItem : workerBuildItems) {
+            workerFactoryRecorder.createWorker(workerBuildItem.name,
+                    workerBuildItem.workflows, workerBuildItem.activities);
+        }
+    }
+
     @BuildStep(onlyIf = StartWorkers.class)
     @Record(ExecutionTime.RUNTIME_INIT)
+    @Consume(WorkerFactoryInitializedBuildItem.class)
     ServiceStartBuildItem startWorkers(
-            InitializedWorkerFactoryBuildItem workerFactoryBuildItem,
             WorkerFactoryRecorder workerFactoryRecorder,
             ShutdownContextBuildItem shutdownContextBuildItem) {
-        workerFactoryRecorder.startWorkerFactory(shutdownContextBuildItem, workerFactoryBuildItem.workerFactory);
+        workerFactoryRecorder.startWorkerFactory(shutdownContextBuildItem);
         return new ServiceStartBuildItem("TemporalWorkers");
     }
 

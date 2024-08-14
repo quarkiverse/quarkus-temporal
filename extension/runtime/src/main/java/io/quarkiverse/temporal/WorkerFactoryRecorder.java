@@ -1,12 +1,13 @@
 package io.quarkiverse.temporal;
 
 import java.util.List;
+import java.util.function.Function;
 
 import jakarta.enterprise.inject.spi.CDI;
 
 import io.quarkiverse.temporal.config.TemporalRuntimeConfig;
 import io.quarkiverse.temporal.config.WorkerRuntimeConfig;
-import io.quarkus.runtime.RuntimeValue;
+import io.quarkus.arc.SyntheticCreationalContext;
 import io.quarkus.runtime.ShutdownContext;
 import io.quarkus.runtime.annotations.Recorder;
 import io.temporal.client.WorkflowClient;
@@ -23,8 +24,8 @@ public class WorkerFactoryRecorder {
 
     final TemporalRuntimeConfig config;
 
-    public RuntimeValue<WorkerFactory> createWorkerFactory(WorkflowClient workflowClient) {
-        return new RuntimeValue<>(WorkerFactory.newInstance(workflowClient));
+    public Function<SyntheticCreationalContext<WorkerFactory>, WorkerFactory> createWorkerFactory() {
+        return context -> WorkerFactory.newInstance(context.getInjectedReference(WorkflowClient.class));
     }
 
     public WorkerOptions createWorkerOptions(WorkerRuntimeConfig config) {
@@ -63,9 +64,9 @@ public class WorkerFactoryRecorder {
         return config.taskQueue().orElse(name);
     }
 
-    public void createWorker(RuntimeValue<WorkerFactory> runtimeValue, String name, List<Class<?>> workflows,
+    public void createWorker(String name, List<Class<?>> workflows,
             List<Class<?>> activities) {
-        WorkerFactory workerFactory = runtimeValue.getValue();
+        WorkerFactory workerFactory = CDI.current().select(WorkerFactory.class).get();
         WorkerRuntimeConfig workerRuntimeConfig = config.worker().get(name);
         Worker worker = workerFactory.newWorker(createQueueName(name, workerRuntimeConfig),
                 createWorkerOptions(workerRuntimeConfig));
@@ -78,10 +79,9 @@ public class WorkerFactoryRecorder {
 
     }
 
-    public void startWorkerFactory(ShutdownContext shutdownContext, RuntimeValue<WorkerFactory> runtimeValue) {
-        WorkerFactory workerFactory = runtimeValue.getValue();
+    public void startWorkerFactory(ShutdownContext shutdownContext) {
+        WorkerFactory workerFactory = CDI.current().select(WorkerFactory.class).get();
         workerFactory.start();
         shutdownContext.addShutdownTask(workerFactory::shutdown);
     }
-
 }
