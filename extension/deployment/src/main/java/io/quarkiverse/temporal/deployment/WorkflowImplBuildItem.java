@@ -4,12 +4,14 @@ import io.quarkus.builder.item.MultiBuildItem;
 
 public final class WorkflowImplBuildItem extends MultiBuildItem {
 
-    public WorkflowImplBuildItem(Class<?> clazz, String[] workers) {
-        this.clazz = clazz;
+    public WorkflowImplBuildItem(Class<?> workflow, Class<?> implementation, String[] workers) {
+        this.workflow = workflow;
+        this.implementation = implementation;
         this.workers = workers;
     }
 
-    public final Class<?> clazz;
+    public final Class<?> workflow;
+    public final Class<?> implementation;
 
     public final String[] workers;
 }

@@ -15,6 +15,8 @@ import java.util.Set;
 import java.util.function.BooleanSupplier;
 
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.context.Dependent;
+import jakarta.enterprise.inject.spi.InjectionPoint;
 import jakarta.inject.Singleton;
 
 import org.jboss.jandex.AnnotationInstance;
@@ -24,6 +26,7 @@ import org.jboss.jandex.ClassType;
 import org.jboss.jandex.DotName;
 
 import io.quarkiverse.temporal.ActivityImpl;
+import io.quarkiverse.temporal.TemporalWorkflowStub;
 import io.quarkiverse.temporal.WorkerFactoryRecorder;
 import io.quarkiverse.temporal.WorkflowClientRecorder;
 import io.quarkiverse.temporal.WorkflowImpl;
@@ -70,6 +73,11 @@ public class TemporalProcessor {
     }
 
     @BuildStep
+    void additionalBeans(BuildProducer<AdditionalBeanBuildItem> producer) {
+        producer.produce(new AdditionalBeanBuildItem(TemporalWorkflowStub.class));
+    }
+
+    @BuildStep
     @Produce(ArtifactResultBuildItem.class)
     void produceWorkflows(
             BeanArchiveIndexBuildItem beanArchiveBuildItem,
@@ -90,7 +98,7 @@ public class TemporalProcessor {
                             "Workflow " + target.asClass().name() + " has more than one implementor on worker");
                 }
                 Collections.addAll(seenWorkers, workers);
-                producer.produce(new WorkflowImplBuildItem(loadClass(implementor), workers));
+                producer.produce(new WorkflowImplBuildItem(loadClass(target.asClass()), loadClass(implementor), workers));
             });
         }
     }
@@ -133,7 +141,7 @@ public class TemporalProcessor {
             for (String worker : workflowImplBuildItem.workers) {
                 workers.add(worker);
                 workflowsByWorker.computeIfAbsent(worker, (w) -> new ArrayList<>())
-                        .add(workflowImplBuildItem.clazz);
+                        .add(workflowImplBuildItem.implementation);
             }
         }
 
@@ -169,7 +177,7 @@ public class TemporalProcessor {
 
     @BuildStep(onlyIf = EnableMock.class)
     @Produce(ConfigValidatedBuildItem.class)
-    void recordWorkflowClient(Capabilities capabilities) {
+    void validateMockConfiguration(Capabilities capabilities) {
         if (capabilities.isMissing("io.quarkiverse.temporal.test")) {
             throw new ConfigurationException("Please add the quarkus-temporal-test extension to enable mocking");
         }
@@ -198,6 +206,31 @@ public class TemporalProcessor {
                         .runtimeProxy(buildItem.workflowClient)
                         .setRuntimeInit()
                         .done());
+
+    }
+
+    @BuildStep
+    @Record(ExecutionTime.RUNTIME_INIT)
+    void produceWorkflowStubSyntheticBeans(
+            BuildProducer<SyntheticBeanBuildItem> producer,
+            List<WorkflowImplBuildItem> workflowImplBuildItems,
+            WorkerFactoryRecorder recorder) {
+        for (WorkflowImplBuildItem workflowBuildItem : workflowImplBuildItems) {
+            for (String worker : workflowBuildItem.workers) {
+                producer.produce(
+                        SyntheticBeanBuildItem.configure(workflowBuildItem.workflow)
+                                .scope(Dependent.class)
+                                .addInjectionPoint(ClassType.create(InjectionPoint.class))
+                                .addInjectionPoint(ClassType.create(WorkflowClient.class))
+                                .addQualifier()
+                                .annotation(TemporalWorkflowStub.class)
+                                .addValue("worker", worker)
+                                .done()
+                                .createWith(recorder.createWorkflowStub(workflowBuildItem.workflow, worker))
+                                .setRuntimeInit()
+                                .done());
+            }
+        }
 
     }
 
