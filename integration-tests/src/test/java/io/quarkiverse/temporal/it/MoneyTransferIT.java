@@ -6,15 +6,15 @@ import jakarta.inject.Inject;
 
 import org.junit.jupiter.api.Test;
 
-import io.quarkiverse.temporal.it.defaultWorker.CoreTransactionDetails;
-import io.quarkiverse.temporal.it.shared.MoneyTransferWorkflow;
-import io.quarkiverse.temporal.it.shared.TransactionDetails;
+import io.quarkiverse.temporal.it.moneyTransfer.defaultWorker.CoreTransactionDetails;
+import io.quarkiverse.temporal.it.moneyTransfer.shared.MoneyTransferWorkflow;
+import io.quarkiverse.temporal.it.moneyTransfer.shared.TransactionDetails;
 import io.quarkus.test.junit.QuarkusTest;
 import io.temporal.client.WorkflowClient;
 import io.temporal.client.WorkflowOptions;
 
 @QuarkusTest
-public class TemporalIT {
+public class MoneyTransferIT {
 
     @Inject
     WorkflowClient client;

@@ -1,4 +1,4 @@
-package io.quarkiverse.temporal.it.shared;
+package io.quarkiverse.temporal.it.moneyTransfer.shared;
 
 import io.temporal.activity.ActivityInterface;
 import io.temporal.activity.ActivityMethod;
@@ -16,4 +16,5 @@ public interface AccountActivity {
     // Compensate a failed deposit by refunding to the original account
     @ActivityMethod
     void refund(String accountId, String referenceId, int amount);
+
 }

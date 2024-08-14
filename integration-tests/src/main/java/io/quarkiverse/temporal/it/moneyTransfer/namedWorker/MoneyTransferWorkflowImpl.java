@@ -1,13 +1,13 @@
-package io.quarkiverse.temporal.it.namedWorker;
+package io.quarkiverse.temporal.it.moneyTransfer.namedWorker;
 
 import java.time.Duration;
 import java.util.HashMap;
 import java.util.Map;
 
 import io.quarkiverse.temporal.WorkflowImpl;
-import io.quarkiverse.temporal.it.shared.AccountActivity;
-import io.quarkiverse.temporal.it.shared.MoneyTransferWorkflow;
-import io.quarkiverse.temporal.it.shared.TransactionDetails;
+import io.quarkiverse.temporal.it.moneyTransfer.shared.AccountActivity;
+import io.quarkiverse.temporal.it.moneyTransfer.shared.MoneyTransferWorkflow;
+import io.quarkiverse.temporal.it.moneyTransfer.shared.TransactionDetails;
 import io.temporal.activity.ActivityOptions;
 import io.temporal.common.RetryOptions;
 import io.temporal.workflow.Workflow;

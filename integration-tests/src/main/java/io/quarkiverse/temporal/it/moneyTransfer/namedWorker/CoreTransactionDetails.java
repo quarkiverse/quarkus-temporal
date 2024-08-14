@@ -1,6 +1,6 @@
-package io.quarkiverse.temporal.it.defaultWorker;
+package io.quarkiverse.temporal.it.moneyTransfer.namedWorker;
 
-import io.quarkiverse.temporal.it.shared.TransactionDetails;
+import io.quarkiverse.temporal.it.moneyTransfer.shared.TransactionDetails;
 
 public class CoreTransactionDetails implements TransactionDetails {
 
