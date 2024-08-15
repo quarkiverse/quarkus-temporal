@@ -1,5 +1,7 @@
 package io.quarkiverse.temporal.config;
 
+import static io.quarkiverse.temporal.Constants.DEFAULT_WORKER_NAME;
+
 import java.util.Map;
 import java.util.Optional;
 
@@ -40,6 +42,6 @@ public interface TemporalRuntimeConfig {
      */
     @ConfigDocMapKey("worker-name")
     @WithDefaults
-    @WithUnnamedKey("<default>")
+    @WithUnnamedKey(DEFAULT_WORKER_NAME)
     Map<String, WorkerRuntimeConfig> worker();
 }
