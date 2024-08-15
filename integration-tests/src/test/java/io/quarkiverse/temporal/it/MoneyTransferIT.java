@@ -1,5 +1,7 @@
 package io.quarkiverse.temporal.it;
 
+import static io.quarkiverse.temporal.Constants.DEFAULT_WORKER_NAME;
+
 import java.util.concurrent.TimeoutException;
 
 import jakarta.inject.Inject;
@@ -22,7 +24,7 @@ public class MoneyTransferIT {
     @Test
     public void testRunWorkflowOnDefaultWorker() throws TimeoutException {
         WorkflowOptions options = WorkflowOptions.newBuilder()
-                .setTaskQueue("<default>")
+                .setTaskQueue(DEFAULT_WORKER_NAME)
                 .setWorkflowId("money-transfer-workflow")
                 .build();
 

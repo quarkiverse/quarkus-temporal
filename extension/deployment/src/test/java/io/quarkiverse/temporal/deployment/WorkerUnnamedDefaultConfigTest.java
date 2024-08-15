@@ -1,5 +1,7 @@
 package io.quarkiverse.temporal.deployment;
 
+import static io.quarkiverse.temporal.Constants.DEFAULT_WORKER_NAME;
+
 import jakarta.inject.Inject;
 
 import org.jboss.shrinkwrap.api.ShrinkWrap;
@@ -32,7 +34,7 @@ public class WorkerUnnamedDefaultConfigTest {
     @Test
     public void testUnamedDefaultConfiguration() throws IllegalAccessException {
         // queue name default to worker name
-        Worker worker = factory.getWorker("<default>");
+        Worker worker = factory.getWorker(DEFAULT_WORKER_NAME);
         Assertions.assertNotNull(worker);
     }
 }

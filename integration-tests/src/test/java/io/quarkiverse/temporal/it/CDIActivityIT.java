@@ -1,5 +1,7 @@
 package io.quarkiverse.temporal.it;
 
+import static io.quarkiverse.temporal.Constants.DEFAULT_WORKER_NAME;
+
 import java.util.concurrent.TimeoutException;
 
 import jakarta.inject.Inject;
@@ -20,7 +22,7 @@ public class CDIActivityIT {
     @Test
     public void testCDIInActivityOnDefaultWorker() throws TimeoutException {
         WorkflowOptions options = WorkflowOptions.newBuilder()
-                .setTaskQueue("<default>")
+                .setTaskQueue(DEFAULT_WORKER_NAME)
                 .setWorkflowId("cdi-workflow")
                 .build();
 

@@ -1,5 +1,7 @@
 package io.quarkiverse.temporal.deployment;
 
+import static io.quarkiverse.temporal.Constants.DEFAULT_WORKER_NAME;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -80,7 +82,7 @@ public class TemporalProcessor {
             Set<String> seenWorkers = new HashSet<>();
             allKnownImplementors.forEach(implementor -> {
                 AnnotationInstance annotation = implementor.annotation(WORKFLOW_IMPL);
-                String[] workers = annotation == null ? new String[] { "<default>" }
+                String[] workers = annotation == null ? new String[] { DEFAULT_WORKER_NAME }
                         : annotation.value("workers").asStringArray();
 
                 if (!Collections.disjoint(seenWorkers, Arrays.asList(workers))) {
@@ -105,7 +107,7 @@ public class TemporalProcessor {
             Set<String> seenWorkers = new HashSet<>();
             allKnownImplementors.forEach(implementor -> {
                 AnnotationInstance annotation = implementor.annotation(ACTIVITY_IMPL);
-                String[] workers = annotation == null ? new String[] { "<default>" }
+                String[] workers = annotation == null ? new String[] { DEFAULT_WORKER_NAME }
                         : annotation.value("workers").asStringArray();
                 if (!Collections.disjoint(seenWorkers, Arrays.asList(workers))) {
                     throw new IllegalStateException(
