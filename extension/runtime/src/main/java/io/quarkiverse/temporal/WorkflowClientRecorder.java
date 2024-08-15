@@ -30,4 +30,5 @@ public class WorkflowClientRecorder {
     public WorkflowClient createWorkflowClient(WorkflowServiceStubs serviceStubs) {
         return WorkflowClient.newInstance(serviceStubs, createWorkflowClientOptions());
     }
+
 }

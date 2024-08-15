@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.function.Function;
 
 import jakarta.enterprise.inject.spi.CDI;
+import jakarta.enterprise.inject.spi.InjectionPoint;
 
 import io.quarkiverse.temporal.config.TemporalRuntimeConfig;
 import io.quarkiverse.temporal.config.WorkerRuntimeConfig;
@@ -11,6 +12,7 @@ import io.quarkus.arc.SyntheticCreationalContext;
 import io.quarkus.runtime.ShutdownContext;
 import io.quarkus.runtime.annotations.Recorder;
 import io.temporal.client.WorkflowClient;
+import io.temporal.client.WorkflowOptions;
 import io.temporal.worker.Worker;
 import io.temporal.worker.WorkerFactory;
 import io.temporal.worker.WorkerOptions;
@@ -77,6 +79,21 @@ public class WorkerFactoryRecorder {
             worker.registerActivitiesImplementations(CDI.current().select(activity).get());
         }
 
+    }
+
+    public <T> Function<SyntheticCreationalContext<T>, T> createWorkflowStub(Class<T> workflow, String name) {
+        return context -> {
+            InjectionPoint injectionPoint = context.getInjectedReference(InjectionPoint.class);
+            TemporalWorkflowStub annotation = (TemporalWorkflowStub) injectionPoint.getQualifiers().stream()
+                    .filter(x -> x instanceof TemporalWorkflowStub).findFirst().orElse(null);
+            WorkerRuntimeConfig workerRuntimeConfig = config.worker().get(name);
+            WorkflowOptions.Builder options = WorkflowOptions.newBuilder()
+                    .setTaskQueue(createQueueName(name, workerRuntimeConfig));
+            if (annotation != null && !TemporalWorkflowStub.DEFAULT_WORKFLOW_ID.equals(annotation.workflowId())) {
+                options.setWorkflowId(annotation.workflowId());
+            }
+            return context.getInjectedReference(WorkflowClient.class).newWorkflowStub(workflow, options.build());
+        };
     }
 
     public void startWorkerFactory(ShutdownContext shutdownContext) {

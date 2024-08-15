@@ -138,6 +138,42 @@ public class MyService {
 <1> The client can be injected as a CDI bean
 <2> The default worker queue is <default>. for named worker, use the name of the worker
 
+=== Stub Injection
+
+It is also possible to inject a workflow stub directly using the TemporalWorkflowStub qualifier:
+
+[source,java]
+----
+public class MyService {
+
+    @Inject
+    @TemporalWorkflowStub(worker = "<default>", workflowId = "send-email")
+    SendEmailWorkflow workflow;
+
+    public void startSubscription(WorkflowData data) {
+        workflow.run(data);
+    }
+
+}
+----
+
+The workflowId can be set at runtime by dynamically resolving the stub bean:
+
+[source,java]
+----
+public class MyService {
+
+    public void startSubscription(WorkflowData data) {
+        SendEmailWorkflow workflow = CDI.current()
+                .select(SimpleWorkflow.class, new TemporalWorkflowStub.Literal("<default>", "dynamicWorkflowId")).get();
+        workflow.run(data);
+    }
+
+}
+----
+
+
+
 [[extension-configuration-reference]]
 == Extension Configuration Reference
 
