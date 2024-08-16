@@ -130,13 +130,6 @@ public interface WorkerRuntimeConfig {
     Boolean useBuildIdForVersioning();
 
     /**
-     * Set a unique identifier for this worker. The identifier should be stable with respect to the code the worker uses for
-     * workflows, activities, and interceptors. For more information see: TODO: Doc link
-     * A Build Id must be set if useBuildIdForVersioning is set true.
-     */
-    Optional<String> buildId();
-
-    /**
      * During graceful shutdown, as when calling WorkerFactory. shutdown(), if the workflow cache is enabled, this timeout
      * controls how long to wait for the sticky task queue to drain before shutting down the worker. If set the worker will stop
      * making new poll requests on the normal task queue, but will continue to poll the sticky task queue until the timeout is

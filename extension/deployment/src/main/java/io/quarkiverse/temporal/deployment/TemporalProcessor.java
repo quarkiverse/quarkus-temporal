@@ -36,6 +36,7 @@ import io.quarkiverse.temporal.config.TemporalBuildtimeConfig;
 import io.quarkus.arc.deployment.AdditionalBeanBuildItem;
 import io.quarkus.arc.deployment.SyntheticBeanBuildItem;
 import io.quarkus.arc.deployment.SyntheticBeansRuntimeInitBuildItem;
+import io.quarkus.arc.deployment.UnremovableBeanBuildItem;
 import io.quarkus.deployment.Capabilities;
 import io.quarkus.deployment.annotations.BuildProducer;
 import io.quarkus.deployment.annotations.BuildStep;
@@ -48,6 +49,7 @@ import io.quarkus.deployment.builditem.FeatureBuildItem;
 import io.quarkus.deployment.builditem.ServiceStartBuildItem;
 import io.quarkus.deployment.builditem.ShutdownContextBuildItem;
 import io.quarkus.deployment.pkg.builditem.ArtifactResultBuildItem;
+import io.quarkus.info.GitInfo;
 import io.quarkus.runtime.configuration.ConfigurationException;
 import io.temporal.activity.ActivityInterface;
 import io.temporal.client.WorkflowClient;
@@ -75,6 +77,12 @@ public class TemporalProcessor {
     @BuildStep
     void additionalBeans(BuildProducer<AdditionalBeanBuildItem> producer) {
         producer.produce(new AdditionalBeanBuildItem(TemporalWorkflowStub.class));
+    }
+
+    @BuildStep
+    void unremovableBean(BuildProducer<UnremovableBeanBuildItem> producer) {
+        producer.produce(new UnremovableBeanBuildItem(
+                new UnremovableBeanBuildItem.BeanTypeExclusion(DotName.createSimple(GitInfo.class))));
     }
 
     @BuildStep
