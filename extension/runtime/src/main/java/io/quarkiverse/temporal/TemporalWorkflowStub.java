@@ -17,9 +17,11 @@ import jakarta.inject.Qualifier;
 @Retention(RUNTIME)
 @Target({ METHOD, FIELD, PARAMETER, TYPE })
 public @interface TemporalWorkflowStub {
+    String DEFAULT_WORKER = "io.quarkiverse.temporal.TemporalWorkflowStub.worker.DEFAULT";
+
     String DEFAULT_WORKFLOW_ID = "io.quarkiverse.temporal.TemporalWorkflowStub.workflowId.DEFAULT";
 
-    String worker();
+    String worker() default DEFAULT_WORKER;
 
     @Nonbinding
     String workflowId() default DEFAULT_WORKFLOW_ID;

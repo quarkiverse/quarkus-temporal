@@ -175,6 +175,23 @@ It is also possible to inject a workflow stub directly using the TemporalWorkflo
 public class MyService {
 
     @Inject
+    @TemporalWorkflowStub(workflowId = "send-email")
+    SendEmailWorkflow workflow;
+
+    public void startSubscription(WorkflowData data) {
+        workflow.run(data);
+    }
+
+}
+----
+
+If the workflow is bound to multiple workers, the worker parameter is required:
+
+[source,java]
+----
+public class MyService {
+
+    @Inject
     @TemporalWorkflowStub(worker = "<default>", workflowId = "send-email")
     SendEmailWorkflow workflow;
 
