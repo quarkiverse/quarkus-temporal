@@ -13,6 +13,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.BooleanSupplier;
+import java.util.stream.Stream;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.context.Dependent;
@@ -80,8 +81,31 @@ public class TemporalProcessor {
     @BuildStep
     @Produce(ArtifactResultBuildItem.class)
     void produceWorkflows(
+            TemporalBuildtimeConfig temporalBuildtimeConfig,
             BeanArchiveIndexBuildItem beanArchiveBuildItem,
             BuildProducer<WorkflowImplBuildItem> producer) {
+
+        Map<DotName, Set<String>> explicitBinding = new HashMap<>();
+
+        temporalBuildtimeConfig.worker().forEach((worker, config) -> {
+            config.workflowClasses().ifPresent(classes -> {
+                for (String workflowClass : classes) {
+                    DotName className = DotName.createSimple(workflowClass);
+                    ClassInfo classInfo = beanArchiveBuildItem.getIndex().getClassByName(className);
+                    if (classInfo == null
+                            || classInfo.interfaceNames().stream()
+                                    .noneMatch(interfaceName -> {
+                                        ClassInfo interfaceInfo = beanArchiveBuildItem.getIndex().getClassByName(interfaceName);
+                                        return interfaceInfo.hasAnnotation(WORKFLOW_INTERFACE);
+                                    })) {
+                        throw new ConfigurationException("Class " + workflowClass + " is not an activity");
+                    }
+                    explicitBinding.computeIfAbsent(className, (k) -> new HashSet<>())
+                            .add(worker);
+                }
+            });
+        });
+
         Collection<AnnotationInstance> instances = beanArchiveBuildItem.getIndex().getAnnotations(WORKFLOW_INTERFACE);
         for (AnnotationInstance instance : instances) {
             AnnotationTarget target = instance.target();
@@ -89,9 +113,16 @@ public class TemporalProcessor {
                     .getAllKnownImplementors(target.asClass().name());
             Set<String> seenWorkers = new HashSet<>();
             allKnownImplementors.forEach(implementor -> {
+
                 AnnotationInstance annotation = implementor.annotation(WORKFLOW_IMPL);
-                String[] workers = annotation == null ? new String[] { DEFAULT_WORKER_NAME }
-                        : annotation.value("workers").asStringArray();
+
+                String[] workers = (annotation == null && !explicitBinding.containsKey(implementor.name()))
+                        ? new String[] { DEFAULT_WORKER_NAME }
+                        : Stream.concat(
+                                Stream.ofNullable(annotation).flatMap(x -> Arrays.stream(x.value("workers").asStringArray())),
+                                Stream.ofNullable(explicitBinding.get(implementor.name())).flatMap(Collection::stream))
+                                .distinct()
+                                .toArray(String[]::new);
 
                 if (!Collections.disjoint(seenWorkers, Arrays.asList(workers))) {
                     throw new IllegalStateException(
@@ -105,8 +136,30 @@ public class TemporalProcessor {
 
     @BuildStep
     void produceActivities(
+            TemporalBuildtimeConfig temporalBuildtimeConfig,
             CombinedIndexBuildItem beanArchiveBuildItem,
             BuildProducer<ActivityImplBuildItem> producer) {
+
+        Map<DotName, Set<String>> explicitBinding = new HashMap<>();
+        temporalBuildtimeConfig.worker().forEach((worker, config) -> {
+            config.activityClasses().ifPresent(classes -> {
+                for (String activityClass : classes) {
+                    DotName className = DotName.createSimple(activityClass);
+                    ClassInfo classInfo = beanArchiveBuildItem.getIndex().getClassByName(className);
+                    if (classInfo == null
+                            || classInfo.interfaceNames().stream()
+                                    .noneMatch(interfaceName -> {
+                                        ClassInfo interfaceInfo = beanArchiveBuildItem.getIndex().getClassByName(interfaceName);
+                                        return interfaceInfo.hasAnnotation(ACTIVITY_INTERFACE);
+                                    })) {
+                        throw new ConfigurationException("Class " + activityClass + " is not an activity");
+                    }
+                    explicitBinding.computeIfAbsent(DotName.createSimple(activityClass), (k) -> new HashSet<>())
+                            .add(worker);
+                }
+            });
+        });
+
         Collection<AnnotationInstance> instances = beanArchiveBuildItem.getIndex().getAnnotations(ACTIVITY_INTERFACE);
         for (AnnotationInstance instance : instances) {
             AnnotationTarget target = instance.target();
@@ -115,8 +168,15 @@ public class TemporalProcessor {
             Set<String> seenWorkers = new HashSet<>();
             allKnownImplementors.forEach(implementor -> {
                 AnnotationInstance annotation = implementor.annotation(ACTIVITY_IMPL);
-                String[] workers = annotation == null ? new String[] { DEFAULT_WORKER_NAME }
-                        : annotation.value("workers").asStringArray();
+
+                String[] workers = (annotation == null && !explicitBinding.containsKey(implementor.name()))
+                        ? new String[] { DEFAULT_WORKER_NAME }
+                        : Stream.concat(
+                                Stream.ofNullable(annotation).flatMap(x -> Arrays.stream(x.value("workers").asStringArray())),
+                                Stream.ofNullable(explicitBinding.get(implementor.name())).flatMap(Collection::stream))
+                                .distinct()
+                                .toArray(String[]::new);
+
                 if (!Collections.disjoint(seenWorkers, Arrays.asList(workers))) {
                     throw new IllegalStateException(
                             "Activity " + target.asClass().name() + " has more than one implementor on worker");

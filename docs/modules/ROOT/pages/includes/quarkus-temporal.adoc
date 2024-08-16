@@ -78,6 +78,44 @@ endif::add-copy-button-to-env-var[]
 |
 
 
+a|icon:lock[title=Fixed at build time] [[quarkus-temporal_quarkus-temporal-worker-workflow-classes]]`link:#quarkus-temporal_quarkus-temporal-worker-workflow-classes[quarkus.temporal.worker.workflow-classes]`
+
+`link:#quarkus-temporal_quarkus-temporal-worker-workflow-classes[quarkus.temporal.worker."worker-name".workflow-classes]`
+
+
+[.description]
+--
+Explicitly bind a workflow with this worker
+
+ifdef::add-copy-button-to-env-var[]
+Environment variable: env_var_with_copy_button:+++QUARKUS_TEMPORAL_WORKER_WORKFLOW_CLASSES+++[]
+endif::add-copy-button-to-env-var[]
+ifndef::add-copy-button-to-env-var[]
+Environment variable: `+++QUARKUS_TEMPORAL_WORKER_WORKFLOW_CLASSES+++`
+endif::add-copy-button-to-env-var[]
+--|list of string 
+|
+
+
+a|icon:lock[title=Fixed at build time] [[quarkus-temporal_quarkus-temporal-worker-activity-classes]]`link:#quarkus-temporal_quarkus-temporal-worker-activity-classes[quarkus.temporal.worker.activity-classes]`
+
+`link:#quarkus-temporal_quarkus-temporal-worker-activity-classes[quarkus.temporal.worker."worker-name".activity-classes]`
+
+
+[.description]
+--
+Explicitly bind a workflow with this worker
+
+ifdef::add-copy-button-to-env-var[]
+Environment variable: env_var_with_copy_button:+++QUARKUS_TEMPORAL_WORKER_ACTIVITY_CLASSES+++[]
+endif::add-copy-button-to-env-var[]
+ifndef::add-copy-button-to-env-var[]
+Environment variable: `+++QUARKUS_TEMPORAL_WORKER_ACTIVITY_CLASSES+++`
+endif::add-copy-button-to-env-var[]
+--|list of string 
+|
+
+
 a| [[quarkus-temporal_quarkus-temporal-worker-task-queue]]`link:#quarkus-temporal_quarkus-temporal-worker-task-queue[quarkus.temporal.worker.task-queue]`
 
 `link:#quarkus-temporal_quarkus-temporal-worker-task-queue[quarkus.temporal.worker."worker-name".task-queue]`
