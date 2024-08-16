@@ -84,8 +84,7 @@ public class WorkerFactoryRecorder {
     public <T> Function<SyntheticCreationalContext<T>, T> createWorkflowStub(Class<T> workflow, String name) {
         return context -> {
             InjectionPoint injectionPoint = context.getInjectedReference(InjectionPoint.class);
-            TemporalWorkflowStub annotation = (TemporalWorkflowStub) injectionPoint.getQualifiers().stream()
-                    .filter(x -> x instanceof TemporalWorkflowStub).findFirst().orElse(null);
+            TemporalWorkflowStub annotation = extractAnnotationFromInjectionPoint(injectionPoint);
             WorkerRuntimeConfig workerRuntimeConfig = config.worker().get(name);
             WorkflowOptions.Builder options = WorkflowOptions.newBuilder()
                     .setTaskQueue(createQueueName(name, workerRuntimeConfig));
@@ -94,6 +93,11 @@ public class WorkerFactoryRecorder {
             }
             return context.getInjectedReference(WorkflowClient.class).newWorkflowStub(workflow, options.build());
         };
+    }
+
+    TemporalWorkflowStub extractAnnotationFromInjectionPoint(InjectionPoint injectionPoint) {
+        return (TemporalWorkflowStub) injectionPoint.getQualifiers().stream()
+                .filter(x -> x instanceof TemporalWorkflowStub).findFirst().orElse(null);
     }
 
     public void startWorkerFactory(ShutdownContext shutdownContext) {

@@ -34,7 +34,6 @@ import io.quarkiverse.temporal.WorkflowImpl;
 import io.quarkiverse.temporal.WorkflowServiceStubsRecorder;
 import io.quarkiverse.temporal.config.TemporalBuildtimeConfig;
 import io.quarkus.arc.deployment.AdditionalBeanBuildItem;
-import io.quarkus.arc.deployment.BeanArchiveIndexBuildItem;
 import io.quarkus.arc.deployment.SyntheticBeanBuildItem;
 import io.quarkus.arc.deployment.SyntheticBeansRuntimeInitBuildItem;
 import io.quarkus.deployment.Capabilities;
@@ -82,7 +81,7 @@ public class TemporalProcessor {
     @Produce(ArtifactResultBuildItem.class)
     void produceWorkflows(
             TemporalBuildtimeConfig temporalBuildtimeConfig,
-            BeanArchiveIndexBuildItem beanArchiveBuildItem,
+            CombinedIndexBuildItem beanArchiveBuildItem,
             BuildProducer<WorkflowImplBuildItem> producer) {
 
         Map<DotName, Set<String>> explicitBinding = new HashMap<>();
@@ -92,13 +91,8 @@ public class TemporalProcessor {
                 for (String workflowClass : classes) {
                     DotName className = DotName.createSimple(workflowClass);
                     ClassInfo classInfo = beanArchiveBuildItem.getIndex().getClassByName(className);
-                    if (classInfo == null
-                            || classInfo.interfaceNames().stream()
-                                    .noneMatch(interfaceName -> {
-                                        ClassInfo interfaceInfo = beanArchiveBuildItem.getIndex().getClassByName(interfaceName);
-                                        return interfaceInfo.hasAnnotation(WORKFLOW_INTERFACE);
-                                    })) {
-                        throw new ConfigurationException("Class " + workflowClass + " is not an activity");
+                    if (doesNotImplementAnnotatedInterface(beanArchiveBuildItem, classInfo, WORKFLOW_INTERFACE)) {
+                        throw new ConfigurationException("Class " + workflowClass + " is not an workflow");
                     }
                     explicitBinding.computeIfAbsent(className, (k) -> new HashSet<>())
                             .add(worker);
@@ -112,17 +106,10 @@ public class TemporalProcessor {
             Collection<ClassInfo> allKnownImplementors = beanArchiveBuildItem.getIndex()
                     .getAllKnownImplementors(target.asClass().name());
             Set<String> seenWorkers = new HashSet<>();
-            allKnownImplementors.forEach(implementor -> {
-
+            for (ClassInfo implementor : allKnownImplementors) {
                 AnnotationInstance annotation = implementor.annotation(WORKFLOW_IMPL);
 
-                String[] workers = (annotation == null && !explicitBinding.containsKey(implementor.name()))
-                        ? new String[] { DEFAULT_WORKER_NAME }
-                        : Stream.concat(
-                                Stream.ofNullable(annotation).flatMap(x -> Arrays.stream(x.value("workers").asStringArray())),
-                                Stream.ofNullable(explicitBinding.get(implementor.name())).flatMap(Collection::stream))
-                                .distinct()
-                                .toArray(String[]::new);
+                String[] workers = extractWorkersFromAnnotationAndExplicitBinding(implementor, annotation, explicitBinding);
 
                 if (!Collections.disjoint(seenWorkers, Arrays.asList(workers))) {
                     throw new IllegalStateException(
@@ -130,7 +117,7 @@ public class TemporalProcessor {
                 }
                 Collections.addAll(seenWorkers, workers);
                 producer.produce(new WorkflowImplBuildItem(loadClass(target.asClass()), loadClass(implementor), workers));
-            });
+            }
         }
     }
 
@@ -146,12 +133,7 @@ public class TemporalProcessor {
                 for (String activityClass : classes) {
                     DotName className = DotName.createSimple(activityClass);
                     ClassInfo classInfo = beanArchiveBuildItem.getIndex().getClassByName(className);
-                    if (classInfo == null
-                            || classInfo.interfaceNames().stream()
-                                    .noneMatch(interfaceName -> {
-                                        ClassInfo interfaceInfo = beanArchiveBuildItem.getIndex().getClassByName(interfaceName);
-                                        return interfaceInfo.hasAnnotation(ACTIVITY_INTERFACE);
-                                    })) {
+                    if (doesNotImplementAnnotatedInterface(beanArchiveBuildItem, classInfo, ACTIVITY_INTERFACE)) {
                         throw new ConfigurationException("Class " + activityClass + " is not an activity");
                     }
                     explicitBinding.computeIfAbsent(DotName.createSimple(activityClass), (k) -> new HashSet<>())
@@ -166,16 +148,10 @@ public class TemporalProcessor {
             Collection<ClassInfo> allKnownImplementors = beanArchiveBuildItem.getIndex()
                     .getAllKnownImplementors(target.asClass().name());
             Set<String> seenWorkers = new HashSet<>();
-            allKnownImplementors.forEach(implementor -> {
+            for (ClassInfo implementor : allKnownImplementors) {
                 AnnotationInstance annotation = implementor.annotation(ACTIVITY_IMPL);
 
-                String[] workers = (annotation == null && !explicitBinding.containsKey(implementor.name()))
-                        ? new String[] { DEFAULT_WORKER_NAME }
-                        : Stream.concat(
-                                Stream.ofNullable(annotation).flatMap(x -> Arrays.stream(x.value("workers").asStringArray())),
-                                Stream.ofNullable(explicitBinding.get(implementor.name())).flatMap(Collection::stream))
-                                .distinct()
-                                .toArray(String[]::new);
+                String[] workers = extractWorkersFromAnnotationAndExplicitBinding(implementor, annotation, explicitBinding);
 
                 if (!Collections.disjoint(seenWorkers, Arrays.asList(workers))) {
                     throw new IllegalStateException(
@@ -183,8 +159,29 @@ public class TemporalProcessor {
                 }
                 Collections.addAll(seenWorkers, workers);
                 producer.produce(new ActivityImplBuildItem(loadClass(implementor), workers));
-            });
+            }
         }
+    }
+
+    boolean doesNotImplementAnnotatedInterface(CombinedIndexBuildItem beanArchiveBuildItem, ClassInfo classInfo,
+            DotName annotation) {
+        return classInfo == null
+                || classInfo.interfaceNames().stream()
+                        .noneMatch(interfaceName -> {
+                            ClassInfo interfaceInfo = beanArchiveBuildItem.getIndex().getClassByName(interfaceName);
+                            return interfaceInfo.hasAnnotation(annotation);
+                        });
+    }
+
+    String[] extractWorkersFromAnnotationAndExplicitBinding(ClassInfo implementor, AnnotationInstance annotation,
+            Map<DotName, Set<String>> explicitBinding) {
+        return (annotation == null && !explicitBinding.containsKey(implementor.name()))
+                ? new String[] { DEFAULT_WORKER_NAME }
+                : Stream.concat(
+                        Stream.ofNullable(annotation).flatMap(x -> Arrays.stream(x.value("workers").asStringArray())),
+                        Stream.ofNullable(explicitBinding.get(implementor.name())).flatMap(Collection::stream))
+                        .distinct()
+                        .toArray(String[]::new);
     }
 
     @BuildStep

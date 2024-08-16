@@ -39,7 +39,7 @@ public interface SendEmailWorkflow {
 }
 ----
 
-The following workflow definition will be added automatically to the default worker:
+The following workflow definition will be automatically bound to the default worker:
 
 [source,java]
 ----
@@ -50,7 +50,7 @@ public class SendEmailWorkflowImpl implements SendEmailWorkflow {
 }
 ----
 
-It is possible to associate the workflow to a named worker instead:
+It is possible to associate the workflow with one or more named workers instead by annotating it with @WorkflowImpl:
 
 [source,java]
 ----
@@ -60,6 +60,13 @@ public class SendEmailWorkflowImpl implements SendEmailWorkflow {
     public void run(WorkflowData data) {
     }
 }
+----
+
+If you don't have control over the workflow class, it is also possible to bind it with a worker using the workflow-classes configuration property of the worker:
+
+[source,properties]
+----
+quarkus.temporal.worker.namedWorker.workflow-classes[0]: io.quarkiverse.temporal.SendEmailWorkflowImpl
 ----
 
 Each worker can have at most one implementation of a given workflow, but a workflow can have implementations across multiple workers.
@@ -95,7 +102,7 @@ public class SendEmailActivitiesImpl implements SendEmailActivities {
 
 <1> CDI Dependency Injection is allowed in activity definition.
 
-It is possible to associate the activity to a named worker instead:
+It is possible to associate the activity with one or more named workers instead by annotating it with @ActivityImpl:
 
 [source,java]
 ----
@@ -106,6 +113,13 @@ public class SendEmailActivitiesImpl implements SendEmailActivities {
 
     }
 }
+----
+
+If you don't have control over the activity class, it is also possible to bind it with a worker using the activity-classes configuration property of the worker:
+
+[source,properties]
+----
+quarkus.temporal.worker.namedWorker.activity-classes[0]: io.quarkiverse.temporal.SendEmailActivitiesImpl
 ----
 
 Similarly, each worker can have at most one implementation of a given activity, but an activity can have implementations across multiple workers.
