@@ -1,8 +1,8 @@
 package io.quarkiverse.temporal.deployment.stub;
 
-import io.quarkiverse.temporal.WorkflowImpl;
+import io.quarkiverse.temporal.TemporalWorkflow;
 
-@WorkflowImpl(workers = "namedWorker")
+@TemporalWorkflow(workers = "namedWorker")
 public class NamedSimpleWorkflowImpl implements SimpleWorkflow {
 
     @Override

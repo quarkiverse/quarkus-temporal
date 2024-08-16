@@ -1,8 +1,8 @@
 package io.quarkiverse.temporal.deployment.discovery;
 
-import io.quarkiverse.temporal.ActivityImpl;
+import io.quarkiverse.temporal.TemporalActivity;
 
-@ActivityImpl(workers = "namedWorker")
+@TemporalActivity(workers = "namedWorker")
 public class NamedSimpleActivityImpl implements SimpleActivity {
     @Override
     public void withdraw() {

@@ -1,10 +1,10 @@
 package io.quarkiverse.temporal.it.moneyTransfer.namedWorker;
 
-import io.quarkiverse.temporal.ActivityImpl;
+import io.quarkiverse.temporal.TemporalActivity;
 import io.quarkiverse.temporal.it.moneyTransfer.shared.AccountActivity;
 import io.temporal.activity.Activity;
 
-@ActivityImpl(workers = "namedWorker")
+@TemporalActivity(workers = "namedWorker")
 public class AccountActivityImpl implements AccountActivity {
 
     // Mock up the withdrawal of an amount of money from the source account
