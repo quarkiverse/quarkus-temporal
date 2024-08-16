@@ -1,5 +1,5 @@
 <div align="center">
-<img src="https://raw.githubusercontent.com/quarkiverse/quarkus-temporal/master/docs/modules/ROOT/assets/images/quarkus.svg" width="67" height="70" ><img src="https://raw.githubusercontent.com/quarkiverse/quarkus-temporal/master/docs/modules/ROOT/assets/images/plus-sign.svg" height="70" ><img src="https://raw.githubusercontent.com/quarkiverse/quarkus-temporal/master/docs/modules/ROOT/assets/images/temporal.svg" height="70" >
+<img src="https://raw.githubusercontent.com/quarkiverse/quarkus-temporal/master/docs/modules/ROOT/assets/images/quarkus.svg" width="67" height="70" ><img src="https://raw.githubusercontent.com/quarkiverse/quarkus-temporal/master/docs/modules/ROOT/assets/images/plus-sign.svg" height="70" ><img src="https://raw.githubusercontent.com/quarkiverse/quarkus-temporal/master/docs/modules/ROOT/assets/images/temporal_logo.svg" height="70" >
 
 # Quarkus Temporal
 </div>
