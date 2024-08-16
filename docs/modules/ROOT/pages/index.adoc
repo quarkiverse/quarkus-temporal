@@ -98,7 +98,7 @@ The following activity definition will be added automatically to the default wor
 public class SendEmailActivitiesImpl implements SendEmailActivities {
 
     @Inject // <1>
-    AgroalDataSource defaultDataSource;
+    Mailer mailer;
 
     @Override
     public String sendEmail(EmailDetails details) {
