@@ -82,6 +82,7 @@ public class TemporalProcessor {
     void produceWorkflows(
             TemporalBuildtimeConfig temporalBuildtimeConfig,
             CombinedIndexBuildItem beanArchiveBuildItem,
+            BuildProducer<WorkflowBuildItem> workflowProducer,
             BuildProducer<WorkflowImplBuildItem> producer) {
 
         Map<DotName, Set<String>> explicitBinding = new HashMap<>();
@@ -102,9 +103,9 @@ public class TemporalProcessor {
 
         Collection<AnnotationInstance> instances = beanArchiveBuildItem.getIndex().getAnnotations(WORKFLOW_INTERFACE);
         for (AnnotationInstance instance : instances) {
-            AnnotationTarget target = instance.target();
+            ClassInfo workflow = instance.target().asClass();
             Collection<ClassInfo> allKnownImplementors = beanArchiveBuildItem.getIndex()
-                    .getAllKnownImplementors(target.asClass().name());
+                    .getAllKnownImplementors(workflow.asClass().name());
             Set<String> seenWorkers = new HashSet<>();
             for (ClassInfo implementor : allKnownImplementors) {
                 AnnotationInstance annotation = implementor.annotation(WORKFLOW_IMPL);
@@ -113,11 +114,12 @@ public class TemporalProcessor {
 
                 if (!Collections.disjoint(seenWorkers, Arrays.asList(workers))) {
                     throw new IllegalStateException(
-                            "Workflow " + target.asClass().name() + " has more than one implementor on worker");
+                            "Workflow " + workflow.name() + " has more than one implementor on worker");
                 }
                 Collections.addAll(seenWorkers, workers);
-                producer.produce(new WorkflowImplBuildItem(loadClass(target.asClass()), loadClass(implementor), workers));
+                producer.produce(new WorkflowImplBuildItem(loadClass(workflow), loadClass(implementor), workers));
             }
+            workflowProducer.produce(new WorkflowBuildItem(loadClass(workflow), seenWorkers.toArray(new String[0])));
         }
     }
 
@@ -270,9 +272,25 @@ public class TemporalProcessor {
     @Record(ExecutionTime.RUNTIME_INIT)
     void produceWorkflowStubSyntheticBeans(
             BuildProducer<SyntheticBeanBuildItem> producer,
-            List<WorkflowImplBuildItem> workflowImplBuildItems,
+            List<WorkflowBuildItem> workflowImplBuildItems,
             WorkerFactoryRecorder recorder) {
-        for (WorkflowImplBuildItem workflowBuildItem : workflowImplBuildItems) {
+        for (WorkflowBuildItem workflowBuildItem : workflowImplBuildItems) {
+            if (workflowBuildItem.workers.length == 1) {
+                producer.produce(
+                        SyntheticBeanBuildItem.configure(workflowBuildItem.workflow)
+                                .scope(Dependent.class)
+                                .addInjectionPoint(ClassType.create(InjectionPoint.class))
+                                .addInjectionPoint(ClassType.create(WorkflowClient.class))
+                                .addQualifier()
+                                .annotation(TemporalWorkflowStub.class)
+                                .addValue("worker", TemporalWorkflowStub.DEFAULT_WORKER)
+                                .done()
+                                .createWith(
+                                        recorder.createWorkflowStub(workflowBuildItem.workflow, workflowBuildItem.workers[0]))
+                                .setRuntimeInit()
+                                .done());
+            }
+
             for (String worker : workflowBuildItem.workers) {
                 producer.produce(
                         SyntheticBeanBuildItem.configure(workflowBuildItem.workflow)
