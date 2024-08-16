@@ -2,14 +2,14 @@ package io.quarkiverse.temporal.it.cdi.namedWorker;
 
 import java.time.Duration;
 
-import io.quarkiverse.temporal.WorkflowImpl;
+import io.quarkiverse.temporal.TemporalWorkflow;
 import io.quarkiverse.temporal.it.cdi.shared.CDIActivity;
 import io.quarkiverse.temporal.it.cdi.shared.CDIWorkflow;
 import io.temporal.activity.ActivityOptions;
 import io.temporal.common.RetryOptions;
 import io.temporal.workflow.Workflow;
 
-@WorkflowImpl(workers = "namedWorker")
+@TemporalWorkflow(workers = "namedWorker")
 public class CDIWorkflowImpl implements CDIWorkflow {
 
     // RetryOptions specify how to automatically handle retries when Activities fail

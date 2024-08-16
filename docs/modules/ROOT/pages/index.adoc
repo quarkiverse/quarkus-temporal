@@ -50,11 +50,11 @@ public class SendEmailWorkflowImpl implements SendEmailWorkflow {
 }
 ----
 
-It is possible to associate the workflow with one or more named workers instead by annotating it with @WorkflowImpl:
+It is possible to associate the workflow with one or more named workers instead by annotating it with @TemporalWorkflow:
 
 [source,java]
 ----
-@WorkflowImpl(workers = "named-worker")
+@TemporalWorkflow(workers = "named-worker")
 public class SendEmailWorkflowImpl implements SendEmailWorkflow {
     @Override
     public void run(WorkflowData data) {
@@ -62,11 +62,18 @@ public class SendEmailWorkflowImpl implements SendEmailWorkflow {
 }
 ----
 
-If you don't have control over the workflow class, it is also possible to bind it with a worker using the workflow-classes configuration property of the worker:
+If you don't have control over the workflow class, it is also possible to bind it with a worker using the workflow-classes configuration property of the worker.
 
 [source,properties]
 ----
 quarkus.temporal.worker.namedWorker.workflow-classes[0]: io.quarkiverse.temporal.SendEmailWorkflowImpl
+----
+
+In this case, it will not be associated with the default worker unless you also bind it explicitely:
+
+[source,properties]
+----
+quarkus.temporal.worker.workflow-classes[0]: io.quarkiverse.temporal.SendEmailWorkflowImpl
 ----
 
 Each worker can have at most one implementation of a given workflow, but a workflow can have implementations across multiple workers.
@@ -102,11 +109,11 @@ public class SendEmailActivitiesImpl implements SendEmailActivities {
 
 <1> CDI Dependency Injection is allowed in activity definition.
 
-It is possible to associate the activity with one or more named workers instead by annotating it with @ActivityImpl:
+It is possible to associate the activity with one or more named workers instead by annotating it with @TemporalActivity:
 
 [source,java]
 ----
-@ActivityImpl(workers = "named-worker")
+@TemporalActivity(workers = "named-worker")
 public class SendEmailActivitiesImpl implements SendEmailActivities {
     @Override
     public String sendEmail(EmailDetails details) {
@@ -120,6 +127,13 @@ If you don't have control over the activity class, it is also possible to bind i
 [source,properties]
 ----
 quarkus.temporal.worker.namedWorker.activity-classes[0]: io.quarkiverse.temporal.SendEmailActivitiesImpl
+----
+
+In this case, it will not be associated with the default worker unless you also bind it explicitely:
+
+[source,properties]
+----
+quarkus.temporal.worker.activity-classes[0]: io.quarkiverse.temporal.SendEmailActivitiesImpl
 ----
 
 Similarly, each worker can have at most one implementation of a given activity, but an activity can have implementations across multiple workers.

@@ -26,11 +26,11 @@ import org.jboss.jandex.ClassInfo;
 import org.jboss.jandex.ClassType;
 import org.jboss.jandex.DotName;
 
-import io.quarkiverse.temporal.ActivityImpl;
+import io.quarkiverse.temporal.TemporalActivity;
+import io.quarkiverse.temporal.TemporalWorkflow;
 import io.quarkiverse.temporal.TemporalWorkflowStub;
 import io.quarkiverse.temporal.WorkerFactoryRecorder;
 import io.quarkiverse.temporal.WorkflowClientRecorder;
-import io.quarkiverse.temporal.WorkflowImpl;
 import io.quarkiverse.temporal.WorkflowServiceStubsRecorder;
 import io.quarkiverse.temporal.config.TemporalBuildtimeConfig;
 import io.quarkus.arc.deployment.AdditionalBeanBuildItem;
@@ -57,9 +57,9 @@ import io.temporal.workflow.WorkflowInterface;
 
 public class TemporalProcessor {
 
-    public static final DotName ACTIVITY_IMPL = DotName.createSimple(ActivityImpl.class);
+    public static final DotName ACTIVITY_IMPL = DotName.createSimple(TemporalActivity.class);
 
-    public static final DotName WORKFLOW_IMPL = DotName.createSimple(WorkflowImpl.class);
+    public static final DotName WORKFLOW_IMPL = DotName.createSimple(TemporalWorkflow.class);
 
     public static final DotName WORKFLOW_INTERFACE = DotName.createSimple(WorkflowInterface.class);
 

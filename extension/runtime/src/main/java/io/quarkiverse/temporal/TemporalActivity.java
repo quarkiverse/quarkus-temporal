@@ -7,7 +7,7 @@ import java.lang.annotation.Target;
 
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ ElementType.TYPE })
-public @interface WorkflowImpl {
+public @interface TemporalActivity {
 
     /**
      * @return names of Workers to register this activity bean with. Workers with these names must be

@@ -4,7 +4,7 @@ import java.time.Duration;
 import java.util.HashMap;
 import java.util.Map;
 
-import io.quarkiverse.temporal.WorkflowImpl;
+import io.quarkiverse.temporal.TemporalWorkflow;
 import io.quarkiverse.temporal.it.moneyTransfer.shared.AccountActivity;
 import io.quarkiverse.temporal.it.moneyTransfer.shared.MoneyTransferWorkflow;
 import io.quarkiverse.temporal.it.moneyTransfer.shared.TransactionDetails;
@@ -12,7 +12,7 @@ import io.temporal.activity.ActivityOptions;
 import io.temporal.common.RetryOptions;
 import io.temporal.workflow.Workflow;
 
-@WorkflowImpl(workers = "namedWorker")
+@TemporalWorkflow(workers = "namedWorker")
 public class MoneyTransferWorkflowImpl implements MoneyTransferWorkflow {
     private static final String WITHDRAW = "Withdraw";
 
