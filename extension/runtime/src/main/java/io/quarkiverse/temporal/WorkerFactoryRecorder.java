@@ -6,9 +6,12 @@ import java.util.function.Function;
 import jakarta.enterprise.inject.spi.CDI;
 import jakarta.enterprise.inject.spi.InjectionPoint;
 
+import io.quarkiverse.temporal.config.TemporalBuildtimeConfig;
 import io.quarkiverse.temporal.config.TemporalRuntimeConfig;
+import io.quarkiverse.temporal.config.WorkerBuildtimeConfig;
 import io.quarkiverse.temporal.config.WorkerRuntimeConfig;
 import io.quarkus.arc.SyntheticCreationalContext;
+import io.quarkus.info.GitInfo;
 import io.quarkus.runtime.ShutdownContext;
 import io.quarkus.runtime.annotations.Recorder;
 import io.temporal.client.WorkflowClient;
@@ -20,40 +23,44 @@ import io.temporal.worker.WorkerOptions;
 @Recorder
 public class WorkerFactoryRecorder {
 
-    public WorkerFactoryRecorder(TemporalRuntimeConfig config) {
-        this.config = config;
+    public WorkerFactoryRecorder(TemporalRuntimeConfig runtimeConfig, TemporalBuildtimeConfig buildtimeConfig) {
+        this.runtimeConfig = runtimeConfig;
+        this.buildtimeConfig = buildtimeConfig;
     }
 
-    final TemporalRuntimeConfig config;
+    final TemporalRuntimeConfig runtimeConfig;
+    final TemporalBuildtimeConfig buildtimeConfig;
 
     public Function<SyntheticCreationalContext<WorkerFactory>, WorkerFactory> createWorkerFactory() {
         return context -> WorkerFactory.newInstance(context.getInjectedReference(WorkflowClient.class));
     }
 
-    public WorkerOptions createWorkerOptions(WorkerRuntimeConfig config) {
-        if (config == null) {
+    public WorkerOptions createWorkerOptions(WorkerRuntimeConfig workerRuntimeConfig,
+            WorkerBuildtimeConfig workerBuildtimeConfig) {
+        if (workerRuntimeConfig == null) {
             return WorkerOptions.getDefaultInstance();
         }
 
         WorkerOptions.Builder builder = WorkerOptions.newBuilder()
-                .setMaxWorkerActivitiesPerSecond(config.maxWorkerActivitiesPerSecond())
-                .setMaxConcurrentActivityExecutionSize(config.maxConcurrentActivityExecutionSize())
-                .setMaxConcurrentWorkflowTaskExecutionSize(config.maxConcurrentWorkflowTaskExecutionSize())
-                .setMaxConcurrentLocalActivityExecutionSize(config.maxConcurrentLocalActivityExecutionSize())
-                .setMaxTaskQueueActivitiesPerSecond(config.maxTaskQueueActivitiesPerSecond())
-                .setMaxConcurrentWorkflowTaskPollers(config.maxConcurrentWorkflowTaskPollers())
-                .setMaxConcurrentActivityTaskPollers(config.maxConcurrentActivityTaskPollers())
-                .setLocalActivityWorkerOnly(config.localActivityWorkerOnly())
-                .setDefaultDeadlockDetectionTimeout(config.defaultDeadlockDetectionTimeout())
-                .setMaxHeartbeatThrottleInterval(config.maxHeartbeatThrottleInterval())
-                .setDefaultHeartbeatThrottleInterval(config.defaultHeartbeatThrottleInterval())
-                .setStickyQueueScheduleToStartTimeout(config.stickyQueueScheduleToStartTimeout())
-                .setDisableEagerExecution(config.disableEagerExecution())
-                .setUseBuildIdForVersioning(config.useBuildIdForVersioning())
-                .setStickyTaskQueueDrainTimeout(config.stickyTaskQueueDrainTimeout());
+                .setMaxWorkerActivitiesPerSecond(workerRuntimeConfig.maxWorkerActivitiesPerSecond())
+                .setMaxConcurrentActivityExecutionSize(workerRuntimeConfig.maxConcurrentActivityExecutionSize())
+                .setMaxConcurrentWorkflowTaskExecutionSize(workerRuntimeConfig.maxConcurrentWorkflowTaskExecutionSize())
+                .setMaxConcurrentLocalActivityExecutionSize(workerRuntimeConfig.maxConcurrentLocalActivityExecutionSize())
+                .setMaxTaskQueueActivitiesPerSecond(workerRuntimeConfig.maxTaskQueueActivitiesPerSecond())
+                .setMaxConcurrentWorkflowTaskPollers(workerRuntimeConfig.maxConcurrentWorkflowTaskPollers())
+                .setMaxConcurrentActivityTaskPollers(workerRuntimeConfig.maxConcurrentActivityTaskPollers())
+                .setLocalActivityWorkerOnly(workerRuntimeConfig.localActivityWorkerOnly())
+                .setDefaultDeadlockDetectionTimeout(workerRuntimeConfig.defaultDeadlockDetectionTimeout())
+                .setMaxHeartbeatThrottleInterval(workerRuntimeConfig.maxHeartbeatThrottleInterval())
+                .setDefaultHeartbeatThrottleInterval(workerRuntimeConfig.defaultHeartbeatThrottleInterval())
+                .setStickyQueueScheduleToStartTimeout(workerRuntimeConfig.stickyQueueScheduleToStartTimeout())
+                .setDisableEagerExecution(workerRuntimeConfig.disableEagerExecution())
+                .setUseBuildIdForVersioning(workerRuntimeConfig.useBuildIdForVersioning())
+                .setStickyTaskQueueDrainTimeout(workerRuntimeConfig.stickyTaskQueueDrainTimeout())
+                .setBuildId(workerBuildtimeConfig.buildId()
+                        .orElseGet(() -> CDI.current().select(GitInfo.class).get().latestCommitId()));
 
-        config.buildId().ifPresent(builder::setBuildId);
-        config.identity().ifPresent(builder::setIdentity);
+        workerRuntimeConfig.identity().ifPresent(builder::setIdentity);
 
         return builder.build();
 
@@ -69,9 +76,11 @@ public class WorkerFactoryRecorder {
     public void createWorker(String name, List<Class<?>> workflows,
             List<Class<?>> activities) {
         WorkerFactory workerFactory = CDI.current().select(WorkerFactory.class).get();
-        WorkerRuntimeConfig workerRuntimeConfig = config.worker().get(name);
+        WorkerRuntimeConfig workerRuntimeConfig = runtimeConfig.worker().get(name);
+        WorkerBuildtimeConfig workerBuildtimeConfig = buildtimeConfig.worker().get(name);
+
         Worker worker = workerFactory.newWorker(createQueueName(name, workerRuntimeConfig),
-                createWorkerOptions(workerRuntimeConfig));
+                createWorkerOptions(workerRuntimeConfig, workerBuildtimeConfig));
         for (var workflow : workflows) {
             worker.registerWorkflowImplementationTypes(workflow);
         }
@@ -85,7 +94,7 @@ public class WorkerFactoryRecorder {
         return context -> {
             InjectionPoint injectionPoint = context.getInjectedReference(InjectionPoint.class);
             TemporalWorkflowStub annotation = extractAnnotationFromInjectionPoint(injectionPoint);
-            WorkerRuntimeConfig workerRuntimeConfig = config.worker().get(name);
+            WorkerRuntimeConfig workerRuntimeConfig = runtimeConfig.worker().get(name);
             WorkflowOptions.Builder options = WorkflowOptions.newBuilder()
                     .setTaskQueue(createQueueName(name, workerRuntimeConfig));
             if (annotation != null && !TemporalWorkflowStub.DEFAULT_WORKFLOW_ID.equals(annotation.workflowId())) {

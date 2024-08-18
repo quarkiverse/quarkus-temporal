@@ -78,6 +78,25 @@ endif::add-copy-button-to-env-var[]
 |
 
 
+a|icon:lock[title=Fixed at build time] [[quarkus-temporal_quarkus-temporal-worker-build-id]]`link:#quarkus-temporal_quarkus-temporal-worker-build-id[quarkus.temporal.worker.build-id]`
+
+`link:#quarkus-temporal_quarkus-temporal-worker-build-id[quarkus.temporal.worker."worker-name".build-id]`
+
+
+[.description]
+--
+Set a unique identifier for this worker. The identifier should be stable with respect to the code the worker uses for workflows, activities, and interceptors. For more information see: TODO: Doc link A Build Id must be set if useBuildIdForVersioning is set true. Defaults to the latest commit id
+
+ifdef::add-copy-button-to-env-var[]
+Environment variable: env_var_with_copy_button:+++QUARKUS_TEMPORAL_WORKER_BUILD_ID+++[]
+endif::add-copy-button-to-env-var[]
+ifndef::add-copy-button-to-env-var[]
+Environment variable: `+++QUARKUS_TEMPORAL_WORKER_BUILD_ID+++`
+endif::add-copy-button-to-env-var[]
+--|string 
+|
+
+
 a|icon:lock[title=Fixed at build time] [[quarkus-temporal_quarkus-temporal-worker-workflow-classes]]`link:#quarkus-temporal_quarkus-temporal-worker-workflow-classes[quarkus.temporal.worker.workflow-classes]`
 
 `link:#quarkus-temporal_quarkus-temporal-worker-workflow-classes[quarkus.temporal.worker."worker-name".workflow-classes]`
@@ -402,25 +421,6 @@ Environment variable: `+++QUARKUS_TEMPORAL_WORKER_USE_BUILD_ID_FOR_VERSIONING+++
 endif::add-copy-button-to-env-var[]
 --|boolean 
 |`false`
-
-
-a| [[quarkus-temporal_quarkus-temporal-worker-build-id]]`link:#quarkus-temporal_quarkus-temporal-worker-build-id[quarkus.temporal.worker.build-id]`
-
-`link:#quarkus-temporal_quarkus-temporal-worker-build-id[quarkus.temporal.worker."worker-name".build-id]`
-
-
-[.description]
---
-Set a unique identifier for this worker. The identifier should be stable with respect to the code the worker uses for workflows, activities, and interceptors. For more information see: TODO: Doc link A Build Id must be set if useBuildIdForVersioning is set true.
-
-ifdef::add-copy-button-to-env-var[]
-Environment variable: env_var_with_copy_button:+++QUARKUS_TEMPORAL_WORKER_BUILD_ID+++[]
-endif::add-copy-button-to-env-var[]
-ifndef::add-copy-button-to-env-var[]
-Environment variable: `+++QUARKUS_TEMPORAL_WORKER_BUILD_ID+++`
-endif::add-copy-button-to-env-var[]
---|string 
-|
 
 
 a| [[quarkus-temporal_quarkus-temporal-worker-sticky-task-queue-drain-timeout]]`link:#quarkus-temporal_quarkus-temporal-worker-sticky-task-queue-drain-timeout[quarkus.temporal.worker.sticky-task-queue-drain-timeout]`
