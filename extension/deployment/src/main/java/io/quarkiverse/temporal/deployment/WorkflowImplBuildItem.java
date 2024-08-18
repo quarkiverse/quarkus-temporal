@@ -12,6 +12,5 @@ public final class WorkflowImplBuildItem extends MultiBuildItem {
 
     public final Class<?> workflow;
     public final Class<?> implementation;
-
     public final String[] workers;
 }
