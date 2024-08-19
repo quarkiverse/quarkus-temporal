@@ -4,7 +4,6 @@ import java.util.List;
 import java.util.function.Function;
 
 import jakarta.enterprise.inject.spi.CDI;
-import jakarta.enterprise.inject.spi.InjectionPoint;
 
 import io.quarkiverse.temporal.config.TemporalBuildtimeConfig;
 import io.quarkiverse.temporal.config.TemporalRuntimeConfig;
@@ -15,7 +14,6 @@ import io.quarkus.info.GitInfo;
 import io.quarkus.runtime.ShutdownContext;
 import io.quarkus.runtime.annotations.Recorder;
 import io.temporal.client.WorkflowClient;
-import io.temporal.client.WorkflowOptions;
 import io.temporal.worker.Worker;
 import io.temporal.worker.WorkerFactory;
 import io.temporal.worker.WorkerOptions;
@@ -66,13 +64,6 @@ public class WorkerFactoryRecorder {
 
     }
 
-    public String createQueueName(String name, WorkerRuntimeConfig config) {
-        if (config == null) {
-            return name;
-        }
-        return config.taskQueue().orElse(name);
-    }
-
     public void createWorker(String name, List<Class<?>> workflows,
             List<Class<?>> activities) {
         WorkerFactory workerFactory = CDI.current().select(WorkerFactory.class).get();
@@ -90,28 +81,16 @@ public class WorkerFactoryRecorder {
 
     }
 
-    public <T> Function<SyntheticCreationalContext<T>, T> createWorkflowStub(Class<T> workflow, String name) {
-        return context -> {
-            InjectionPoint injectionPoint = context.getInjectedReference(InjectionPoint.class);
-            TemporalWorkflowStub annotation = extractAnnotationFromInjectionPoint(injectionPoint);
-            WorkerRuntimeConfig workerRuntimeConfig = runtimeConfig.worker().get(name);
-            WorkflowOptions.Builder options = WorkflowOptions.newBuilder()
-                    .setTaskQueue(createQueueName(name, workerRuntimeConfig));
-            if (annotation != null && !TemporalWorkflowStub.DEFAULT_WORKFLOW_ID.equals(annotation.workflowId())) {
-                options.setWorkflowId(annotation.workflowId());
-            }
-            return context.getInjectedReference(WorkflowClient.class).newWorkflowStub(workflow, options.build());
-        };
-    }
-
-    TemporalWorkflowStub extractAnnotationFromInjectionPoint(InjectionPoint injectionPoint) {
-        return (TemporalWorkflowStub) injectionPoint.getQualifiers().stream()
-                .filter(x -> x instanceof TemporalWorkflowStub).findFirst().orElse(null);
-    }
-
     public void startWorkerFactory(ShutdownContext shutdownContext) {
         WorkerFactory workerFactory = CDI.current().select(WorkerFactory.class).get();
         workerFactory.start();
         shutdownContext.addShutdownTask(workerFactory::shutdown);
+    }
+
+    public static String createQueueName(String name, WorkerRuntimeConfig config) {
+        if (config == null) {
+            return name;
+        }
+        return config.taskQueue().orElse(name);
     }
 }

@@ -44,4 +44,12 @@ public interface TemporalRuntimeConfig {
     @WithDefaults
     @WithUnnamedKey(DEFAULT_WORKER_NAME)
     Map<String, WorkerRuntimeConfig> worker();
+
+    /**
+     * Workflow Stub Configuration.
+     */
+    @ConfigDocMapKey("group-name")
+    @WithDefaults
+    @WithUnnamedKey(DEFAULT_WORKER_NAME)
+    Map<String, WorkflowRuntimeConfig> workflow();
 }

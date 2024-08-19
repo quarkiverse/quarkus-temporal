@@ -210,13 +210,15 @@ public class MyService {
 
     public void startSubscription(WorkflowData data) {
         SendEmailWorkflow workflow = CDI.current()
-                .select(SimpleWorkflow.class, new TemporalWorkflowStub.Literal("<default>", "dynamicWorkflowId")).get();
+                .select(SimpleWorkflow.class, TemporalWorkflowStub.Literal.builder()
+                        .worker("<default>")
+                        .workflowId("dynamicWorkflowId")
+                        .build()).get();
         workflow.run(data);
     }
 
 }
 ----
-
 
 
 [[extension-configuration-reference]]

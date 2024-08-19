@@ -21,7 +21,6 @@ import jakarta.enterprise.inject.spi.InjectionPoint;
 import jakarta.inject.Singleton;
 
 import org.jboss.jandex.AnnotationInstance;
-import org.jboss.jandex.AnnotationTarget;
 import org.jboss.jandex.ClassInfo;
 import org.jboss.jandex.ClassType;
 import org.jboss.jandex.DotName;
@@ -32,6 +31,7 @@ import io.quarkiverse.temporal.TemporalWorkflowStub;
 import io.quarkiverse.temporal.WorkerFactoryRecorder;
 import io.quarkiverse.temporal.WorkflowClientRecorder;
 import io.quarkiverse.temporal.WorkflowServiceStubsRecorder;
+import io.quarkiverse.temporal.WorkflowStubRecorder;
 import io.quarkiverse.temporal.config.TemporalBuildtimeConfig;
 import io.quarkus.arc.deployment.AdditionalBeanBuildItem;
 import io.quarkus.arc.deployment.SyntheticBeanBuildItem;
@@ -59,9 +59,11 @@ import io.temporal.workflow.WorkflowInterface;
 
 public class TemporalProcessor {
 
-    public static final DotName ACTIVITY_IMPL = DotName.createSimple(TemporalActivity.class);
+    public static final DotName TEMPORAL_WORKFLOW_STUB = DotName.createSimple(TemporalWorkflowStub.class);
 
-    public static final DotName WORKFLOW_IMPL = DotName.createSimple(TemporalWorkflow.class);
+    public static final DotName TEMPORAL_ACTIVITY = DotName.createSimple(TemporalActivity.class);
+
+    public static final DotName TEMPORAL_WORKFLOW = DotName.createSimple(TemporalWorkflow.class);
 
     public static final DotName WORKFLOW_INTERFACE = DotName.createSimple(WorkflowInterface.class);
 
@@ -109,17 +111,16 @@ public class TemporalProcessor {
             });
         });
 
-        Collection<AnnotationInstance> instances = beanArchiveBuildItem.getIndex().getAnnotations(WORKFLOW_INTERFACE);
-        for (AnnotationInstance instance : instances) {
-            ClassInfo workflow = instance.target().asClass();
+        Collection<AnnotationInstance> workflowInterfaces = beanArchiveBuildItem.getIndex().getAnnotations(WORKFLOW_INTERFACE);
+        for (AnnotationInstance workflowInterface : workflowInterfaces) {
+            ClassInfo workflow = workflowInterface.target().asClass();
             Collection<ClassInfo> allKnownImplementors = beanArchiveBuildItem.getIndex()
                     .getAllKnownImplementors(workflow.asClass().name());
             Set<String> seenWorkers = new HashSet<>();
             for (ClassInfo implementor : allKnownImplementors) {
-                AnnotationInstance annotation = implementor.annotation(WORKFLOW_IMPL);
-
-                String[] workers = extractWorkersFromAnnotationAndExplicitBinding(implementor, annotation, explicitBinding);
-
+                AnnotationInstance temporalWorkflow = implementor.annotation(TEMPORAL_WORKFLOW);
+                String[] workers = extractWorkersFromAnnotationAndExplicitBinding(implementor, temporalWorkflow,
+                        explicitBinding);
                 if (!Collections.disjoint(seenWorkers, Arrays.asList(workers))) {
                     throw new IllegalStateException(
                             "Workflow " + workflow.name() + " has more than one implementor on worker");
@@ -153,19 +154,18 @@ public class TemporalProcessor {
         });
 
         Collection<AnnotationInstance> instances = beanArchiveBuildItem.getIndex().getAnnotations(ACTIVITY_INTERFACE);
-        for (AnnotationInstance instance : instances) {
-            AnnotationTarget target = instance.target();
+        for (AnnotationInstance activityInterface : instances) {
+            ClassInfo activity = activityInterface.target().asClass();
             Collection<ClassInfo> allKnownImplementors = beanArchiveBuildItem.getIndex()
-                    .getAllKnownImplementors(target.asClass().name());
+                    .getAllKnownImplementors(activity.name());
             Set<String> seenWorkers = new HashSet<>();
             for (ClassInfo implementor : allKnownImplementors) {
-                AnnotationInstance annotation = implementor.annotation(ACTIVITY_IMPL);
-
-                String[] workers = extractWorkersFromAnnotationAndExplicitBinding(implementor, annotation, explicitBinding);
-
+                AnnotationInstance temporalActivity = implementor.annotation(TEMPORAL_ACTIVITY);
+                String[] workers = extractWorkersFromAnnotationAndExplicitBinding(implementor, temporalActivity,
+                        explicitBinding);
                 if (!Collections.disjoint(seenWorkers, Arrays.asList(workers))) {
                     throw new IllegalStateException(
-                            "Activity " + target.asClass().name() + " has more than one implementor on worker");
+                            "Activity " + activity.name() + " has more than one implementor on worker");
                 }
                 Collections.addAll(seenWorkers, workers);
                 producer.produce(new ActivityImplBuildItem(loadClass(implementor), workers));
@@ -281,7 +281,8 @@ public class TemporalProcessor {
     void produceWorkflowStubSyntheticBeans(
             BuildProducer<SyntheticBeanBuildItem> producer,
             List<WorkflowBuildItem> workflowImplBuildItems,
-            WorkerFactoryRecorder recorder) {
+            WorkflowStubRecorder recorder) {
+
         for (WorkflowBuildItem workflowBuildItem : workflowImplBuildItems) {
             if (workflowBuildItem.workers.length == 1) {
                 producer.produce(

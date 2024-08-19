@@ -64,7 +64,11 @@ public class TemporalWorkflowStubMultipleInjectionTest {
         WorkflowExecution otherExecution = WorkflowClient.start(defaultWorkflowWithOtherWorkflowId::transfer);
         Assertions.assertEquals("otherWorkflowIdForSimpleWorkflow", otherExecution.getWorkflowId());
         SimpleWorkflow dynamicWorkflow = CDI.current()
-                .select(SimpleWorkflow.class, new TemporalWorkflowStub.Literal(DEFAULT_WORKER_NAME, "dynamicWorkflowId")).get();
+                .select(SimpleWorkflow.class, TemporalWorkflowStub.Literal.builder()
+                        .worker(DEFAULT_WORKER_NAME)
+                        .workflowId("dynamicWorkflowId")
+                        .build())
+                .get();
         WorkflowExecution dynamicExecution = WorkflowClient.start(dynamicWorkflow::transfer);
         Assertions.assertEquals("dynamicWorkflowId", dynamicExecution.getWorkflowId());
 
