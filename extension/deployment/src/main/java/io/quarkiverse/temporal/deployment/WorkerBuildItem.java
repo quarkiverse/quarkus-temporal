@@ -12,8 +12,8 @@ public final class WorkerBuildItem extends MultiBuildItem {
         this.activities = activities;
     }
 
-    final String name;
-    final List<Class<?>> workflows;
-    final List<Class<?>> activities;
+    public final String name;
+    public final List<Class<?>> workflows;
+    public final List<Class<?>> activities;
 
 }
