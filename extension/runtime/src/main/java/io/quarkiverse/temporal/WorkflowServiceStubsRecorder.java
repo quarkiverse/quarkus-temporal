@@ -1,8 +1,10 @@
 package io.quarkiverse.temporal;
 
 import io.quarkiverse.temporal.config.ConnectionRuntimeConfig;
+import io.quarkiverse.temporal.config.RpcRetryRuntimeConfig;
 import io.quarkiverse.temporal.config.TemporalRuntimeConfig;
 import io.quarkus.runtime.annotations.Recorder;
+import io.temporal.serviceclient.RpcRetryOptions;
 import io.temporal.serviceclient.WorkflowServiceStubs;
 import io.temporal.serviceclient.WorkflowServiceStubsOptions;
 
@@ -15,18 +17,37 @@ public class WorkflowServiceStubsRecorder {
 
     final TemporalRuntimeConfig runtimeConfig;
 
-    public WorkflowServiceStubsOptions createWorkflowServiceStubsOptions() {
-        if (runtimeConfig == null) {
+    public RpcRetryOptions createRpcRetryOptions(RpcRetryRuntimeConfig rpcRetry) {
+        if (rpcRetry == null) {
+            return RpcRetryOptions.getDefaultInstance();
+        }
+
+        RpcRetryOptions.Builder builder = RpcRetryOptions.newBuilder()
+                .setInitialInterval(rpcRetry.initialInterval())
+                .setCongestionInitialInterval(rpcRetry.congestionInitialInterval())
+                .setExpiration(rpcRetry.expiration())
+                .setBackoffCoefficient(rpcRetry.backoffCoefficient())
+                .setMaximumAttempts(rpcRetry.maximumAttempts())
+                .setMaximumJitterCoefficient(rpcRetry.maximumJitterCoefficient());
+
+        rpcRetry.maximumInterval().ifPresent(builder::setMaximumInterval);
+        rpcRetry.doNotRetry().ifPresent(codes -> codes.forEach(code -> builder.addDoNotRetry(code, null)));
+        return builder.build();
+    }
+
+    public WorkflowServiceStubsOptions createWorkflowServiceStubsOptions(ConnectionRuntimeConfig connection) {
+        if (connection == null) {
             return WorkflowServiceStubsOptions.getDefaultInstance();
         }
-        ConnectionRuntimeConfig connection = runtimeConfig.connection();
         WorkflowServiceStubsOptions.Builder builder = WorkflowServiceStubsOptions.newBuilder()
+                .setRpcRetryOptions(createRpcRetryOptions(connection.rpcRetry()))
                 .setTarget(connection.target())
                 .setEnableHttps(connection.enableHttps());
         return builder.build();
     }
 
     public WorkflowServiceStubs createWorkflowServiceStubs() {
-        return WorkflowServiceStubs.newServiceStubs(createWorkflowServiceStubsOptions());
+        return WorkflowServiceStubs.newServiceStubs(createWorkflowServiceStubsOptions(runtimeConfig.connection()));
     }
+
 }

@@ -1,5 +1,10 @@
 package io.quarkiverse.temporal.deployment;
 
+import static io.grpc.Status.Code.NOT_FOUND;
+
+import java.time.Duration;
+import java.time.temporal.ChronoUnit;
+
 import jakarta.inject.Inject;
 
 import org.jboss.shrinkwrap.api.ShrinkWrap;
@@ -14,6 +19,7 @@ import io.quarkiverse.temporal.deployment.config.SimpleActivity;
 import io.quarkus.test.QuarkusUnitTest;
 import io.temporal.client.WorkflowClient;
 import io.temporal.client.WorkflowClientOptions;
+import io.temporal.serviceclient.RpcRetryOptions;
 import io.temporal.serviceclient.WorkflowServiceStubsOptions;
 
 public class ClientConfigTest {
@@ -28,14 +34,24 @@ public class ClientConfigTest {
                                     "quarkus.temporal.identity: customIdentity\n" +
                                     "quarkus.temporal.namespace: customNamespace\n" +
                                     "quarkus.temporal.connection.target: customTarget:1234\n" +
-                                    "quarkus.temporal.connection.enable-https: true\n"),
+                                    "quarkus.temporal.connection.enable-https: true\n" +
+                                    "quarkus.temporal.connection.rpc-retry.initial-interval: 7s\n" +
+                                    "quarkus.temporal.connection.rpc-retry.congestion-initial-interval: 11s\n" +
+                                    "quarkus.temporal.connection.rpc-retry.expiration: 13m\n" +
+                                    "quarkus.temporal.connection.rpc-retry.backoff-coefficient: 17\n" +
+                                    "quarkus.temporal.connection.rpc-retry.maximum-attempts: 19\n" +
+                                    "quarkus.temporal.connection.rpc-retry.maximum-interval: 23s\n" +
+                                    "quarkus.temporal.connection.rpc-retry.maximum-jitter-coefficient: 0.29\n" +
+                                    "quarkus.temporal.connection.rpc-retry.do-not-retry[0]: NOT_FOUND\n"
+
+                            ),
                             "application.properties"));
 
     @Inject
     WorkflowClient client;
 
     @Test
-    public void testClientConfiguration() throws IllegalAccessException {
+    public void testClientConfiguration() {
         WorkflowClientOptions options = client.getOptions();
         Assertions.assertNotNull(options);
         Assertions.assertEquals("customIdentity", options.getIdentity());
@@ -43,9 +59,24 @@ public class ClientConfigTest {
     }
 
     @Test
-    public void testWorkflowServiceStubsConfiguration() throws IllegalAccessException {
+    public void testWorkflowServiceStubsConfiguration() {
         WorkflowServiceStubsOptions options = client.getWorkflowServiceStubs().getOptions();
         Assertions.assertEquals("customTarget:1234", options.getTarget());
         Assertions.assertTrue(options.getEnableHttps());
+    }
+
+    @Test
+    public void testRpcRetryConfiguration() {
+        RpcRetryOptions options = client.getWorkflowServiceStubs().getOptions().getRpcRetryOptions();
+        Assertions.assertEquals(Duration.of(7, ChronoUnit.SECONDS), options.getInitialInterval());
+        Assertions.assertEquals(Duration.of(11, ChronoUnit.SECONDS), options.getCongestionInitialInterval());
+        Assertions.assertEquals(Duration.of(13, ChronoUnit.MINUTES), options.getExpiration());
+        Assertions.assertEquals(17, options.getBackoffCoefficient());
+        Assertions.assertEquals(19, options.getMaximumAttempts());
+        Assertions.assertEquals(Duration.of(23, ChronoUnit.SECONDS), options.getMaximumInterval());
+        Assertions.assertEquals(0.29, options.getMaximumJitterCoefficient());
+        Assertions.assertEquals(1, options.getDoNotRetry().size());
+        Assertions.assertEquals(NOT_FOUND, options.getDoNotRetry().get(0).getCode());
+
     }
 }

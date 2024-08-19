@@ -21,4 +21,10 @@ public interface ConnectionRuntimeConfig {
      */
     @WithDefault("false")
     Boolean enableHttps();
+
+    /**
+     * Rpc Retry Options.
+     */
+    RpcRetryRuntimeConfig rpcRetry();
+
 }
