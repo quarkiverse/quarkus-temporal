@@ -659,6 +659,146 @@ endif::add-copy-button-to-env-var[]
 |`false`
 
 
+a| [[quarkus-temporal_quarkus-temporal-connection-rpc-retry-initial-interval]]`link:#quarkus-temporal_quarkus-temporal-connection-rpc-retry-initial-interval[quarkus.temporal.connection.rpc-retry.initial-interval]`
+
+
+[.description]
+--
+Interval of the first retry, on regular failures. If coefficient is 1.0 then it is used for all retries. Defaults to 100ms.
+
+ifdef::add-copy-button-to-env-var[]
+Environment variable: env_var_with_copy_button:+++QUARKUS_TEMPORAL_CONNECTION_RPC_RETRY_INITIAL_INTERVAL+++[]
+endif::add-copy-button-to-env-var[]
+ifndef::add-copy-button-to-env-var[]
+Environment variable: `+++QUARKUS_TEMPORAL_CONNECTION_RPC_RETRY_INITIAL_INTERVAL+++`
+endif::add-copy-button-to-env-var[]
+--|link:https://docs.oracle.com/javase/8/docs/api/java/time/Duration.html[Duration]
+  link:#duration-note-anchor-{summaryTableId}[icon:question-circle[title=More information about the Duration format]]
+|`100MS`
+
+
+a| [[quarkus-temporal_quarkus-temporal-connection-rpc-retry-congestion-initial-interval]]`link:#quarkus-temporal_quarkus-temporal-connection-rpc-retry-congestion-initial-interval[quarkus.temporal.connection.rpc-retry.congestion-initial-interval]`
+
+
+[.description]
+--
+Interval of the first retry, on congestion related failures (i. e. RESOURCE_EXHAUSTED errors). If coefficient is 1.0 then it is used for all retries. Defaults to 1000ms.
+
+ifdef::add-copy-button-to-env-var[]
+Environment variable: env_var_with_copy_button:+++QUARKUS_TEMPORAL_CONNECTION_RPC_RETRY_CONGESTION_INITIAL_INTERVAL+++[]
+endif::add-copy-button-to-env-var[]
+ifndef::add-copy-button-to-env-var[]
+Environment variable: `+++QUARKUS_TEMPORAL_CONNECTION_RPC_RETRY_CONGESTION_INITIAL_INTERVAL+++`
+endif::add-copy-button-to-env-var[]
+--|link:https://docs.oracle.com/javase/8/docs/api/java/time/Duration.html[Duration]
+  link:#duration-note-anchor-{summaryTableId}[icon:question-circle[title=More information about the Duration format]]
+|`1000MS`
+
+
+a| [[quarkus-temporal_quarkus-temporal-connection-rpc-retry-expiration]]`link:#quarkus-temporal_quarkus-temporal-connection-rpc-retry-expiration[quarkus.temporal.connection.rpc-retry.expiration]`
+
+
+[.description]
+--
+Maximum time to retry. When exceeded the retries stop even if maximum retries is not reached yet. Defaults to 1 minute.
+
+ifdef::add-copy-button-to-env-var[]
+Environment variable: env_var_with_copy_button:+++QUARKUS_TEMPORAL_CONNECTION_RPC_RETRY_EXPIRATION+++[]
+endif::add-copy-button-to-env-var[]
+ifndef::add-copy-button-to-env-var[]
+Environment variable: `+++QUARKUS_TEMPORAL_CONNECTION_RPC_RETRY_EXPIRATION+++`
+endif::add-copy-button-to-env-var[]
+--|link:https://docs.oracle.com/javase/8/docs/api/java/time/Duration.html[Duration]
+  link:#duration-note-anchor-{summaryTableId}[icon:question-circle[title=More information about the Duration format]]
+|`1M`
+
+
+a| [[quarkus-temporal_quarkus-temporal-connection-rpc-retry-backoff-coefficient]]`link:#quarkus-temporal_quarkus-temporal-connection-rpc-retry-backoff-coefficient[quarkus.temporal.connection.rpc-retry.backoff-coefficient]`
+
+
+[.description]
+--
+Coefficient used to calculate the next retry interval. The next retry interval is previous interval multiplied by this coefficient. Must be 1 or larger. Default is 1.5.
+
+ifdef::add-copy-button-to-env-var[]
+Environment variable: env_var_with_copy_button:+++QUARKUS_TEMPORAL_CONNECTION_RPC_RETRY_BACKOFF_COEFFICIENT+++[]
+endif::add-copy-button-to-env-var[]
+ifndef::add-copy-button-to-env-var[]
+Environment variable: `+++QUARKUS_TEMPORAL_CONNECTION_RPC_RETRY_BACKOFF_COEFFICIENT+++`
+endif::add-copy-button-to-env-var[]
+--|double 
+|`1.5`
+
+
+a| [[quarkus-temporal_quarkus-temporal-connection-rpc-retry-maximum-attempts]]`link:#quarkus-temporal_quarkus-temporal-connection-rpc-retry-maximum-attempts[quarkus.temporal.connection.rpc-retry.maximum-attempts]`
+
+
+[.description]
+--
+When exceeded the amount of attempts, stop. Even if expiration time is not reached. Default is unlimited which is chosen if set to 0.
+
+ifdef::add-copy-button-to-env-var[]
+Environment variable: env_var_with_copy_button:+++QUARKUS_TEMPORAL_CONNECTION_RPC_RETRY_MAXIMUM_ATTEMPTS+++[]
+endif::add-copy-button-to-env-var[]
+ifndef::add-copy-button-to-env-var[]
+Environment variable: `+++QUARKUS_TEMPORAL_CONNECTION_RPC_RETRY_MAXIMUM_ATTEMPTS+++`
+endif::add-copy-button-to-env-var[]
+--|int 
+|`0`
+
+
+a| [[quarkus-temporal_quarkus-temporal-connection-rpc-retry-maximum-interval]]`link:#quarkus-temporal_quarkus-temporal-connection-rpc-retry-maximum-interval[quarkus.temporal.connection.rpc-retry.maximum-interval]`
+
+
+[.description]
+--
+Maximum interval between retries. Exponential backoff leads to interval increase. This value is the cap of the increase. Default is 50x of initial interval. Can't be less than initial-interval
+
+ifdef::add-copy-button-to-env-var[]
+Environment variable: env_var_with_copy_button:+++QUARKUS_TEMPORAL_CONNECTION_RPC_RETRY_MAXIMUM_INTERVAL+++[]
+endif::add-copy-button-to-env-var[]
+ifndef::add-copy-button-to-env-var[]
+Environment variable: `+++QUARKUS_TEMPORAL_CONNECTION_RPC_RETRY_MAXIMUM_INTERVAL+++`
+endif::add-copy-button-to-env-var[]
+--|link:https://docs.oracle.com/javase/8/docs/api/java/time/Duration.html[Duration]
+  link:#duration-note-anchor-{summaryTableId}[icon:question-circle[title=More information about the Duration format]]
+|
+
+
+a| [[quarkus-temporal_quarkus-temporal-connection-rpc-retry-maximum-jitter-coefficient]]`link:#quarkus-temporal_quarkus-temporal-connection-rpc-retry-maximum-jitter-coefficient[quarkus.temporal.connection.rpc-retry.maximum-jitter-coefficient]`
+
+
+[.description]
+--
+Maximum amount of jitter to apply. 0.2 means that actual retry time can be {plus}/- 20% of the calculated time. Set to 0 to disable jitter. Must be lower than 1. Default is 0.2.
+
+ifdef::add-copy-button-to-env-var[]
+Environment variable: env_var_with_copy_button:+++QUARKUS_TEMPORAL_CONNECTION_RPC_RETRY_MAXIMUM_JITTER_COEFFICIENT+++[]
+endif::add-copy-button-to-env-var[]
+ifndef::add-copy-button-to-env-var[]
+Environment variable: `+++QUARKUS_TEMPORAL_CONNECTION_RPC_RETRY_MAXIMUM_JITTER_COEFFICIENT+++`
+endif::add-copy-button-to-env-var[]
+--|double 
+|`0.2`
+
+
+a| [[quarkus-temporal_quarkus-temporal-connection-rpc-retry-do-not-retry]]`link:#quarkus-temporal_quarkus-temporal-connection-rpc-retry-do-not-retry[quarkus.temporal.connection.rpc-retry.do-not-retry]`
+
+
+[.description]
+--
+Makes request that receives a server response with gRPC code and failure of detailsClass type non-retryable.
+
+ifdef::add-copy-button-to-env-var[]
+Environment variable: env_var_with_copy_button:+++QUARKUS_TEMPORAL_CONNECTION_RPC_RETRY_DO_NOT_RETRY+++[]
+endif::add-copy-button-to-env-var[]
+ifndef::add-copy-button-to-env-var[]
+Environment variable: `+++QUARKUS_TEMPORAL_CONNECTION_RPC_RETRY_DO_NOT_RETRY+++`
+endif::add-copy-button-to-env-var[]
+--|list of Code 
+|
+
+
 h|[[quarkus-temporal_quarkus-temporal-workflow-retries-retry-options]]link:#quarkus-temporal_quarkus-temporal-workflow-retries-retry-options[Retry options]
 
 h|Type
