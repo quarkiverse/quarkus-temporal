@@ -2,7 +2,6 @@ package io.quarkiverse.temporal.deployment;
 
 import java.util.List;
 
-import io.quarkiverse.temporal.WorkerDefinition;
 import io.quarkus.builder.item.MultiBuildItem;
 
 public final class WorkerBuildItem extends MultiBuildItem {
@@ -17,7 +16,4 @@ public final class WorkerBuildItem extends MultiBuildItem {
     final List<Class<?>> workflows;
     final List<Class<?>> activities;
 
-    public WorkerDefinition toDefinition() {
-        return new WorkerDefinition(name, workflows, activities);
-    }
 }

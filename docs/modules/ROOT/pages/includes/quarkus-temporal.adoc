@@ -462,6 +462,164 @@ endif::add-copy-button-to-env-var[]
 |
 
 
+a| [[quarkus-temporal_quarkus-temporal-workflow-workflow-id-reuse-policy]]`link:#quarkus-temporal_quarkus-temporal-workflow-workflow-id-reuse-policy[quarkus.temporal.workflow.workflow-id-reuse-policy]`
+
+`link:#quarkus-temporal_quarkus-temporal-workflow-workflow-id-reuse-policy[quarkus.temporal.workflow."group-name".workflow-id-reuse-policy]`
+
+
+[.description]
+--
+Specifies server behavior if a completed workflow with the same id exists. Note that under no conditions Temporal allows two workflows with the same namespace and workflow id run simultaneously. See @line setWorkflowIdConflictPolicy for handling a workflow id duplication with a Running workflow. Default value if not set: AllowDuplicate
+
+ifdef::add-copy-button-to-env-var[]
+Environment variable: env_var_with_copy_button:+++QUARKUS_TEMPORAL_WORKFLOW_WORKFLOW_ID_REUSE_POLICY+++[]
+endif::add-copy-button-to-env-var[]
+ifndef::add-copy-button-to-env-var[]
+Environment variable: `+++QUARKUS_TEMPORAL_WORKFLOW_WORKFLOW_ID_REUSE_POLICY+++`
+endif::add-copy-button-to-env-var[]
+-- a|
+`unspecified`, `allow-duplicate`, `allow-duplicate-failed-only`, `reject-duplicate`, `terminate-if-running` 
+|`allow-duplicate`
+
+
+a| [[quarkus-temporal_quarkus-temporal-workflow-workflow-id-conflict-policy]]`link:#quarkus-temporal_quarkus-temporal-workflow-workflow-id-conflict-policy[quarkus.temporal.workflow.workflow-id-conflict-policy]`
+
+`link:#quarkus-temporal_quarkus-temporal-workflow-workflow-id-conflict-policy[quarkus.temporal.workflow."group-name".workflow-id-conflict-policy]`
+
+
+[.description]
+--
+Specifies server behavior if a Running workflow with the same id exists. See setWorkflowIdReusePolicy for handling a workflow id duplication with a Closed workflow. Cannot be set when workflow-id-reuse-policy is WorkflowIdReusePolicy. Default value if not set: Fail
+
+ifdef::add-copy-button-to-env-var[]
+Environment variable: env_var_with_copy_button:+++QUARKUS_TEMPORAL_WORKFLOW_WORKFLOW_ID_CONFLICT_POLICY+++[]
+endif::add-copy-button-to-env-var[]
+ifndef::add-copy-button-to-env-var[]
+Environment variable: `+++QUARKUS_TEMPORAL_WORKFLOW_WORKFLOW_ID_CONFLICT_POLICY+++`
+endif::add-copy-button-to-env-var[]
+-- a|
+`unspecified`, `fail`, `use-existing`, `terminate-existing` 
+|`fail`
+
+
+a| [[quarkus-temporal_quarkus-temporal-workflow-workflow-run-timeout]]`link:#quarkus-temporal_quarkus-temporal-workflow-workflow-run-timeout[quarkus.temporal.workflow.workflow-run-timeout]`
+
+`link:#quarkus-temporal_quarkus-temporal-workflow-workflow-run-timeout[quarkus.temporal.workflow."group-name".workflow-run-timeout]`
+
+
+[.description]
+--
+The time after which a workflow run is automatically terminated by Temporal service with WORKFLOW_EXECUTION_TIMED_OUT status. The default is set to the same value as the Workflow Execution Timeout.
+
+ifdef::add-copy-button-to-env-var[]
+Environment variable: env_var_with_copy_button:+++QUARKUS_TEMPORAL_WORKFLOW_WORKFLOW_RUN_TIMEOUT+++[]
+endif::add-copy-button-to-env-var[]
+ifndef::add-copy-button-to-env-var[]
+Environment variable: `+++QUARKUS_TEMPORAL_WORKFLOW_WORKFLOW_RUN_TIMEOUT+++`
+endif::add-copy-button-to-env-var[]
+--|link:https://docs.oracle.com/javase/8/docs/api/java/time/Duration.html[Duration]
+  link:#duration-note-anchor-{summaryTableId}[icon:question-circle[title=More information about the Duration format]]
+|
+
+
+a| [[quarkus-temporal_quarkus-temporal-workflow-workflow-execution-timeout]]`link:#quarkus-temporal_quarkus-temporal-workflow-workflow-execution-timeout[quarkus.temporal.workflow.workflow-execution-timeout]`
+
+`link:#quarkus-temporal_quarkus-temporal-workflow-workflow-execution-timeout[quarkus.temporal.workflow."group-name".workflow-execution-timeout]`
+
+
+[.description]
+--
+The time after which workflow execution (which includes run retries and continue as new) is automatically terminated by Temporal service with WORKFLOW_EXECUTION_TIMED_OUT status. The default value is ∞ (infinite) - ++[++TO DO++]++: check with temporal how to set this infinite value
+
+ifdef::add-copy-button-to-env-var[]
+Environment variable: env_var_with_copy_button:+++QUARKUS_TEMPORAL_WORKFLOW_WORKFLOW_EXECUTION_TIMEOUT+++[]
+endif::add-copy-button-to-env-var[]
+ifndef::add-copy-button-to-env-var[]
+Environment variable: `+++QUARKUS_TEMPORAL_WORKFLOW_WORKFLOW_EXECUTION_TIMEOUT+++`
+endif::add-copy-button-to-env-var[]
+--|link:https://docs.oracle.com/javase/8/docs/api/java/time/Duration.html[Duration]
+  link:#duration-note-anchor-{summaryTableId}[icon:question-circle[title=More information about the Duration format]]
+|
+
+
+a| [[quarkus-temporal_quarkus-temporal-workflow-workflow-task-timeout]]`link:#quarkus-temporal_quarkus-temporal-workflow-workflow-task-timeout[quarkus.temporal.workflow.workflow-task-timeout]`
+
+`link:#quarkus-temporal_quarkus-temporal-workflow-workflow-task-timeout[quarkus.temporal.workflow."group-name".workflow-task-timeout]`
+
+
+[.description]
+--
+Maximum execution time of a single Workflow Task. In the majority of cases there is no need to change this timeout. Note that this timeout is not related to the overall Workflow duration in any way. It defines for how long the Workflow can get blocked in the case of a Workflow Worker crash. The default value is 10 seconds. Maximum value allowed by the Temporal Server is 1 minute.
+
+ifdef::add-copy-button-to-env-var[]
+Environment variable: env_var_with_copy_button:+++QUARKUS_TEMPORAL_WORKFLOW_WORKFLOW_TASK_TIMEOUT+++[]
+endif::add-copy-button-to-env-var[]
+ifndef::add-copy-button-to-env-var[]
+Environment variable: `+++QUARKUS_TEMPORAL_WORKFLOW_WORKFLOW_TASK_TIMEOUT+++`
+endif::add-copy-button-to-env-var[]
+--|link:https://docs.oracle.com/javase/8/docs/api/java/time/Duration.html[Duration]
+  link:#duration-note-anchor-{summaryTableId}[icon:question-circle[title=More information about the Duration format]]
+|`10s`
+
+
+a| [[quarkus-temporal_quarkus-temporal-workflow-cron-schedule]]`link:#quarkus-temporal_quarkus-temporal-workflow-cron-schedule[quarkus.temporal.workflow.cron-schedule]`
+
+`link:#quarkus-temporal_quarkus-temporal-workflow-cron-schedule[quarkus.temporal.workflow."group-name".cron-schedule]`
+
+
+[.description]
+--
+cron schedule
+
+ifdef::add-copy-button-to-env-var[]
+Environment variable: env_var_with_copy_button:+++QUARKUS_TEMPORAL_WORKFLOW_CRON_SCHEDULE+++[]
+endif::add-copy-button-to-env-var[]
+ifndef::add-copy-button-to-env-var[]
+Environment variable: `+++QUARKUS_TEMPORAL_WORKFLOW_CRON_SCHEDULE+++`
+endif::add-copy-button-to-env-var[]
+--|string 
+|
+
+
+a| [[quarkus-temporal_quarkus-temporal-workflow-disable-eager-execution]]`link:#quarkus-temporal_quarkus-temporal-workflow-disable-eager-execution[quarkus.temporal.workflow.disable-eager-execution]`
+
+`link:#quarkus-temporal_quarkus-temporal-workflow-disable-eager-execution[quarkus.temporal.workflow."group-name".disable-eager-execution]`
+
+
+[.description]
+--
+If WorkflowClient is used to create a WorkerFactory that is started has a non-paused worker on the right task queue has available workflow task executor slots and such a WorkflowClient is used to start a workflow, then the first workflow task could be dispatched on this local worker with the response to the start call if Server supports it. This option can be used to disable this mechanism. Default is true
+
+ifdef::add-copy-button-to-env-var[]
+Environment variable: env_var_with_copy_button:+++QUARKUS_TEMPORAL_WORKFLOW_DISABLE_EAGER_EXECUTION+++[]
+endif::add-copy-button-to-env-var[]
+ifndef::add-copy-button-to-env-var[]
+Environment variable: `+++QUARKUS_TEMPORAL_WORKFLOW_DISABLE_EAGER_EXECUTION+++`
+endif::add-copy-button-to-env-var[]
+--|boolean 
+|`true`
+
+
+a| [[quarkus-temporal_quarkus-temporal-workflow-start-delay]]`link:#quarkus-temporal_quarkus-temporal-workflow-start-delay[quarkus.temporal.workflow.start-delay]`
+
+`link:#quarkus-temporal_quarkus-temporal-workflow-start-delay[quarkus.temporal.workflow."group-name".start-delay]`
+
+
+[.description]
+--
+Time to wait before dispatching the first workflow task. If the workflow gets a signal before the delay, a workflow task will be dispatched and the rest of the delay will be ignored. A signal from signal with start will not trigger a workflow task. Cannot be set the same time as a CronSchedule.
+
+ifdef::add-copy-button-to-env-var[]
+Environment variable: env_var_with_copy_button:+++QUARKUS_TEMPORAL_WORKFLOW_START_DELAY+++[]
+endif::add-copy-button-to-env-var[]
+ifndef::add-copy-button-to-env-var[]
+Environment variable: `+++QUARKUS_TEMPORAL_WORKFLOW_START_DELAY+++`
+endif::add-copy-button-to-env-var[]
+--|link:https://docs.oracle.com/javase/8/docs/api/java/time/Duration.html[Duration]
+  link:#duration-note-anchor-{summaryTableId}[icon:question-circle[title=More information about the Duration format]]
+|
+
+
 h|[[quarkus-temporal_quarkus-temporal-connection-connection-to-the-temporal-server]]link:#quarkus-temporal_quarkus-temporal-connection-connection-to-the-temporal-server[Connection to the temporal server]
 
 h|Type
@@ -499,6 +657,108 @@ Environment variable: `+++QUARKUS_TEMPORAL_CONNECTION_ENABLE_HTTPS+++`
 endif::add-copy-button-to-env-var[]
 --|boolean 
 |`false`
+
+
+h|[[quarkus-temporal_quarkus-temporal-workflow-retries-retry-options]]link:#quarkus-temporal_quarkus-temporal-workflow-retries-retry-options[Retry options]
+
+h|Type
+h|Default
+
+a| [[quarkus-temporal_quarkus-temporal-workflow-retries-do-not-retry]]`link:#quarkus-temporal_quarkus-temporal-workflow-retries-do-not-retry[quarkus.temporal.workflow.retries.do-not-retry]`
+
+`link:#quarkus-temporal_quarkus-temporal-workflow-retries-do-not-retry[quarkus.temporal.workflow."group-name".retries.do-not-retry]`
+
+
+[.description]
+--
+List of application failures types to not retry
+
+ifdef::add-copy-button-to-env-var[]
+Environment variable: env_var_with_copy_button:+++QUARKUS_TEMPORAL_WORKFLOW_RETRIES_DO_NOT_RETRY+++[]
+endif::add-copy-button-to-env-var[]
+ifndef::add-copy-button-to-env-var[]
+Environment variable: `+++QUARKUS_TEMPORAL_WORKFLOW_RETRIES_DO_NOT_RETRY+++`
+endif::add-copy-button-to-env-var[]
+--|list of string 
+|`[]`
+
+
+a| [[quarkus-temporal_quarkus-temporal-workflow-retries-initial-interval]]`link:#quarkus-temporal_quarkus-temporal-workflow-retries-initial-interval[quarkus.temporal.workflow.retries.initial-interval]`
+
+`link:#quarkus-temporal_quarkus-temporal-workflow-retries-initial-interval[quarkus.temporal.workflow."group-name".retries.initial-interval]`
+
+
+[.description]
+--
+Interval of the first retry. If coefficient is 1.0 then it is used for all retries. Default is 1 second.
+
+ifdef::add-copy-button-to-env-var[]
+Environment variable: env_var_with_copy_button:+++QUARKUS_TEMPORAL_WORKFLOW_RETRIES_INITIAL_INTERVAL+++[]
+endif::add-copy-button-to-env-var[]
+ifndef::add-copy-button-to-env-var[]
+Environment variable: `+++QUARKUS_TEMPORAL_WORKFLOW_RETRIES_INITIAL_INTERVAL+++`
+endif::add-copy-button-to-env-var[]
+--|link:https://docs.oracle.com/javase/8/docs/api/java/time/Duration.html[Duration]
+  link:#duration-note-anchor-{summaryTableId}[icon:question-circle[title=More information about the Duration format]]
+|`1s`
+
+
+a| [[quarkus-temporal_quarkus-temporal-workflow-retries-backoff-coefficient]]`link:#quarkus-temporal_quarkus-temporal-workflow-retries-backoff-coefficient[quarkus.temporal.workflow.retries.backoff-coefficient]`
+
+`link:#quarkus-temporal_quarkus-temporal-workflow-retries-backoff-coefficient[quarkus.temporal.workflow."group-name".retries.backoff-coefficient]`
+
+
+[.description]
+--
+Coefficient used to calculate the next retry interval. The next retry interval is previous interval multiplied by this coefficient. Must be 1 or larger. Default is 2.0.
+
+ifdef::add-copy-button-to-env-var[]
+Environment variable: env_var_with_copy_button:+++QUARKUS_TEMPORAL_WORKFLOW_RETRIES_BACKOFF_COEFFICIENT+++[]
+endif::add-copy-button-to-env-var[]
+ifndef::add-copy-button-to-env-var[]
+Environment variable: `+++QUARKUS_TEMPORAL_WORKFLOW_RETRIES_BACKOFF_COEFFICIENT+++`
+endif::add-copy-button-to-env-var[]
+--|double 
+|`2.0`
+
+
+a| [[quarkus-temporal_quarkus-temporal-workflow-retries-set-maximum-attempts]]`link:#quarkus-temporal_quarkus-temporal-workflow-retries-set-maximum-attempts[quarkus.temporal.workflow.retries.set-maximum-attempts]`
+
+`link:#quarkus-temporal_quarkus-temporal-workflow-retries-set-maximum-attempts[quarkus.temporal.workflow."group-name".retries.set-maximum-attempts]`
+
+
+[.description]
+--
+When exceeded the amount of attempts, stop. Even if expiration time is not reached. Default is unlimited if set to 0.
+
+ifdef::add-copy-button-to-env-var[]
+Environment variable: env_var_with_copy_button:+++QUARKUS_TEMPORAL_WORKFLOW_RETRIES_SET_MAXIMUM_ATTEMPTS+++[]
+endif::add-copy-button-to-env-var[]
+ifndef::add-copy-button-to-env-var[]
+Environment variable: `+++QUARKUS_TEMPORAL_WORKFLOW_RETRIES_SET_MAXIMUM_ATTEMPTS+++`
+endif::add-copy-button-to-env-var[]
+--|int 
+|`0`
+
+
+a| [[quarkus-temporal_quarkus-temporal-workflow-retries-maximum-interval]]`link:#quarkus-temporal_quarkus-temporal-workflow-retries-maximum-interval[quarkus.temporal.workflow.retries.maximum-interval]`
+
+`link:#quarkus-temporal_quarkus-temporal-workflow-retries-maximum-interval[quarkus.temporal.workflow."group-name".retries.maximum-interval]`
+
+
+[.description]
+--
+Maximum interval between retries. Exponential backoff leads to interval increase. This value is the cap of the increase. Default is 100x of initial interval. Can't be less than initialInterval
+
+ifdef::add-copy-button-to-env-var[]
+Environment variable: env_var_with_copy_button:+++QUARKUS_TEMPORAL_WORKFLOW_RETRIES_MAXIMUM_INTERVAL+++[]
+endif::add-copy-button-to-env-var[]
+ifndef::add-copy-button-to-env-var[]
+Environment variable: `+++QUARKUS_TEMPORAL_WORKFLOW_RETRIES_MAXIMUM_INTERVAL+++`
+endif::add-copy-button-to-env-var[]
+--|link:https://docs.oracle.com/javase/8/docs/api/java/time/Duration.html[Duration]
+  link:#duration-note-anchor-{summaryTableId}[icon:question-circle[title=More information about the Duration format]]
+|
 
 |===
 ifndef::no-duration-note[]
