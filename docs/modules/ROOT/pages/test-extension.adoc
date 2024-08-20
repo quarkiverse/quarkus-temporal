@@ -1,0 +1,33 @@
+= Quarkus Temporal Test
+
+include::./includes/attributes.adoc[]
+
+A Quarkus extension that lets you mock https://temporal.io/[Temporal] for testing.
+
+== Installation
+
+If you want to use this extension, you need to add the `io.quarkiverse.temporal:quarkus-temporal-test` extension first to your build file.
+
+For instance, with Maven, add the following dependency to your POM file:
+
+[source,xml,subs=attributes+]
+----
+<dependency>
+    <groupId>io.quarkiverse.temporal</groupId>
+    <artifactId>quarkus-temporal-test</artifactId>
+    <version>{project-version}</version>
+    <scope>test</scope>
+</dependency>
+----
+
+[#getting-started]
+== Getting Started
+
+After the extension is added to the project, the mock environment can be enabled using the enable-mock property.
+
+[source,properties]
+----
+%test.quarkus.temporal.enable-mock: true
+----
+
+You can find additional info about temporal workflow testing in https://docs.temporal.io/develop/java/testing-suite[Temporal Documentation]
