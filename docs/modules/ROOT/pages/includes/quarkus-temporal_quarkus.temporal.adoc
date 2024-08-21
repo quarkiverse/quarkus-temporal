@@ -8,11 +8,83 @@ h|[.header-title]##Configuration property##
 h|Type
 h|Default
 
+a|icon:lock[title=Fixed at build time] [[quarkus-temporal_quarkus-temporal-devservice-enabled]] [.property-path]##link:#quarkus-temporal_quarkus-temporal-devservice-enabled[`quarkus.temporal.devservice.enabled`]##
+
+[.description]
+--
+Enable the Temporal Devservice.
+
+
+ifdef::add-copy-button-to-env-var[]
+Environment variable: env_var_with_copy_button:+++QUARKUS_TEMPORAL_DEVSERVICE_ENABLED+++[]
+endif::add-copy-button-to-env-var[]
+ifndef::add-copy-button-to-env-var[]
+Environment variable: `+++QUARKUS_TEMPORAL_DEVSERVICE_ENABLED+++`
+endif::add-copy-button-to-env-var[]
+--
+|boolean
+|`true`
+
+a|icon:lock[title=Fixed at build time] [[quarkus-temporal_quarkus-temporal-devservice-image]] [.property-path]##link:#quarkus-temporal_quarkus-temporal-devservice-image[`quarkus.temporal.devservice.image`]##
+
+[.description]
+--
+The image to use for the Temporal Devservice.
+
+Minimum supported version: `temporalio/auto-setup:1.24.3.0`
+
+
+ifdef::add-copy-button-to-env-var[]
+Environment variable: env_var_with_copy_button:+++QUARKUS_TEMPORAL_DEVSERVICE_IMAGE+++[]
+endif::add-copy-button-to-env-var[]
+ifndef::add-copy-button-to-env-var[]
+Environment variable: `+++QUARKUS_TEMPORAL_DEVSERVICE_IMAGE+++`
+endif::add-copy-button-to-env-var[]
+--
+|string
+|`temporalio/auto-setup`
+
+a|icon:lock[title=Fixed at build time] [[quarkus-temporal_quarkus-temporal-devservice-reuse]] [.property-path]##link:#quarkus-temporal_quarkus-temporal-devservice-reuse[`quarkus.temporal.devservice.reuse`]##
+
+[.description]
+--
+Whether to reuse the Temporal Devservice.
+
+
+ifdef::add-copy-button-to-env-var[]
+Environment variable: env_var_with_copy_button:+++QUARKUS_TEMPORAL_DEVSERVICE_REUSE+++[]
+endif::add-copy-button-to-env-var[]
+ifndef::add-copy-button-to-env-var[]
+Environment variable: `+++QUARKUS_TEMPORAL_DEVSERVICE_REUSE+++`
+endif::add-copy-button-to-env-var[]
+--
+|boolean
+|`true`
+
+a|icon:lock[title=Fixed at build time] [[quarkus-temporal_quarkus-temporal-ui-url]] [.property-path]##link:#quarkus-temporal_quarkus-temporal-ui-url[`quarkus.temporal.ui.url`]##
+
+[.description]
+--
+The url of the Temporal UI.
+
+
+ifdef::add-copy-button-to-env-var[]
+Environment variable: env_var_with_copy_button:+++QUARKUS_TEMPORAL_UI_URL+++[]
+endif::add-copy-button-to-env-var[]
+ifndef::add-copy-button-to-env-var[]
+Environment variable: `+++QUARKUS_TEMPORAL_UI_URL+++`
+endif::add-copy-button-to-env-var[]
+--
+|string
+|
+
 a|icon:lock[title=Fixed at build time] [[quarkus-temporal_quarkus-temporal-enable-mock]] [.property-path]##link:#quarkus-temporal_quarkus-temporal-enable-mock[`quarkus.temporal.enable-mock`]##
 
 [.description]
 --
-enable mock for testing
+enable mock for testing.
+
+If enabled, the Temporal devservice will not be started.
 
 
 ifdef::add-copy-button-to-env-var[]
@@ -701,7 +773,7 @@ a| [[quarkus-temporal_quarkus-temporal-connection-target]] [.property-path]##lin
 
 [.description]
 --
-Sets a target string, which can be either a valid `NameResolver`-compliant URI, or an authority string. See `ManagedChannelBuilder++#++forTarget(String)` for more information about parameter format. Default is 127.0.0.1:7233
+Sets a target string, which can be either a valid `NameResolver`-compliant URI, or an authority string. See `ManagedChannelBuilder++#++forTarget(String)` for more information about parameter format.
 
 
 ifdef::add-copy-button-to-env-var[]
@@ -712,7 +784,7 @@ Environment variable: `+++QUARKUS_TEMPORAL_CONNECTION_TARGET+++`
 endif::add-copy-button-to-env-var[]
 --
 |string
-|`127.0.0.1:7233`
+|required icon:exclamation-circle[title=Configuration property is required]
 
 a| [[quarkus-temporal_quarkus-temporal-connection-enable-https]] [.property-path]##link:#quarkus-temporal_quarkus-temporal-connection-enable-https[`quarkus.temporal.connection.enable-https`]##
 

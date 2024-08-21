@@ -21,7 +21,10 @@ public interface TemporalBuildtimeConfig {
     }
 
     /**
-     * enable mock for testing
+     * enable mock for testing.
+     *
+     * <p>
+     * If enabled, the Temporal devservice will not be started.
      */
     @WithDefault("false")
     Boolean enableMock();
