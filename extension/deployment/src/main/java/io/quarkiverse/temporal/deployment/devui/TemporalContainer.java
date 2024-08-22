@@ -12,11 +12,15 @@ public class TemporalContainer extends GenericContainer<TemporalContainer> {
 
     private final TemporalDevserviceConfig config;
     private String serviceName;
+    private String label;
+    private String path;
     // private String hostname;
 
-    public TemporalContainer(DockerImageName dockerImageName, TemporalDevserviceConfig config) {
+    public TemporalContainer(DockerImageName dockerImageName, TemporalDevserviceConfig config, String path, String label) {
         super(dockerImageName);
         this.config = config;
+        this.label = label;
+        this.path = path;
         this.serviceName = "temporal";
     }
 
@@ -26,16 +30,19 @@ public class TemporalContainer extends GenericContainer<TemporalContainer> {
 
         withCreateContainerCmdModifier(cmd -> {
             cmd.withEntrypoint("/usr/local/bin/temporal");
-            cmd.withCmd("server", "start-dev", "--ip", "0.0.0.0");
+            cmd.withCmd("server", "start-dev", "--ip", "0.0.0.0", "--ui-public-path", path);
         });
 
         withExposedPorts(SERVER_EXPOSED_PORT, UI_EXPOSED_PORT);
 
-        withLabel("quarkus-devservice-temporal", serviceName);
+        withLabel(label, serviceName);
 
         withReuse(config.reuse());
 
         // hostname = ConfigureUtil.configureSharedNetwork(this, "temporal-" + serviceName);
     }
 
+    public String getUiUrl() {
+        return "http://" + getHost() + ":" + getMappedPort(UI_EXPOSED_PORT) + path;
+    }
 }

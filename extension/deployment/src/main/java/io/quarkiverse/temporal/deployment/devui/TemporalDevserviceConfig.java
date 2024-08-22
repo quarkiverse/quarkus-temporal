@@ -20,11 +20,13 @@ public interface TemporalDevserviceConfig {
      */
     // @WithDefault("temporalio/auto-setup")
     @WithDefault("temporaliotest/auto-setup")
+
     String image();
 
     /**
      * The version of the image to use for the Temporal Devservice.
      */
+    // @WithDefault("sha-053ea8f")
     @WithDefault("latest")
     String version();
 

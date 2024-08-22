@@ -6,7 +6,7 @@
         <artifactId>quarkus-temporal-parent</artifactId>
         <version>999-SNAPSHOT</version>
     </parent>
-    <artifactId>integration-tests</artifactId>
+    <artifactId>quarkus-temporal-extension-integration-tests</artifactId>
     <name>Temporal - Integration Tests</name>
     <packaging>pom</packaging>
 

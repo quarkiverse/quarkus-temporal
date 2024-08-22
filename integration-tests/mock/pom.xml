@@ -5,8 +5,9 @@
         <groupId>io.quarkiverse.temporal</groupId>
         <artifactId>quarkus-temporal-parent</artifactId>
         <version>999-SNAPSHOT</version>
+        <relativePath>../../pom.xml</relativePath>
     </parent>
-    <artifactId>integration-tests-mock</artifactId>
+    <artifactId>quarkus-temporal-integration-tests-mock</artifactId>
     <name>Temporal - Integration Tests - Mock</name>
     <properties>
         <skipITs>true</skipITs>

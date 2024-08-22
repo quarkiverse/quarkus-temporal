@@ -92,7 +92,8 @@ public class TemporalProcessor {
 
     public static final DotName ACTIVITY_INTERFACE = DotName.createSimple(ActivityInterface.class);
 
-    private static final String FEATURE = "temporal";
+    public static final String FEATURE = "temporal";
+    public static final DotName CONTEXT_PROPAGATOR = DotName.createSimple(ContextPropagator.class);
 
     @BuildStep
     FeatureBuildItem feature() {

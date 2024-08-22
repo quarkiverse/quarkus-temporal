@@ -5,8 +5,9 @@
         <groupId>io.quarkiverse.temporal</groupId>
         <artifactId>quarkus-temporal-parent</artifactId>
         <version>999-SNAPSHOT</version>
+        <relativePath>../../pom.xml</relativePath>
     </parent>
-    <artifactId>integration-tests-devservice</artifactId>
+    <artifactId>quarkus-temporal-integration-tests-devservice</artifactId>
     <name>Temporal - Integration Tests - Devservice</name>
     <properties>
         <skipITs>true</skipITs>
@@ -41,17 +42,10 @@
             <artifactId>quarkus-temporal</artifactId>
             <version>${project.version}</version>
         </dependency>
-        <!-- <dependency>
-            <groupId>io.quarkiverse.temporal</groupId>
-            <artifactId>quarkus-temporal-test</artifactId>
-            <version>${project.version}</version>
-            <scope>test</scope>
-        </dependency> -->
-        <!-- <dependency>
-            <groupId>io.quarkiverse.temporal</groupId>
-            <artifactId>quarkus-temporal-test-deployment</artifactId>
-            <version>${project.version}</version>
-        </dependency> -->
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+        </dependency>
         <dependency>
             <groupId>io.quarkiverse.temporal</groupId>
             <artifactId>quarkus-temporal-deployment</artifactId>
@@ -74,11 +68,6 @@
             <scope>test</scope>
         </dependency>
         <!-- https://mvnrepository.com/artifact/org.apache.commons/commons-lang3 -->
-        <dependency>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-lang3</artifactId>
-            <!-- <version>3.0</version> -->
-        </dependency>
     </dependencies>
     <build>
         <plugins>
