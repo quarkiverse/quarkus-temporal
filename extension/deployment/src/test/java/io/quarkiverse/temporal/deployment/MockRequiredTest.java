@@ -16,7 +16,7 @@ class MockRequiredTest {
     static final QuarkusUnitTest unitTest = new QuarkusUnitTest()
             .assertException(ex -> {
                 Assertions.assertEquals(ConfigurationException.class, ex.getClass());
-                Assertions.assertEquals("Please add the quarkus-temporal-test extension to enable mocking", ex.getMessage());
+                Assertions.assertEquals("Please add the 'quarkus-temporal-test' extension to enable mocking.", ex.getMessage());
             })
             .setArchiveProducer(() -> ShrinkWrap.create(JavaArchive.class)
                     .addAsResource(new StringAsset("quarkus.temporal.enable-mock: true\n"), "application.properties"));

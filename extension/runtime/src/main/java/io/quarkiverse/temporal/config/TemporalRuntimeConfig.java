@@ -52,10 +52,4 @@ public interface TemporalRuntimeConfig {
     @WithDefaults
     @WithUnnamedKey(DEFAULT_WORKER_NAME)
     Map<String, WorkflowRuntimeConfig> workflow();
-
-    /**
-     * Enable OpenTelemetry to forward telemetry traces and spaces.
-     */
-    @WithDefault("false")
-    Boolean enableTelemetry();
 }

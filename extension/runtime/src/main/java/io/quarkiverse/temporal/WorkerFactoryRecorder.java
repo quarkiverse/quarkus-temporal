@@ -33,9 +33,10 @@ public class WorkerFactoryRecorder {
     final TemporalRuntimeConfig runtimeConfig;
     final TemporalBuildtimeConfig buildtimeConfig;
 
-    public Function<SyntheticCreationalContext<WorkerFactory>, WorkerFactory> createWorkerFactory() {
+    public Function<SyntheticCreationalContext<WorkerFactory>, WorkerFactory> createWorkerFactory(
+            boolean isOpenTelemetryEnabled) {
         WorkerFactoryOptions.Builder options = WorkerFactoryOptions.newBuilder();
-        if (runtimeConfig.enableTelemetry()) {
+        if (isOpenTelemetryEnabled) {
             options.setWorkerInterceptors(new OpenTracingWorkerInterceptor());
         }
         return context -> WorkerFactory.newInstance(context.getInjectedReference(WorkflowClient.class), options.build());
@@ -86,15 +87,14 @@ public class WorkerFactoryRecorder {
         for (var activity : activities) {
             worker.registerActivitiesImplementations(CDI.current().select(activity).get());
         }
-
     }
 
-    public void startWorkerFactory(ShutdownContext shutdownContext) {
+    public void startWorkerFactory(ShutdownContext shutdownContext, boolean isOpenTelemetryEnabled) {
         WorkerFactory workerFactory = CDI.current().select(WorkerFactory.class).get();
         workerFactory.start();
 
         // bridge Temporal OpenTracing to OpenTelemetry
-        if (runtimeConfig.enableTelemetry()) {
+        if (isOpenTelemetryEnabled) {
             OpenTelemetry openTelemetry = CDI.current().select(OpenTelemetry.class).get();
             if (openTelemetry == null) {
                 throw new IllegalStateException("OpenTelemetry not available");

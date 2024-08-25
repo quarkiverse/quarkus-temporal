@@ -24,6 +24,7 @@
         <dependency>
             <groupId>io.quarkus</groupId>
             <artifactId>quarkus-opentelemetry</artifactId>
+            <optional>true</optional>
         </dependency>
         <dependency>
             <groupId>io.temporal</groupId>
@@ -48,7 +49,6 @@
         <dependency>
             <groupId>io.opentelemetry</groupId>
             <artifactId>opentelemetry-opentracing-shim</artifactId>
-            <version>1.32.0</version>
         </dependency>
     </dependencies>
     <build>

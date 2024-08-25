@@ -222,11 +222,14 @@ public class MyService {
 
 == OpenTelemetry
 
-To wire up Temporal to forward traces and spans to Quarkus OpenTelemetry simply enable the OpenTelemetry setting.
+To wire up Temporal to forward traces and spans to Quarkus OpenTelemetry simply add the OpenTelemetry extension to your application.
 
-[source,properties]
+[source,xml]
 ----
-quarkus.temporal.enable-telemetry=true
+<dependency>
+    <groupId>io.quarkus</groupId>
+    <artifactId>quarkus-opentelemetry</artifactId>
+</dependency>
 ----
 
 == Context Propagation

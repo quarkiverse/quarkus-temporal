@@ -4,6 +4,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
 
+import io.quarkiverse.temporal.config.TemporalBuildtimeConfig;
 import io.quarkiverse.temporal.config.TemporalRuntimeConfig;
 import io.quarkus.runtime.annotations.Recorder;
 import io.quarkus.runtime.configuration.ConfigurationException;
@@ -16,13 +17,16 @@ import io.temporal.serviceclient.WorkflowServiceStubs;
 @Recorder
 public class WorkflowClientRecorder {
 
-    public WorkflowClientRecorder(TemporalRuntimeConfig runtimeConfig) {
+    public WorkflowClientRecorder(TemporalRuntimeConfig runtimeConfig, TemporalBuildtimeConfig buildtimeConfig) {
         this.runtimeConfig = runtimeConfig;
+        this.buildtimeConfig = buildtimeConfig;
     }
 
     final TemporalRuntimeConfig runtimeConfig;
+    final TemporalBuildtimeConfig buildtimeConfig;
 
-    public WorkflowClientOptions createWorkflowClientOptions(List<Class<? extends ContextPropagator>> propagatorsClasses) {
+    public WorkflowClientOptions createWorkflowClientOptions(List<Class<? extends ContextPropagator>> propagatorsClasses,
+            boolean openTelemetryEnabled) {
         if (runtimeConfig == null) {
             return WorkflowClientOptions.getDefaultInstance();
         }
@@ -31,7 +35,7 @@ public class WorkflowClientRecorder {
 
         runtimeConfig.identity().ifPresent(builder::setIdentity);
 
-        if (runtimeConfig.enableTelemetry()) {
+        if (openTelemetryEnabled) {
             builder.setInterceptors(new OpenTracingClientInterceptor());
         }
 
@@ -54,8 +58,8 @@ public class WorkflowClientRecorder {
     }
 
     public WorkflowClient createWorkflowClient(WorkflowServiceStubs serviceStubs,
-            List<Class<? extends ContextPropagator>> propagators) {
-        return WorkflowClient.newInstance(serviceStubs, createWorkflowClientOptions(propagators));
+            List<Class<? extends ContextPropagator>> propagators, boolean openTelemetryEnabled) {
+        return WorkflowClient.newInstance(serviceStubs, createWorkflowClientOptions(propagators, openTelemetryEnabled));
     }
 
 }

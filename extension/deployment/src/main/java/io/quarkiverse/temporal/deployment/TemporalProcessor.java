@@ -1,6 +1,7 @@
 package io.quarkiverse.temporal.deployment;
 
 import static io.quarkiverse.temporal.Constants.DEFAULT_WORKER_NAME;
+import static io.quarkus.deployment.Capability.OPENTELEMETRY_TRACER;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -60,8 +61,6 @@ import io.temporal.workflow.WorkflowInterface;
 
 public class TemporalProcessor {
 
-    public static final DotName TEMPORAL_WORKFLOW_STUB = DotName.createSimple(TemporalWorkflowStub.class);
-
     public static final DotName TEMPORAL_ACTIVITY = DotName.createSimple(TemporalActivity.class);
 
     public static final DotName TEMPORAL_WORKFLOW = DotName.createSimple(TemporalWorkflow.class);
@@ -88,6 +87,22 @@ public class TemporalProcessor {
     void unremovableBean(BuildProducer<UnremovableBeanBuildItem> producer) {
         producer.produce(new UnremovableBeanBuildItem(
                 new UnremovableBeanBuildItem.BeanTypeExclusion(DotName.createSimple(GitInfo.class))));
+    }
+
+    @BuildStep
+    @Record(ExecutionTime.RUNTIME_INIT)
+    OpenTelemetryValidatedBuildItem validateOpenTelemetryInstrumentation(WorkflowClientRecorder clientRecorder,
+            WorkerFactoryRecorder factoryRecorder,
+            Capabilities capabilities) {
+        return new OpenTelemetryValidatedBuildItem(capabilities.isPresent(OPENTELEMETRY_TRACER));
+    }
+
+    @BuildStep(onlyIf = EnableMock.class)
+    @Produce(MockingValidatedBuildItem.class)
+    void validateMockConfiguration(Capabilities capabilities) {
+        if (capabilities.isMissing("io.quarkiverse.temporal.test")) {
+            throw new ConfigurationException("Please add the 'quarkus-temporal-test' extension to enable mocking.");
+        }
     }
 
     @BuildStep
@@ -245,21 +260,14 @@ public class TemporalProcessor {
         });
     }
 
-    @BuildStep(onlyIf = EnableMock.class)
-    @Produce(ConfigValidatedBuildItem.class)
-    void validateMockConfiguration(Capabilities capabilities) {
-        if (capabilities.isMissing("io.quarkiverse.temporal.test")) {
-            throw new ConfigurationException("Please add the quarkus-temporal-test extension to enable mocking");
-        }
-    }
-
     @BuildStep(onlyIfNot = EnableMock.class)
     @Record(ExecutionTime.RUNTIME_INIT)
     WorkflowClientBuildItem recordWorkflowClient(
             WorkflowServiceStubsRecorder recorder,
             WorkflowClientRecorder clientRecorder,
             TemporalBuildtimeConfig temporalBuildtimeConfig,
-            CombinedIndexBuildItem beanArchiveBuildItem) {
+            CombinedIndexBuildItem beanArchiveBuildItem,
+            OpenTelemetryValidatedBuildItem openTelemetryValidatedBuildItem) {
 
         List<Class<? extends ContextPropagator>> propagators = new ArrayList<>();
         temporalBuildtimeConfig.contextPropagatorClasses().ifPresent(classes -> {
@@ -274,7 +282,9 @@ public class TemporalProcessor {
             }
         });
         WorkflowServiceStubs workflowServiceStubs = recorder.createWorkflowServiceStubs();
-        return new WorkflowClientBuildItem(clientRecorder.createWorkflowClient(workflowServiceStubs, propagators));
+        boolean isOpenTelemetryEnabled = openTelemetryValidatedBuildItem.isEnabled();
+        return new WorkflowClientBuildItem(
+                clientRecorder.createWorkflowClient(workflowServiceStubs, propagators, isOpenTelemetryEnabled));
     }
 
     @BuildStep
@@ -338,21 +348,22 @@ public class TemporalProcessor {
     @BuildStep(onlyIfNot = EnableMock.class)
     @Record(ExecutionTime.RUNTIME_INIT)
     SyntheticBeanBuildItem produceWorkerFactorySyntheticBean(
-            WorkerFactoryRecorder workerFactoryRecorder) {
+            WorkerFactoryRecorder workerFactoryRecorder,
+            OpenTelemetryValidatedBuildItem openTelemetryValidatedBuildItem) {
         return SyntheticBeanBuildItem
                 .configure(WorkerFactory.class)
                 .scope(Singleton.class)
                 .unremovable()
                 .defaultBean()
                 .addInjectionPoint(ClassType.create(WorkflowClient.class))
-                .createWith(workerFactoryRecorder.createWorkerFactory())
+                .createWith(workerFactoryRecorder.createWorkerFactory(openTelemetryValidatedBuildItem.isEnabled()))
                 .setRuntimeInit()
                 .done();
     }
 
     @BuildStep
     @Record(ExecutionTime.RUNTIME_INIT)
-    @Consume(ConfigValidatedBuildItem.class)
+    @Consume(MockingValidatedBuildItem.class)
     @Consume(SyntheticBeansRuntimeInitBuildItem.class)
     @Produce(WorkerFactoryInitializedBuildItem.class)
     void setupWorkerFactory(
@@ -370,8 +381,9 @@ public class TemporalProcessor {
     @Consume(WorkerFactoryInitializedBuildItem.class)
     ServiceStartBuildItem startWorkers(
             WorkerFactoryRecorder workerFactoryRecorder,
-            ShutdownContextBuildItem shutdownContextBuildItem) {
-        workerFactoryRecorder.startWorkerFactory(shutdownContextBuildItem);
+            ShutdownContextBuildItem shutdownContextBuildItem,
+            OpenTelemetryValidatedBuildItem openTelemetryValidatedBuildItem) {
+        workerFactoryRecorder.startWorkerFactory(shutdownContextBuildItem, openTelemetryValidatedBuildItem.isEnabled());
         return new ServiceStartBuildItem("TemporalWorkers");
     }
 

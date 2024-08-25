@@ -22,10 +22,6 @@
             <artifactId>quarkus-grpc-common-deployment</artifactId>
         </dependency>
         <dependency>
-            <groupId>io.quarkus</groupId>
-            <artifactId>quarkus-opentelemetry-deployment</artifactId>
-        </dependency>
-        <dependency>
             <groupId>io.quarkiverse.temporal</groupId>
             <artifactId>quarkus-temporal</artifactId>
             <version>${project.version}</version>
