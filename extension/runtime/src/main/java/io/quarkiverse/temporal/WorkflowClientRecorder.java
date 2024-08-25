@@ -10,6 +10,7 @@ import io.quarkus.runtime.configuration.ConfigurationException;
 import io.temporal.client.WorkflowClient;
 import io.temporal.client.WorkflowClientOptions;
 import io.temporal.common.context.ContextPropagator;
+import io.temporal.opentracing.OpenTracingClientInterceptor;
 import io.temporal.serviceclient.WorkflowServiceStubs;
 
 @Recorder
@@ -29,6 +30,10 @@ public class WorkflowClientRecorder {
                 .setNamespace(runtimeConfig.namespace());
 
         runtimeConfig.identity().ifPresent(builder::setIdentity);
+
+        if (runtimeConfig.enableTelemetry()) {
+            builder.setInterceptors(new OpenTracingClientInterceptor());
+        }
 
         if (propagatorsClasses != null && !propagatorsClasses.isEmpty()) {
 

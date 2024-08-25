@@ -22,8 +22,16 @@
             <artifactId>quarkus-grpc-common</artifactId>
         </dependency>
         <dependency>
+            <groupId>io.quarkus</groupId>
+            <artifactId>quarkus-opentelemetry</artifactId>
+        </dependency>
+        <dependency>
             <groupId>io.temporal</groupId>
             <artifactId>temporal-sdk</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.temporal</groupId>
+            <artifactId>temporal-opentracing</artifactId>
         </dependency>
         <dependency>
             <groupId>io.grpc</groupId>
@@ -36,6 +44,11 @@
         <dependency>
             <groupId>io.grpc</groupId>
             <artifactId>grpc-netty-shaded</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.opentelemetry</groupId>
+            <artifactId>opentelemetry-opentracing-shim</artifactId>
+            <version>1.32.0</version>
         </dependency>
     </dependencies>
     <build>

@@ -22,6 +22,10 @@
             <artifactId>quarkus-grpc-common-deployment</artifactId>
         </dependency>
         <dependency>
+            <groupId>io.quarkus</groupId>
+            <artifactId>quarkus-opentelemetry-deployment</artifactId>
+        </dependency>
+        <dependency>
             <groupId>io.quarkiverse.temporal</groupId>
             <artifactId>quarkus-temporal</artifactId>
             <version>${project.version}</version>
@@ -29,6 +33,10 @@
         <dependency>
             <groupId>io.temporal</groupId>
             <artifactId>temporal-sdk</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.temporal</groupId>
+            <artifactId>temporal-opentracing</artifactId>
         </dependency>
         <dependency>
             <groupId>io.quarkus</groupId>
