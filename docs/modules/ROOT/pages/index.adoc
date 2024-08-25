@@ -220,6 +220,18 @@ public class MyService {
 }
 ----
 
+== OpenTelemetry
+
+To wire up Temporal to forward traces and spans to Quarkus OpenTelemetry simply add the OpenTelemetry extension to your application.
+
+[source,xml]
+----
+<dependency>
+    <groupId>io.quarkus</groupId>
+    <artifactId>quarkus-opentelemetry</artifactId>
+</dependency>
+----
+
 == Context Propagation
 
 You can use an MDC (Mapped Diagnostic Context) Context Propagator to propagate information from the workflow client to workflow execution, workflow to activity, workflow to child workflow, and workflow to child thread created using `Async`.

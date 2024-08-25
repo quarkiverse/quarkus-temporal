@@ -5,6 +5,8 @@ import java.util.function.Function;
 
 import jakarta.enterprise.inject.spi.CDI;
 
+import io.opentelemetry.api.OpenTelemetry;
+import io.opentelemetry.opentracingshim.OpenTracingShim;
 import io.quarkiverse.temporal.config.TemporalBuildtimeConfig;
 import io.quarkiverse.temporal.config.TemporalRuntimeConfig;
 import io.quarkiverse.temporal.config.WorkerBuildtimeConfig;
@@ -14,8 +16,10 @@ import io.quarkus.info.GitInfo;
 import io.quarkus.runtime.ShutdownContext;
 import io.quarkus.runtime.annotations.Recorder;
 import io.temporal.client.WorkflowClient;
+import io.temporal.opentracing.OpenTracingWorkerInterceptor;
 import io.temporal.worker.Worker;
 import io.temporal.worker.WorkerFactory;
+import io.temporal.worker.WorkerFactoryOptions;
 import io.temporal.worker.WorkerOptions;
 
 @Recorder
@@ -29,8 +33,13 @@ public class WorkerFactoryRecorder {
     final TemporalRuntimeConfig runtimeConfig;
     final TemporalBuildtimeConfig buildtimeConfig;
 
-    public Function<SyntheticCreationalContext<WorkerFactory>, WorkerFactory> createWorkerFactory() {
-        return context -> WorkerFactory.newInstance(context.getInjectedReference(WorkflowClient.class));
+    public Function<SyntheticCreationalContext<WorkerFactory>, WorkerFactory> createWorkerFactory(
+            boolean isOpenTelemetryEnabled) {
+        WorkerFactoryOptions.Builder options = WorkerFactoryOptions.newBuilder();
+        if (isOpenTelemetryEnabled) {
+            options.setWorkerInterceptors(new OpenTracingWorkerInterceptor());
+        }
+        return context -> WorkerFactory.newInstance(context.getInjectedReference(WorkflowClient.class), options.build());
     }
 
     public WorkerOptions createWorkerOptions(WorkerRuntimeConfig workerRuntimeConfig,
@@ -78,12 +87,23 @@ public class WorkerFactoryRecorder {
         for (var activity : activities) {
             worker.registerActivitiesImplementations(CDI.current().select(activity).get());
         }
-
     }
 
-    public void startWorkerFactory(ShutdownContext shutdownContext) {
+    public void startWorkerFactory(ShutdownContext shutdownContext, boolean isOpenTelemetryEnabled) {
         WorkerFactory workerFactory = CDI.current().select(WorkerFactory.class).get();
         workerFactory.start();
+
+        // bridge Temporal OpenTracing to OpenTelemetry
+        if (isOpenTelemetryEnabled) {
+            OpenTelemetry openTelemetry = CDI.current().select(OpenTelemetry.class).get();
+            if (openTelemetry == null) {
+                throw new IllegalStateException("OpenTelemetry not available");
+            }
+
+            io.opentracing.Tracer tracer = OpenTracingShim.createTracerShim(openTelemetry);
+            shutdownContext.addShutdownTask(tracer::close);
+        }
+
         shutdownContext.addShutdownTask(workerFactory::shutdown);
     }
 
