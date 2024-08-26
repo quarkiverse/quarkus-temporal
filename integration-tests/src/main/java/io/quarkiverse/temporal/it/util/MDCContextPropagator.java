@@ -5,6 +5,8 @@ import java.util.Map;
 
 import org.slf4j.MDC;
 
+import com.google.protobuf.ByteString;
+
 import io.temporal.api.common.v1.Payload;
 import io.temporal.common.context.ContextPropagator;
 import io.temporal.common.converter.GlobalDataConverter;
@@ -92,8 +94,38 @@ public class MDCContextPropagator implements ContextPropagator {
     @Override
     public Object deserializeContext(Map<String, Payload> context) {
         Map<String, String> contextMap = new HashMap<>();
-        context.forEach((key, payload) -> contextMap.put(key,
-                GlobalDataConverter.get().fromPayload(payload, String.class, String.class)));
+        context.forEach((key, payload) -> {
+
+            // Handle empty {} when the data value is empty
+            // Adding opentracing seems to add a new value with empty data
+            // and the dataconverter throws an error
+            //
+            // {_tracer-data=metadata {
+            //    key: "encoding"
+            //    value: "json/plain"
+            //    }
+            // data: "{}"
+            // }
+            String payloadValue = ""; // default value
+
+            // Convert data to string to compare
+            ByteString data = payload.getData();
+
+            // Check the value to see if it "empty"
+            if (data != null && !data.isEmpty()) {
+
+                // Convert to string
+                String theData = data.toStringUtf8();
+
+                // Check if the value isn't {}'s
+                if (!theData.equals("{}")) {
+                    payloadValue = GlobalDataConverter.get().fromPayload(payload, String.class, String.class);
+                }
+            }
+
+            // Add the value into the map
+            contextMap.put(key, payloadValue);
+        });
         return contextMap;
     }
 }
