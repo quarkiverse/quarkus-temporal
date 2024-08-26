@@ -101,6 +101,7 @@ public class WorkerFactoryRecorder {
             }
 
             io.opentracing.Tracer tracer = OpenTracingShim.createTracerShim(openTelemetry);
+            io.opentracing.util.GlobalTracer.registerIfAbsent(tracer);
             shutdownContext.addShutdownTask(tracer::close);
         }
 
