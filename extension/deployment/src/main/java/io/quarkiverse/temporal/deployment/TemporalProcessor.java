@@ -27,6 +27,7 @@ import org.jboss.jandex.ClassType;
 import org.jboss.jandex.DotName;
 
 import io.quarkiverse.temporal.TemporalActivity;
+import io.quarkiverse.temporal.TemporalHealthCheck;
 import io.quarkiverse.temporal.TemporalWorkflow;
 import io.quarkiverse.temporal.TemporalWorkflowStub;
 import io.quarkiverse.temporal.WorkerFactoryRecorder;
@@ -39,6 +40,7 @@ import io.quarkus.arc.deployment.SyntheticBeanBuildItem;
 import io.quarkus.arc.deployment.SyntheticBeansRuntimeInitBuildItem;
 import io.quarkus.arc.deployment.UnremovableBeanBuildItem;
 import io.quarkus.deployment.Capabilities;
+import io.quarkus.deployment.Capability;
 import io.quarkus.deployment.annotations.BuildProducer;
 import io.quarkus.deployment.annotations.BuildStep;
 import io.quarkus.deployment.annotations.Consume;
@@ -52,6 +54,7 @@ import io.quarkus.deployment.builditem.ShutdownContextBuildItem;
 import io.quarkus.deployment.pkg.builditem.ArtifactResultBuildItem;
 import io.quarkus.info.GitInfo;
 import io.quarkus.runtime.configuration.ConfigurationException;
+import io.quarkus.smallrye.health.deployment.spi.HealthBuildItem;
 import io.temporal.activity.ActivityInterface;
 import io.temporal.client.WorkflowClient;
 import io.temporal.common.context.ContextPropagator;
@@ -102,6 +105,15 @@ public class TemporalProcessor {
     void validateMockConfiguration(Capabilities capabilities) {
         if (capabilities.isMissing("io.quarkiverse.temporal.test")) {
             throw new ConfigurationException("Please add the 'quarkus-temporal-test' extension to enable mocking.");
+        }
+    }
+
+    @BuildStep
+    HealthBuildItem addHealthCheck(Capabilities capabilities, TemporalBuildtimeConfig buildtimeConfig) {
+        if (capabilities.isPresent(Capability.SMALLRYE_HEALTH)) {
+            return new HealthBuildItem(TemporalHealthCheck.class.getName(), buildtimeConfig.healthEnabled());
+        } else {
+            return null;
         }
     }
 
