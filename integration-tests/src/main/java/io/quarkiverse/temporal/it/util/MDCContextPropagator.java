@@ -3,10 +3,15 @@ package io.quarkiverse.temporal.it.util;
 import java.util.HashMap;
 import java.util.Map;
 
+import jakarta.inject.Singleton;
+
+import org.apache.commons.lang3.StringUtils;
+import org.jboss.logging.Logger;
 import org.slf4j.MDC;
 
 import com.google.protobuf.ByteString;
 
+import io.quarkus.arc.Unremovable;
 import io.temporal.api.common.v1.Payload;
 import io.temporal.common.context.ContextPropagator;
 import io.temporal.common.converter.GlobalDataConverter;
@@ -17,11 +22,11 @@ import io.temporal.common.converter.GlobalDataConverter;
  * This class ensures that MDC entries with keys starting with "X-" are
  * propagated.
  */
+@Singleton
+@Unremovable
 public class MDCContextPropagator implements ContextPropagator {
 
-    public MDCContextPropagator() {
-        super();
-    }
+    private static final Logger LOG = Logger.getLogger(MDCContextPropagator.class);
 
     /**
      * Gets the name of the context propagator.
@@ -99,32 +104,35 @@ public class MDCContextPropagator implements ContextPropagator {
             // Handle empty {} when the data value is empty
             // Adding opentracing seems to add a new value with empty data
             // and the dataconverter throws an error
+            // This actually might be a configuration error from earlier
+            // but leaving in right now
             //
             // {_tracer-data=metadata {
-            //    key: "encoding"
-            //    value: "json/plain"
-            //    }
+            // key: "encoding"
+            // value: "json/plain"
+            // }
             // data: "{}"
             // }
-            String payloadValue = ""; // default value
+            try {
+                String payloadValue = StringUtils.EMPTY; // default value
 
-            // Convert data to string to compare
-            ByteString data = payload.getData();
+                // Convert data to string to compare
+                ByteString data = payload.getData();
 
-            // Check the value to see if it "empty"
-            if (data != null && !data.isEmpty()) {
+                // Check the value to see if it "empty"
+                if (data != null && !data.isEmpty()) {
 
-                // Convert to string
-                String theData = data.toStringUtf8();
-
-                // Check if the value isn't {}'s
-                if (!theData.equals("{}")) {
-                    payloadValue = GlobalDataConverter.get().fromPayload(payload, String.class, String.class);
+                    // Check if the value isn't {}'s
+                    if (!StringUtils.equals("{}", data.toStringUtf8())) {
+                        payloadValue = GlobalDataConverter.get().fromPayload(payload, String.class, String.class);
+                    }
                 }
-            }
 
-            // Add the value into the map
-            contextMap.put(key, payloadValue);
+                // Add the value into the map
+                contextMap.put(key, payloadValue);
+            } catch (Exception e) {
+                LOG.warnf("Couldn't parse MDC Context Data Key %s", key);
+            }
         });
         return contextMap;
     }

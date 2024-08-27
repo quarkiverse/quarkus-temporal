@@ -9,15 +9,16 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
+import io.quarkiverse.temporal.deployment.discovery.TestWorkflowClientInterceptor;
 import io.quarkus.test.QuarkusUnitTest;
 import io.temporal.client.WorkflowClient;
 
-public class ContextPropagatorInvalidTest {
+public class WorkflowClientInterceptorTest {
 
     @RegisterExtension
     static final QuarkusUnitTest unitTest = new QuarkusUnitTest()
             .setArchiveProducer(() -> ShrinkWrap.create(JavaArchive.class)
-                    .addClass(NotAContextPropagator.class)
+                    .addClass(TestWorkflowClientInterceptor.class)
                     .addAsResource(new StringAsset("quarkus.temporal.start-workers: false\n"),
                             "application.properties"));
 
@@ -25,11 +26,8 @@ public class ContextPropagatorInvalidTest {
     WorkflowClient client;
 
     @Test
-    public void testCustomClient() {
-        Assertions.assertEquals(0, client.getOptions().getContextPropagators().size());
+    public void testInterceptors() {
+        Assertions.assertEquals(1, client.getOptions().getInterceptors().length);
     }
 
-    public static class NotAContextPropagator {
-
-    }
 }

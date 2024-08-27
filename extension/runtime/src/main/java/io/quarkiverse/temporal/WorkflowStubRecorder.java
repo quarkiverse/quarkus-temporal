@@ -70,7 +70,8 @@ public class WorkflowStubRecorder {
             if (!TemporalWorkflowStub.DEFAULT_WORKFLOW_ID.equals(annotation.workflowId())) {
                 options.setWorkflowId(annotation.workflowId());
             }
-            return context.getInjectedReference(WorkflowClient.class).newWorkflowStub(workflow, options.build());
+            return context.getInjectedReference(WorkflowClient.class).newWorkflowStub(workflow,
+                    options.validateBuildWithDefaults());
         };
     }
 

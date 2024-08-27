@@ -44,23 +44,6 @@ endif::add-copy-button-to-env-var[]
 |`true`
 
 
-a|icon:lock[title=Fixed at build time] [[quarkus-temporal_quarkus-temporal-context-propagator-classes]]`link:#quarkus-temporal_quarkus-temporal-context-propagator-classes[quarkus.temporal.context-propagator-classes]`
-
-
-[.description]
---
-Explicitly bind context propagators to the workflow client.
-
-ifdef::add-copy-button-to-env-var[]
-Environment variable: env_var_with_copy_button:+++QUARKUS_TEMPORAL_CONTEXT_PROPAGATOR_CLASSES+++[]
-endif::add-copy-button-to-env-var[]
-ifndef::add-copy-button-to-env-var[]
-Environment variable: `+++QUARKUS_TEMPORAL_CONTEXT_PROPAGATOR_CLASSES+++`
-endif::add-copy-button-to-env-var[]
---|list of string 
-|
-
-
 a| [[quarkus-temporal_quarkus-temporal-namespace]]`link:#quarkus-temporal_quarkus-temporal-namespace[quarkus.temporal.namespace]`
 
 

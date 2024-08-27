@@ -54,7 +54,6 @@ import io.quarkus.info.GitInfo;
 import io.quarkus.runtime.configuration.ConfigurationException;
 import io.temporal.activity.ActivityInterface;
 import io.temporal.client.WorkflowClient;
-import io.temporal.common.context.ContextPropagator;
 import io.temporal.serviceclient.WorkflowServiceStubs;
 import io.temporal.worker.WorkerFactory;
 import io.temporal.workflow.WorkflowInterface;
@@ -68,8 +67,6 @@ public class TemporalProcessor {
     public static final DotName WORKFLOW_INTERFACE = DotName.createSimple(WorkflowInterface.class);
 
     public static final DotName ACTIVITY_INTERFACE = DotName.createSimple(ActivityInterface.class);
-
-    public static final DotName CONTEXT_PROPAGATOR = DotName.createSimple(ContextPropagator.class);
 
     private static final String FEATURE = "temporal";
 
@@ -265,26 +262,12 @@ public class TemporalProcessor {
     WorkflowClientBuildItem recordWorkflowClient(
             WorkflowServiceStubsRecorder recorder,
             WorkflowClientRecorder clientRecorder,
-            TemporalBuildtimeConfig temporalBuildtimeConfig,
-            CombinedIndexBuildItem beanArchiveBuildItem,
             OpenTelemetryValidatedBuildItem openTelemetryValidatedBuildItem) {
 
-        List<Class<? extends ContextPropagator>> propagators = new ArrayList<>();
-        temporalBuildtimeConfig.contextPropagatorClasses().ifPresent(classes -> {
-            for (String propagatorClass : classes) {
-                DotName className = DotName.createSimple(propagatorClass);
-                ClassInfo classInfo = beanArchiveBuildItem.getIndex().getClassByName(className);
-                if (classInfo == null || !classInfo.interfaceNames().contains(CONTEXT_PROPAGATOR)) {
-                    throw new ConfigurationException(
-                            "Class '" + propagatorClass + "' is not an instance of: " + classInfo.interfaceNames());
-                }
-                propagators.add((Class<? extends ContextPropagator>) loadClass(classInfo));
-            }
-        });
         WorkflowServiceStubs workflowServiceStubs = recorder.createWorkflowServiceStubs();
         boolean isOpenTelemetryEnabled = openTelemetryValidatedBuildItem.isEnabled();
         return new WorkflowClientBuildItem(
-                clientRecorder.createWorkflowClient(workflowServiceStubs, propagators, isOpenTelemetryEnabled));
+                clientRecorder.createWorkflowClient(workflowServiceStubs, isOpenTelemetryEnabled));
     }
 
     @BuildStep

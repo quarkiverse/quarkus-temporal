@@ -1,8 +1,6 @@
 package io.quarkiverse.temporal.config;
 
-import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 import io.quarkus.runtime.annotations.ConfigDocMapKey;
 import io.quarkus.runtime.annotations.ConfigPhase;
@@ -36,8 +34,4 @@ public interface TemporalBuildtimeConfig {
     @WithUnnamedKey("<default>")
     Map<String, WorkerBuildtimeConfig> worker();
 
-    /**
-     * Explicitly bind context propagators to the workflow client.
-     */
-    Optional<List<String>> contextPropagatorClasses();
 }

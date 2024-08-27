@@ -1,7 +1,9 @@
 package io.quarkiverse.temporal;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import jakarta.enterprise.inject.spi.CDI;
 
@@ -16,6 +18,7 @@ import io.quarkus.info.GitInfo;
 import io.quarkus.runtime.ShutdownContext;
 import io.quarkus.runtime.annotations.Recorder;
 import io.temporal.client.WorkflowClient;
+import io.temporal.common.interceptors.WorkerInterceptor;
 import io.temporal.opentracing.OpenTracingWorkerInterceptor;
 import io.temporal.worker.Worker;
 import io.temporal.worker.WorkerFactory;
@@ -36,10 +39,14 @@ public class WorkerFactoryRecorder {
     public Function<SyntheticCreationalContext<WorkerFactory>, WorkerFactory> createWorkerFactory(
             boolean isOpenTelemetryEnabled) {
         WorkerFactoryOptions.Builder options = WorkerFactoryOptions.newBuilder();
+        List<WorkerInterceptor> interceptors = CDI.current().select(WorkerInterceptor.class).stream()
+                .collect(Collectors.toCollection(ArrayList::new));
         if (isOpenTelemetryEnabled) {
-            options.setWorkerInterceptors(new OpenTracingWorkerInterceptor());
+            interceptors.add(new OpenTracingWorkerInterceptor());
         }
-        return context -> WorkerFactory.newInstance(context.getInjectedReference(WorkflowClient.class), options.build());
+        options.setWorkerInterceptors(interceptors.toArray(new WorkerInterceptor[0]));
+        return context -> WorkerFactory.newInstance(context.getInjectedReference(WorkflowClient.class),
+                options.validateAndBuildWithDefaults());
     }
 
     public WorkerOptions createWorkerOptions(WorkerRuntimeConfig workerRuntimeConfig,
