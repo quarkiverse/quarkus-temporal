@@ -18,6 +18,8 @@ import java.util.stream.Stream;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.context.Dependent;
+import jakarta.enterprise.inject.Any;
+import jakarta.enterprise.inject.Instance;
 import jakarta.enterprise.inject.spi.InjectionPoint;
 import jakarta.inject.Singleton;
 
@@ -25,6 +27,7 @@ import org.jboss.jandex.AnnotationInstance;
 import org.jboss.jandex.ClassInfo;
 import org.jboss.jandex.ClassType;
 import org.jboss.jandex.DotName;
+import org.jboss.jandex.ParameterizedType;
 
 import io.quarkiverse.temporal.TemporalActivity;
 import io.quarkiverse.temporal.TemporalHealthCheck;
@@ -58,6 +61,8 @@ import io.quarkus.smallrye.health.deployment.spi.HealthBuildItem;
 import io.temporal.activity.ActivityInterface;
 import io.temporal.client.WorkflowClient;
 import io.temporal.common.context.ContextPropagator;
+import io.temporal.common.interceptors.WorkerInterceptor;
+import io.temporal.common.interceptors.WorkflowClientInterceptor;
 import io.temporal.serviceclient.WorkflowServiceStubs;
 import io.temporal.worker.WorkerFactory;
 import io.temporal.workflow.WorkflowInterface;
@@ -71,8 +76,6 @@ public class TemporalProcessor {
     public static final DotName WORKFLOW_INTERFACE = DotName.createSimple(WorkflowInterface.class);
 
     public static final DotName ACTIVITY_INTERFACE = DotName.createSimple(ActivityInterface.class);
-
-    public static final DotName CONTEXT_PROPAGATOR = DotName.createSimple(ContextPropagator.class);
 
     private static final String FEATURE = "temporal";
 
@@ -277,26 +280,12 @@ public class TemporalProcessor {
     WorkflowClientBuildItem recordWorkflowClient(
             WorkflowServiceStubsRecorder recorder,
             WorkflowClientRecorder clientRecorder,
-            TemporalBuildtimeConfig temporalBuildtimeConfig,
-            CombinedIndexBuildItem beanArchiveBuildItem,
             OpenTelemetryValidatedBuildItem openTelemetryValidatedBuildItem) {
 
-        List<Class<? extends ContextPropagator>> propagators = new ArrayList<>();
-        temporalBuildtimeConfig.contextPropagatorClasses().ifPresent(classes -> {
-            for (String propagatorClass : classes) {
-                DotName className = DotName.createSimple(propagatorClass);
-                ClassInfo classInfo = beanArchiveBuildItem.getIndex().getClassByName(className);
-                if (classInfo == null || !classInfo.interfaceNames().contains(CONTEXT_PROPAGATOR)) {
-                    throw new ConfigurationException(
-                            "Class '" + propagatorClass + "' is not an instance of: " + classInfo.interfaceNames());
-                }
-                propagators.add((Class<? extends ContextPropagator>) loadClass(classInfo));
-            }
-        });
         WorkflowServiceStubs workflowServiceStubs = recorder.createWorkflowServiceStubs();
         boolean isOpenTelemetryEnabled = openTelemetryValidatedBuildItem.isEnabled();
         return new WorkflowClientBuildItem(
-                clientRecorder.createWorkflowClient(workflowServiceStubs, propagators, isOpenTelemetryEnabled));
+                clientRecorder.createWorkflowClient(workflowServiceStubs, isOpenTelemetryEnabled));
     }
 
     @BuildStep
@@ -309,7 +298,12 @@ public class TemporalProcessor {
                         .scope(ApplicationScoped.class)
                         .unremovable()
                         .defaultBean()
-                        .runtimeProxy(buildItem.workflowClient)
+                        .addInjectionPoint(
+                                ParameterizedType.create(Instance.class, ClassType.create(WorkflowClientInterceptor.class)),
+                                AnnotationInstance.builder(Any.class).build())
+                        .addInjectionPoint(ParameterizedType.create(Instance.class, ClassType.create(ContextPropagator.class)),
+                                AnnotationInstance.builder(Any.class).build())
+                        .createWith(buildItem.workflowClient)
                         .setRuntimeInit()
                         .done());
 
@@ -368,6 +362,8 @@ public class TemporalProcessor {
                 .unremovable()
                 .defaultBean()
                 .addInjectionPoint(ClassType.create(WorkflowClient.class))
+                .addInjectionPoint(ParameterizedType.create(Instance.class, ClassType.create(WorkerInterceptor.class)),
+                        AnnotationInstance.builder(Any.class).build())
                 .createWith(workerFactoryRecorder.createWorkerFactory(openTelemetryValidatedBuildItem.isEnabled()))
                 .setRuntimeInit()
                 .done();

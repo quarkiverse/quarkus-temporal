@@ -1,32 +1,63 @@
 package io.quarkiverse.temporal;
 
-import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+
+import jakarta.enterprise.inject.Any;
+import jakarta.enterprise.inject.Instance;
+import jakarta.enterprise.util.TypeLiteral;
 
 import io.quarkiverse.temporal.config.TemporalBuildtimeConfig;
 import io.quarkiverse.temporal.config.TemporalRuntimeConfig;
+import io.quarkus.arc.SyntheticCreationalContext;
 import io.quarkus.runtime.annotations.Recorder;
-import io.quarkus.runtime.configuration.ConfigurationException;
 import io.temporal.client.WorkflowClient;
 import io.temporal.client.WorkflowClientOptions;
 import io.temporal.common.context.ContextPropagator;
+import io.temporal.common.interceptors.WorkflowClientInterceptor;
 import io.temporal.opentracing.OpenTracingClientInterceptor;
 import io.temporal.serviceclient.WorkflowServiceStubs;
 
+/**
+ * Recorder class responsible for creating and configuring instances of {@link WorkflowClient} and
+ * {@link WorkflowClientOptions} for use with Temporal workflows. This class is used in the context
+ * of Quarkus's build and runtime steps to set up the necessary Temporal client components.
+ */
 @Recorder
 public class WorkflowClientRecorder {
 
+    /**
+     * The runtime configuration for Temporal.
+     */
+    final TemporalRuntimeConfig runtimeConfig;
+
+    /**
+     * The build-time configuration for Temporal.
+     */
+    final TemporalBuildtimeConfig buildtimeConfig;
+
+    /**
+     * Constructs a new instance of {@code WorkflowClientRecorder} with the given runtime and build-time configuration.
+     *
+     * @param runtimeConfig The runtime configuration for Temporal.
+     * @param buildtimeConfig The build-time configuration for Temporal.
+     */
     public WorkflowClientRecorder(TemporalRuntimeConfig runtimeConfig, TemporalBuildtimeConfig buildtimeConfig) {
         this.runtimeConfig = runtimeConfig;
         this.buildtimeConfig = buildtimeConfig;
     }
 
-    final TemporalRuntimeConfig runtimeConfig;
-    final TemporalBuildtimeConfig buildtimeConfig;
-
-    public WorkflowClientOptions createWorkflowClientOptions(List<Class<? extends ContextPropagator>> propagatorsClasses,
-            boolean openTelemetryEnabled) {
+    /**
+     * Creates an instance of {@link WorkflowClientOptions} based on the provided propagators and telemetry settings.
+     *
+     * @param openTelemetryEnabled A flag indicating whether OpenTelemetry is enabled.
+     * @param context
+     * @return A configured {@link WorkflowClientOptions} instance.
+     */
+    public WorkflowClientOptions createWorkflowClientOptions(boolean openTelemetryEnabled,
+            SyntheticCreationalContext<WorkflowClient> context) {
         if (runtimeConfig == null) {
             return WorkflowClientOptions.getDefaultInstance();
         }
@@ -35,31 +66,44 @@ public class WorkflowClientRecorder {
 
         runtimeConfig.identity().ifPresent(builder::setIdentity);
 
+        // discover interceptors
+        Instance<WorkflowClientInterceptor> interceptorInstance = context.getInjectedReference(new TypeLiteral<>() {
+        }, Any.Literal.INSTANCE);
+
+        List<WorkflowClientInterceptor> interceptors = interceptorInstance.stream()
+                .collect(Collectors.toCollection(ArrayList::new));
+
         if (openTelemetryEnabled) {
-            builder.setInterceptors(new OpenTracingClientInterceptor());
+            interceptors.add(new OpenTracingClientInterceptor());
+        }
+        if (!interceptors.isEmpty()) {
+            builder.setInterceptors(interceptors.toArray(new WorkflowClientInterceptor[0]));
         }
 
-        if (propagatorsClasses != null && !propagatorsClasses.isEmpty()) {
+        // discover propagators
+        Instance<ContextPropagator> contextPropagatorInstance = context.getInjectedReference(new TypeLiteral<>() {
+        }, Any.Literal.INSTANCE);
 
-            List<ContextPropagator> propagators = new ArrayList<>();
-            for (Class<? extends ContextPropagator> propagatorClass : propagatorsClasses) {
-                try {
-                    propagators.add(propagatorClass.getDeclaredConstructor().newInstance());
-                } catch (NoSuchMethodException | InstantiationException | IllegalAccessException
-                        | InvocationTargetException e) {
-                    throw new ConfigurationException(
-                            "Context propagator " + propagatorClass + " is missing a default constructor", e);
-                }
-            }
+        List<ContextPropagator> propagators = contextPropagatorInstance.stream()
+                .collect(Collectors.toCollection(ArrayList::new));
+        if (!propagators.isEmpty()) {
             builder.setContextPropagators(propagators);
         }
 
-        return builder.build();
+        return builder.validateAndBuildWithDefaults();
     }
 
-    public WorkflowClient createWorkflowClient(WorkflowServiceStubs serviceStubs,
-            List<Class<? extends ContextPropagator>> propagators, boolean openTelemetryEnabled) {
-        return WorkflowClient.newInstance(serviceStubs, createWorkflowClientOptions(propagators, openTelemetryEnabled));
+    /**
+     * Creates a new instance of {@link WorkflowClient} using the provided {@link WorkflowServiceStubs},
+     * context propagators, and telemetry settings.
+     *
+     * @param serviceStubs The {@link WorkflowServiceStubs} used to connect to the Temporal service.
+     * @param openTelemetryEnabled A flag indicating whether OpenTelemetry is enabled.
+     * @return A configured {@link WorkflowClient} instance.
+     */
+    public Function<SyntheticCreationalContext<WorkflowClient>, WorkflowClient> createWorkflowClient(
+            WorkflowServiceStubs serviceStubs, boolean openTelemetryEnabled) {
+        return context -> WorkflowClient.newInstance(serviceStubs, createWorkflowClientOptions(openTelemetryEnabled, context));
     }
 
 }

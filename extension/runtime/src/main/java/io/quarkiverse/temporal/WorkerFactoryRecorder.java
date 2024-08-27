@@ -1,9 +1,14 @@
 package io.quarkiverse.temporal;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
+import jakarta.enterprise.inject.Any;
+import jakarta.enterprise.inject.Instance;
 import jakarta.enterprise.inject.spi.CDI;
+import jakarta.enterprise.util.TypeLiteral;
 
 import io.opentelemetry.api.OpenTelemetry;
 import io.opentelemetry.opentracingshim.OpenTracingShim;
@@ -16,6 +21,7 @@ import io.quarkus.info.GitInfo;
 import io.quarkus.runtime.ShutdownContext;
 import io.quarkus.runtime.annotations.Recorder;
 import io.temporal.client.WorkflowClient;
+import io.temporal.common.interceptors.WorkerInterceptor;
 import io.temporal.opentracing.OpenTracingWorkerInterceptor;
 import io.temporal.worker.Worker;
 import io.temporal.worker.WorkerFactory;
@@ -33,16 +39,29 @@ public class WorkerFactoryRecorder {
     final TemporalRuntimeConfig runtimeConfig;
     final TemporalBuildtimeConfig buildtimeConfig;
 
-    public Function<SyntheticCreationalContext<WorkerFactory>, WorkerFactory> createWorkerFactory(
-            boolean isOpenTelemetryEnabled) {
+    WorkerFactoryOptions createWorkerFactoryOptions(boolean isOpenTelemetryEnabled,
+            SyntheticCreationalContext<WorkerFactory> context) {
         WorkerFactoryOptions.Builder options = WorkerFactoryOptions.newBuilder();
+
+        Instance<WorkerInterceptor> interceptorInstance = context.getInjectedReference(new TypeLiteral<>() {
+        }, Any.Literal.INSTANCE);
+
+        List<WorkerInterceptor> interceptors = interceptorInstance.stream().collect(Collectors.toCollection(ArrayList::new));
         if (isOpenTelemetryEnabled) {
-            options.setWorkerInterceptors(new OpenTracingWorkerInterceptor());
+            interceptors.add(new OpenTracingWorkerInterceptor());
         }
-        return context -> WorkerFactory.newInstance(context.getInjectedReference(WorkflowClient.class), options.build());
+        options.setWorkerInterceptors(interceptors.toArray(new WorkerInterceptor[0]));
+
+        return options.validateAndBuildWithDefaults();
     }
 
-    public WorkerOptions createWorkerOptions(WorkerRuntimeConfig workerRuntimeConfig,
+    public Function<SyntheticCreationalContext<WorkerFactory>, WorkerFactory> createWorkerFactory(
+            boolean isOpenTelemetryEnabled) {
+        return context -> WorkerFactory.newInstance(context.getInjectedReference(WorkflowClient.class),
+                createWorkerFactoryOptions(isOpenTelemetryEnabled, context));
+    }
+
+    WorkerOptions createWorkerOptions(WorkerRuntimeConfig workerRuntimeConfig,
             WorkerBuildtimeConfig workerBuildtimeConfig) {
         if (workerRuntimeConfig == null) {
             return WorkerOptions.getDefaultInstance();
