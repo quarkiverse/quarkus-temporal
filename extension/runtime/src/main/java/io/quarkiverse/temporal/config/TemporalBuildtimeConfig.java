@@ -10,6 +10,7 @@ import io.quarkus.runtime.annotations.ConfigRoot;
 import io.smallrye.config.ConfigMapping;
 import io.smallrye.config.WithDefault;
 import io.smallrye.config.WithDefaults;
+import io.smallrye.config.WithName;
 import io.smallrye.config.WithUnnamedKey;
 
 @ConfigMapping(prefix = "quarkus.temporal")
@@ -21,6 +22,13 @@ public interface TemporalBuildtimeConfig {
      */
     @WithDefault("false")
     Boolean enableMock();
+
+    /**
+     * If Temporal registers in the health check by pinging the service.
+     */
+    @WithName("health.enabled")
+    @WithDefault("true")
+    boolean healthEnabled();
 
     /**
      * enable mock for testing
