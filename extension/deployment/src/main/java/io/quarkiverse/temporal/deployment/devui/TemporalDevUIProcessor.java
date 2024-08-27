@@ -35,7 +35,7 @@ public class TemporalDevUIProcessor {
 
         final PageBuilder<TableDataPageBuilder> workflowsPage = Page.tableDataPageBuilder("Workflows")
                 .icon("font-awesome-solid:arrow-right")
-                .staticLabel(String.valueOf(workers.size()))
+                .staticLabel(String.valueOf(workflows.size()))
                 .showColumn("name")
                 .showColumn("workers")
                 .buildTimeDataKey("workflows");
@@ -47,7 +47,7 @@ public class TemporalDevUIProcessor {
 
         final PageBuilder<TableDataPageBuilder> workersPage = Page.tableDataPageBuilder("Workers")
                 .icon("font-awesome-solid:briefcase")
-                .staticLabel(String.valueOf(workflows.size()))
+                .staticLabel(String.valueOf(workers.size()))
                 .showColumn("name")
                 .showColumn("workflows")
                 .showColumn("activities")
