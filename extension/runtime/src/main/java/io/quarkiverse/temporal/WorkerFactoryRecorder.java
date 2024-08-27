@@ -5,7 +5,10 @@ import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import jakarta.enterprise.inject.Any;
+import jakarta.enterprise.inject.Instance;
 import jakarta.enterprise.inject.spi.CDI;
+import jakarta.enterprise.util.TypeLiteral;
 
 import io.opentelemetry.api.OpenTelemetry;
 import io.opentelemetry.opentracingshim.OpenTracingShim;
@@ -36,20 +39,26 @@ public class WorkerFactoryRecorder {
     final TemporalRuntimeConfig runtimeConfig;
     final TemporalBuildtimeConfig buildtimeConfig;
 
-    public Function<SyntheticCreationalContext<WorkerFactory>, WorkerFactory> createWorkerFactory(
-            boolean isOpenTelemetryEnabled) {
+    WorkerFactoryOptions createWorkerFactoryOptions(boolean isOpenTelemetryEnabled,
+            Instance<WorkerInterceptor> interceptorInstance) {
         WorkerFactoryOptions.Builder options = WorkerFactoryOptions.newBuilder();
-        List<WorkerInterceptor> interceptors = CDI.current().select(WorkerInterceptor.class).stream()
-                .collect(Collectors.toCollection(ArrayList::new));
+        List<WorkerInterceptor> interceptors = interceptorInstance.stream().collect(Collectors.toCollection(ArrayList::new));
         if (isOpenTelemetryEnabled) {
             interceptors.add(new OpenTracingWorkerInterceptor());
         }
         options.setWorkerInterceptors(interceptors.toArray(new WorkerInterceptor[0]));
-        return context -> WorkerFactory.newInstance(context.getInjectedReference(WorkflowClient.class),
-                options.validateAndBuildWithDefaults());
+
+        return options.validateAndBuildWithDefaults();
     }
 
-    public WorkerOptions createWorkerOptions(WorkerRuntimeConfig workerRuntimeConfig,
+    public Function<SyntheticCreationalContext<WorkerFactory>, WorkerFactory> createWorkerFactory(
+            boolean isOpenTelemetryEnabled) {
+        return context -> WorkerFactory.newInstance(context.getInjectedReference(WorkflowClient.class),
+                createWorkerFactoryOptions(isOpenTelemetryEnabled, context.getInjectedReference(new TypeLiteral<>() {
+                }, Any.Literal.INSTANCE)));
+    }
+
+    WorkerOptions createWorkerOptions(WorkerRuntimeConfig workerRuntimeConfig,
             WorkerBuildtimeConfig workerBuildtimeConfig) {
         if (workerRuntimeConfig == null) {
             return WorkerOptions.getDefaultInstance();

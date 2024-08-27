@@ -18,6 +18,8 @@ import java.util.stream.Stream;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.context.Dependent;
+import jakarta.enterprise.inject.Any;
+import jakarta.enterprise.inject.Instance;
 import jakarta.enterprise.inject.spi.InjectionPoint;
 import jakarta.inject.Singleton;
 
@@ -25,6 +27,7 @@ import org.jboss.jandex.AnnotationInstance;
 import org.jboss.jandex.ClassInfo;
 import org.jboss.jandex.ClassType;
 import org.jboss.jandex.DotName;
+import org.jboss.jandex.ParameterizedType;
 
 import io.quarkiverse.temporal.TemporalActivity;
 import io.quarkiverse.temporal.TemporalWorkflow;
@@ -54,6 +57,7 @@ import io.quarkus.info.GitInfo;
 import io.quarkus.runtime.configuration.ConfigurationException;
 import io.temporal.activity.ActivityInterface;
 import io.temporal.client.WorkflowClient;
+import io.temporal.common.interceptors.WorkerInterceptor;
 import io.temporal.serviceclient.WorkflowServiceStubs;
 import io.temporal.worker.WorkerFactory;
 import io.temporal.workflow.WorkflowInterface;
@@ -339,6 +343,8 @@ public class TemporalProcessor {
                 .unremovable()
                 .defaultBean()
                 .addInjectionPoint(ClassType.create(WorkflowClient.class))
+                .addInjectionPoint(ParameterizedType.create(Instance.class, ClassType.create(WorkerInterceptor.class)),
+                        AnnotationInstance.builder(Any.class).build())
                 .createWith(workerFactoryRecorder.createWorkerFactory(openTelemetryValidatedBuildItem.isEnabled()))
                 .setRuntimeInit()
                 .done();
