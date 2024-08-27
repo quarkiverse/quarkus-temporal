@@ -40,8 +40,12 @@ public class WorkerFactoryRecorder {
     final TemporalBuildtimeConfig buildtimeConfig;
 
     WorkerFactoryOptions createWorkerFactoryOptions(boolean isOpenTelemetryEnabled,
-            Instance<WorkerInterceptor> interceptorInstance) {
+            SyntheticCreationalContext<WorkerFactory> context) {
         WorkerFactoryOptions.Builder options = WorkerFactoryOptions.newBuilder();
+
+        Instance<WorkerInterceptor> interceptorInstance = context.getInjectedReference(new TypeLiteral<>() {
+        }, Any.Literal.INSTANCE);
+
         List<WorkerInterceptor> interceptors = interceptorInstance.stream().collect(Collectors.toCollection(ArrayList::new));
         if (isOpenTelemetryEnabled) {
             interceptors.add(new OpenTracingWorkerInterceptor());
@@ -54,8 +58,7 @@ public class WorkerFactoryRecorder {
     public Function<SyntheticCreationalContext<WorkerFactory>, WorkerFactory> createWorkerFactory(
             boolean isOpenTelemetryEnabled) {
         return context -> WorkerFactory.newInstance(context.getInjectedReference(WorkflowClient.class),
-                createWorkerFactoryOptions(isOpenTelemetryEnabled, context.getInjectedReference(new TypeLiteral<>() {
-                }, Any.Literal.INSTANCE)));
+                createWorkerFactoryOptions(isOpenTelemetryEnabled, context));
     }
 
     WorkerOptions createWorkerOptions(WorkerRuntimeConfig workerRuntimeConfig,

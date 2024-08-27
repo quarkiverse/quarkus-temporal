@@ -57,7 +57,9 @@ import io.quarkus.info.GitInfo;
 import io.quarkus.runtime.configuration.ConfigurationException;
 import io.temporal.activity.ActivityInterface;
 import io.temporal.client.WorkflowClient;
+import io.temporal.common.context.ContextPropagator;
 import io.temporal.common.interceptors.WorkerInterceptor;
+import io.temporal.common.interceptors.WorkflowClientInterceptor;
 import io.temporal.serviceclient.WorkflowServiceStubs;
 import io.temporal.worker.WorkerFactory;
 import io.temporal.workflow.WorkflowInterface;
@@ -284,7 +286,12 @@ public class TemporalProcessor {
                         .scope(ApplicationScoped.class)
                         .unremovable()
                         .defaultBean()
-                        .runtimeProxy(buildItem.workflowClient)
+                        .addInjectionPoint(
+                                ParameterizedType.create(Instance.class, ClassType.create(WorkflowClientInterceptor.class)),
+                                AnnotationInstance.builder(Any.class).build())
+                        .addInjectionPoint(ParameterizedType.create(Instance.class, ClassType.create(ContextPropagator.class)),
+                                AnnotationInstance.builder(Any.class).build())
+                        .createWith(buildItem.workflowClient)
                         .setRuntimeInit()
                         .done());
 

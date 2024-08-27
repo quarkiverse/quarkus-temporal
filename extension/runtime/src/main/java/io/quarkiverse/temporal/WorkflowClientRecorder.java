@@ -2,12 +2,16 @@ package io.quarkiverse.temporal;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import jakarta.enterprise.inject.spi.CDI;
+import jakarta.enterprise.inject.Any;
+import jakarta.enterprise.inject.Instance;
+import jakarta.enterprise.util.TypeLiteral;
 
 import io.quarkiverse.temporal.config.TemporalBuildtimeConfig;
 import io.quarkiverse.temporal.config.TemporalRuntimeConfig;
+import io.quarkus.arc.SyntheticCreationalContext;
 import io.quarkus.runtime.annotations.Recorder;
 import io.temporal.client.WorkflowClient;
 import io.temporal.client.WorkflowClientOptions;
@@ -49,9 +53,11 @@ public class WorkflowClientRecorder {
      * Creates an instance of {@link WorkflowClientOptions} based on the provided propagators and telemetry settings.
      *
      * @param openTelemetryEnabled A flag indicating whether OpenTelemetry is enabled.
+     * @param context
      * @return A configured {@link WorkflowClientOptions} instance.
      */
-    public WorkflowClientOptions createWorkflowClientOptions(boolean openTelemetryEnabled) {
+    public WorkflowClientOptions createWorkflowClientOptions(boolean openTelemetryEnabled,
+            SyntheticCreationalContext<WorkflowClient> context) {
         if (runtimeConfig == null) {
             return WorkflowClientOptions.getDefaultInstance();
         }
@@ -61,8 +67,12 @@ public class WorkflowClientRecorder {
         runtimeConfig.identity().ifPresent(builder::setIdentity);
 
         // discover interceptors
-        List<WorkflowClientInterceptor> interceptors = CDI.current().select(WorkflowClientInterceptor.class).stream()
+        Instance<WorkflowClientInterceptor> interceptorInstance = context.getInjectedReference(new TypeLiteral<>() {
+        }, Any.Literal.INSTANCE);
+
+        List<WorkflowClientInterceptor> interceptors = interceptorInstance.stream()
                 .collect(Collectors.toCollection(ArrayList::new));
+
         if (openTelemetryEnabled) {
             interceptors.add(new OpenTracingClientInterceptor());
         }
@@ -71,7 +81,10 @@ public class WorkflowClientRecorder {
         }
 
         // discover propagators
-        List<ContextPropagator> propagators = CDI.current().select(ContextPropagator.class).stream()
+        Instance<ContextPropagator> contextPropagatorInstance = context.getInjectedReference(new TypeLiteral<>() {
+        }, Any.Literal.INSTANCE);
+
+        List<ContextPropagator> propagators = contextPropagatorInstance.stream()
                 .collect(Collectors.toCollection(ArrayList::new));
         if (!propagators.isEmpty()) {
             builder.setContextPropagators(propagators);
@@ -88,8 +101,9 @@ public class WorkflowClientRecorder {
      * @param openTelemetryEnabled A flag indicating whether OpenTelemetry is enabled.
      * @return A configured {@link WorkflowClient} instance.
      */
-    public WorkflowClient createWorkflowClient(WorkflowServiceStubs serviceStubs, boolean openTelemetryEnabled) {
-        return WorkflowClient.newInstance(serviceStubs, createWorkflowClientOptions(openTelemetryEnabled));
+    public Function<SyntheticCreationalContext<WorkflowClient>, WorkflowClient> createWorkflowClient(
+            WorkflowServiceStubs serviceStubs, boolean openTelemetryEnabled) {
+        return context -> WorkflowClient.newInstance(serviceStubs, createWorkflowClientOptions(openTelemetryEnabled, context));
     }
 
 }
