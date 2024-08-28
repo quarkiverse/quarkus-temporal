@@ -1,9 +1,7 @@
 package io.quarkiverse.temporal;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
 import jakarta.enterprise.inject.Any;
 import jakarta.enterprise.inject.Instance;
@@ -22,7 +20,6 @@ import io.quarkus.runtime.ShutdownContext;
 import io.quarkus.runtime.annotations.Recorder;
 import io.temporal.client.WorkflowClient;
 import io.temporal.common.interceptors.WorkerInterceptor;
-import io.temporal.opentracing.OpenTracingWorkerInterceptor;
 import io.temporal.worker.Worker;
 import io.temporal.worker.WorkerFactory;
 import io.temporal.worker.WorkerFactoryOptions;
@@ -39,26 +36,21 @@ public class WorkerFactoryRecorder {
     final TemporalRuntimeConfig runtimeConfig;
     final TemporalBuildtimeConfig buildtimeConfig;
 
-    WorkerFactoryOptions createWorkerFactoryOptions(boolean isOpenTelemetryEnabled,
+    WorkerFactoryOptions createWorkerFactoryOptions(
             SyntheticCreationalContext<WorkerFactory> context) {
         WorkerFactoryOptions.Builder options = WorkerFactoryOptions.newBuilder();
 
         Instance<WorkerInterceptor> interceptorInstance = context.getInjectedReference(new TypeLiteral<>() {
         }, Any.Literal.INSTANCE);
 
-        List<WorkerInterceptor> interceptors = interceptorInstance.stream().collect(Collectors.toCollection(ArrayList::new));
-        if (isOpenTelemetryEnabled) {
-            interceptors.add(new OpenTracingWorkerInterceptor());
-        }
-        options.setWorkerInterceptors(interceptors.toArray(new WorkerInterceptor[0]));
+        options.setWorkerInterceptors(interceptorInstance.stream().toArray(WorkerInterceptor[]::new));
 
         return options.validateAndBuildWithDefaults();
     }
 
-    public Function<SyntheticCreationalContext<WorkerFactory>, WorkerFactory> createWorkerFactory(
-            boolean isOpenTelemetryEnabled) {
+    public Function<SyntheticCreationalContext<WorkerFactory>, WorkerFactory> createWorkerFactory() {
         return context -> WorkerFactory.newInstance(context.getInjectedReference(WorkflowClient.class),
-                createWorkerFactoryOptions(isOpenTelemetryEnabled, context));
+                createWorkerFactoryOptions(context));
     }
 
     WorkerOptions createWorkerOptions(WorkerRuntimeConfig workerRuntimeConfig,

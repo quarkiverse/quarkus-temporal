@@ -17,7 +17,6 @@ import io.temporal.client.WorkflowClient;
 import io.temporal.client.WorkflowClientOptions;
 import io.temporal.common.context.ContextPropagator;
 import io.temporal.common.interceptors.WorkflowClientInterceptor;
-import io.temporal.opentracing.OpenTracingClientInterceptor;
 import io.temporal.serviceclient.WorkflowServiceStubs;
 
 /**
@@ -52,11 +51,10 @@ public class WorkflowClientRecorder {
     /**
      * Creates an instance of {@link WorkflowClientOptions} based on the provided propagators and telemetry settings.
      *
-     * @param openTelemetryEnabled A flag indicating whether OpenTelemetry is enabled.
      * @param context
      * @return A configured {@link WorkflowClientOptions} instance.
      */
-    public WorkflowClientOptions createWorkflowClientOptions(boolean openTelemetryEnabled,
+    public WorkflowClientOptions createWorkflowClientOptions(
             SyntheticCreationalContext<WorkflowClient> context) {
         if (runtimeConfig == null) {
             return WorkflowClientOptions.getDefaultInstance();
@@ -73,9 +71,6 @@ public class WorkflowClientRecorder {
         List<WorkflowClientInterceptor> interceptors = interceptorInstance.stream()
                 .collect(Collectors.toCollection(ArrayList::new));
 
-        if (openTelemetryEnabled) {
-            interceptors.add(new OpenTracingClientInterceptor());
-        }
         if (!interceptors.isEmpty()) {
             builder.setInterceptors(interceptors.toArray(new WorkflowClientInterceptor[0]));
         }
@@ -98,12 +93,11 @@ public class WorkflowClientRecorder {
      * context propagators, and telemetry settings.
      *
      * @param serviceStubs The {@link WorkflowServiceStubs} used to connect to the Temporal service.
-     * @param openTelemetryEnabled A flag indicating whether OpenTelemetry is enabled.
      * @return A configured {@link WorkflowClient} instance.
      */
     public Function<SyntheticCreationalContext<WorkflowClient>, WorkflowClient> createWorkflowClient(
-            WorkflowServiceStubs serviceStubs, boolean openTelemetryEnabled) {
-        return context -> WorkflowClient.newInstance(serviceStubs, createWorkflowClientOptions(openTelemetryEnabled, context));
+            WorkflowServiceStubs serviceStubs) {
+        return context -> WorkflowClient.newInstance(serviceStubs, createWorkflowClientOptions(context));
     }
 
 }
