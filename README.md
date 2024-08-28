@@ -17,13 +17,13 @@ Using this service has some obvious advantages including but not limited to:
 * Temporal allows you to define exponential retry policies for Activities, so you don’t have to write retry logic into your application code. And your retry duration can be as long as needed, even months.
 * Set timers to wait for days, weeks, or months, knowing that an outage or server restart during the wait period won’t prevent your workflow from executing.
 * Temporal delivers an ability to schedule a workflow (much like a cron job) and then pause, re-start, and stop them as needed.
-* Temporal allows you to simply code for durable execution, using one or more of our SDKs in Go, Java, Typescript, Python and .NET (and even deploy polyglot workflows).4
+* Temporal allows you to simply code for durable execution.
 * Use external sources -- including human actions -- that interact seamlessly with Workflows.
 * Temporal allows you to inspect, replay, and rewind every Workflow execution, step by step. 
 
 ## Getting started
 
-Read the full [Temporal documentation](https://docs.quarkiverse.io/quarkus-temporal/dev/index.html).
+Read the full [Quarkus Temporal documentation](https://docs.quarkiverse.io/quarkus-temporal/dev/index.html).
 
 ### Installation
 
