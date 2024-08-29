@@ -1,6 +1,7 @@
 package io.quarkiverse.temporal.deployment;
 
-import jakarta.enterprise.inject.UnsatisfiedResolutionException;
+import static io.quarkiverse.temporal.Constants.DEFAULT_WORKER_NAME;
+
 import jakarta.inject.Inject;
 
 import org.jboss.shrinkwrap.api.ShrinkWrap;
@@ -11,29 +12,33 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
 import io.quarkiverse.temporal.TemporalWorkflowStub;
-import io.quarkiverse.temporal.deployment.stub.MultipleWorkerWorkflowImpl;
 import io.quarkiverse.temporal.deployment.stub.SimpleWorkflow;
+import io.quarkiverse.temporal.deployment.stub.UnnamedSimpleWorkflowImpl;
 import io.quarkus.test.QuarkusUnitTest;
+import io.temporal.client.WorkflowOptions;
+import io.temporal.client.WorkflowStub;
 
-public class TemporalWorkflowStubAmbiguousInjectionTest {
+public class TemporalWorkflowUnnamedStubInjectionTest {
 
     @RegisterExtension
     static final QuarkusUnitTest unitTest = new QuarkusUnitTest()
-            .setExpectedException(UnsatisfiedResolutionException.class)
             .setArchiveProducer(() -> ShrinkWrap.create(JavaArchive.class)
                     .addClass(SimpleWorkflow.class)
-                    .addClass(MultipleWorkerWorkflowImpl.class)
+                    .addClass(UnnamedSimpleWorkflowImpl.class)
                     .addAsResource(
                             new StringAsset("quarkus.temporal.start-workers: false\n"),
                             "application.properties"));
 
     @Inject
-    @TemporalWorkflowStub()
+    @TemporalWorkflowStub
     SimpleWorkflow workflow;
 
     @Test
-    public void testNonExistentWorkflowStubInjection() {
-        // since the workflow is associated with multiple workers, the worker must be explicitly referenced in the qualifier
-        Assertions.fail();
+    public void testUnnamedWorkerWorkflowStubInjection() {
+        Assertions.assertNotNull(workflow);
+        WorkflowStub workflowStub = WorkflowStub.fromTyped(workflow);
+        WorkflowOptions workflowOptions = workflowStub.getOptions().orElse(null);
+        Assertions.assertNotNull(workflowOptions);
+        Assertions.assertEquals(DEFAULT_WORKER_NAME, workflowOptions.getTaskQueue());
     }
 }

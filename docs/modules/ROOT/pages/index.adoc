@@ -80,6 +80,24 @@ Each worker can have at most one implementation of a given workflow, but a workf
 
 Workflows are not provided as CDI beans because dependency injection into workflow instances is strongly discouraged. Injecting dependencies into workflow instances can lead to changes that are incompatible with persisted histories, resulting in `NonDeterministicException` errors. To provide external configuration to a workflow in a deterministic way, use a Local Activity that returns the configuration to the workflow. Dependency injection into activity instances is allowed, ensuring that the configuration is persisted into the history and remains consistent during replay.
 
+If your project only contains the workflow interfaces, but does not contain the actual workflow implementations, the plugin will assume that the workflow is bound to the default worker.
+If this is not the case, you can hint quarkus about which workers this workflow is bound to by annotating the interface with @TemporalWorkflow directly.
+
+[source,java]
+----
+@WorkflowInterface
+@TemporalWorkflow(workers = "named-worker")
+public interface SendEmailWorkflow {
+
+    @WorkflowMethod
+    public void run(WorkflowData data);
+
+    @QueryMethod
+    public EmailDetails details();
+}
+----
+
+
 === Create an Activity
 
 [source,java]
