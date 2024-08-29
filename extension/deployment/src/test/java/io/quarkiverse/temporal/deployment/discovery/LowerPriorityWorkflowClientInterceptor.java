@@ -15,8 +15,8 @@ import io.temporal.common.interceptors.WorkflowClientInterceptor;
 
 @Singleton
 @Unremovable
-@Priority(99)
-public class TestWorkflowClientInterceptor implements WorkflowClientInterceptor {
+@Priority(1)
+public class LowerPriorityWorkflowClientInterceptor implements WorkflowClientInterceptor {
     @Override
     public WorkflowStub newUntypedWorkflowStub(String workflowType, WorkflowOptions options, WorkflowStub next) {
         return next;
