@@ -12,6 +12,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
+import io.opentracing.util.GlobalTracer;
 import io.quarkus.builder.Version;
 import io.quarkus.maven.dependency.Dependency;
 import io.quarkus.test.QuarkusUnitTest;
@@ -45,5 +46,10 @@ public class OtelTest {
         WorkerFactoryOptions factoryOptions = (WorkerFactoryOptions) FieldUtils.readField(factory, "factoryOptions", true);
         Assertions.assertEquals(1, factoryOptions.getWorkerInterceptors().length);
         Assertions.assertInstanceOf(OpenTracingWorkerInterceptor.class, factoryOptions.getWorkerInterceptors()[0]);
+    }
+
+    @Test
+    public void testOpenTracingBinding() {
+        Assertions.assertTrue(GlobalTracer.isRegistered());
     }
 }

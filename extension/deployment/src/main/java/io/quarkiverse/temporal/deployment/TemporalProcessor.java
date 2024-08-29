@@ -29,6 +29,7 @@ import org.jboss.jandex.ClassType;
 import org.jboss.jandex.DotName;
 import org.jboss.jandex.ParameterizedType;
 
+import io.quarkiverse.temporal.OtelRecorder;
 import io.quarkiverse.temporal.TemporalActivity;
 import io.quarkiverse.temporal.TemporalHealthCheck;
 import io.quarkiverse.temporal.TemporalWorkflow;
@@ -395,14 +396,26 @@ public class TemporalProcessor {
         }
     }
 
+    @BuildStep
+    @Record(ExecutionTime.RUNTIME_INIT)
+    @Consume(WorkerFactoryInitializedBuildItem.class)
+    void bindOpenTracing(
+            ShutdownContextBuildItem shutdownContextBuildItem,
+            OtelRecorder otelRecorder,
+            Capabilities capabilities) {
+
+        if (capabilities.isPresent(OPENTELEMETRY_TRACER)) {
+            otelRecorder.bindOpenTracing(shutdownContextBuildItem);
+        }
+    }
+
     @BuildStep(onlyIf = StartWorkers.class)
     @Record(ExecutionTime.RUNTIME_INIT)
     @Consume(WorkerFactoryInitializedBuildItem.class)
     ServiceStartBuildItem startWorkers(
             WorkerFactoryRecorder workerFactoryRecorder,
-            ShutdownContextBuildItem shutdownContextBuildItem,
-            Capabilities capabilities) {
-        workerFactoryRecorder.startWorkerFactory(shutdownContextBuildItem, capabilities.isPresent(OPENTELEMETRY_TRACER));
+            ShutdownContextBuildItem shutdownContextBuildItem) {
+        workerFactoryRecorder.startWorkerFactory(shutdownContextBuildItem);
         return new ServiceStartBuildItem("TemporalWorkers");
     }
 

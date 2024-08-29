@@ -8,8 +8,6 @@ import jakarta.enterprise.inject.Instance;
 import jakarta.enterprise.inject.spi.CDI;
 import jakarta.enterprise.util.TypeLiteral;
 
-import io.opentelemetry.api.OpenTelemetry;
-import io.opentelemetry.opentracingshim.OpenTracingShim;
 import io.quarkiverse.temporal.config.TemporalBuildtimeConfig;
 import io.quarkiverse.temporal.config.TemporalRuntimeConfig;
 import io.quarkiverse.temporal.config.WorkerBuildtimeConfig;
@@ -100,22 +98,9 @@ public class WorkerFactoryRecorder {
         }
     }
 
-    public void startWorkerFactory(ShutdownContext shutdownContext, boolean isOpenTelemetryEnabled) {
+    public void startWorkerFactory(ShutdownContext shutdownContext) {
         WorkerFactory workerFactory = CDI.current().select(WorkerFactory.class).get();
         workerFactory.start();
-
-        // bridge Temporal OpenTracing to OpenTelemetry
-        if (isOpenTelemetryEnabled) {
-            OpenTelemetry openTelemetry = CDI.current().select(OpenTelemetry.class).get();
-            if (openTelemetry == null) {
-                throw new IllegalStateException("OpenTelemetry not available");
-            }
-
-            io.opentracing.Tracer tracer = OpenTracingShim.createTracerShim(openTelemetry);
-            io.opentracing.util.GlobalTracer.registerIfAbsent(tracer);
-            shutdownContext.addShutdownTask(tracer::close);
-        }
-
         shutdownContext.addShutdownTask(workerFactory::shutdown);
     }
 
