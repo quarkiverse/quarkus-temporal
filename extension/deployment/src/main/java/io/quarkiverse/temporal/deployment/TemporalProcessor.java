@@ -141,7 +141,7 @@ public class TemporalProcessor {
             TemporalBuildtimeConfig temporalBuildtimeConfig,
             CombinedIndexBuildItem beanArchiveBuildItem,
             BuildProducer<WorkflowBuildItem> workflowProducer,
-            BuildProducer<WorkflowImplBuildItem> producer) {
+            BuildProducer<WorkflowImplBuildItem> workflowImplProducer) {
 
         Map<DotName, Set<String>> explicitBinding = new HashMap<>();
 
@@ -174,9 +174,13 @@ public class TemporalProcessor {
                             "Workflow " + workflow.name() + " has more than one implementor on worker");
                 }
                 Collections.addAll(seenWorkers, workers);
-                producer.produce(new WorkflowImplBuildItem(loadClass(workflow), loadClass(implementor), workers));
+                workflowImplProducer.produce(new WorkflowImplBuildItem(loadClass(workflow), loadClass(implementor), workers));
             }
-            workflowProducer.produce(new WorkflowBuildItem(loadClass(workflow), seenWorkers.toArray(new String[0])));
+
+            AnnotationInstance temporalWorkflow = workflow.annotation(TEMPORAL_WORKFLOW);
+            workflowProducer.produce(new WorkflowBuildItem(loadClass(workflow),
+                    extractWorkersFromAnnotationAndSeenWorkers(temporalWorkflow, seenWorkers)));
+
         }
     }
 
@@ -231,15 +235,28 @@ public class TemporalProcessor {
                         });
     }
 
+    String[] extractWorkersFromAnnotationAndSeenWorkers(AnnotationInstance annotation, Set<String> seenWorkers) {
+
+        if (annotation == null && seenWorkers.isEmpty()) {
+            return new String[] { DEFAULT_WORKER_NAME };
+        }
+        return Stream.concat(
+                Stream.ofNullable(annotation).flatMap(x -> Arrays.stream(x.value("workers").asStringArray())),
+                seenWorkers.stream())
+                .distinct()
+                .toArray(String[]::new);
+    }
+
     String[] extractWorkersFromAnnotationAndExplicitBinding(ClassInfo implementor, AnnotationInstance annotation,
             Map<DotName, Set<String>> explicitBinding) {
-        return (annotation == null && !explicitBinding.containsKey(implementor.name()))
-                ? new String[] { DEFAULT_WORKER_NAME }
-                : Stream.concat(
-                        Stream.ofNullable(annotation).flatMap(x -> Arrays.stream(x.value("workers").asStringArray())),
-                        Stream.ofNullable(explicitBinding.get(implementor.name())).flatMap(Collection::stream))
-                        .distinct()
-                        .toArray(String[]::new);
+        if (annotation == null && !explicitBinding.containsKey(implementor.name())) {
+            return new String[] { DEFAULT_WORKER_NAME };
+        }
+        return Stream.concat(
+                Stream.ofNullable(annotation).flatMap(x -> Arrays.stream(x.value("workers").asStringArray())),
+                Stream.ofNullable(explicitBinding.get(implementor.name())).flatMap(Collection::stream))
+                .distinct()
+                .toArray(String[]::new);
     }
 
     @BuildStep
