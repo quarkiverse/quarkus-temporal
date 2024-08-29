@@ -385,7 +385,7 @@ public class MDCContextPropagator implements ContextPropagator {
 
 Interceptors are a mechanism for modifying inbound and outbound SDK calls. Interceptors are commonly used to add tracing and authorization to the scheduling and execution of Workflows and Activities. You can compare these to "middleware" in other frameworks.
 
-To enable interceptors simply produce a CDI bean implementing the `WorkflowClientInterceptor` interface or `WorkerInterceptor` interface.
+To enable interceptors simply produce a CDI bean implementing the `WorkflowClientInterceptor` interface or `WorkerInterceptor` interface. Interceptors can be ordered by declaring a `@Priority` on each interceptor, so they are executed in that order.
 
 [source,java]
 ----
@@ -393,6 +393,7 @@ package com.yourcompany;
 
 import java.util.Optional;
 
+import jakarta.annotation.Priority;
 import jakarta.inject.Singleton;
 
 import io.quarkus.arc.Unremovable;
@@ -405,6 +406,7 @@ import io.temporal.common.interceptors.WorkflowClientInterceptor;
 
 @Singleton
 @Unremovable
+@Priority(1)
 public class TestWorkflowClientInterceptor implements WorkflowClientInterceptor {
     @Override
     public WorkflowStub newUntypedWorkflowStub(String workflowType, WorkflowOptions options, WorkflowStub next) {
