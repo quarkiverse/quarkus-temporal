@@ -63,6 +63,8 @@ import io.temporal.client.WorkflowClient;
 import io.temporal.common.context.ContextPropagator;
 import io.temporal.common.interceptors.WorkerInterceptor;
 import io.temporal.common.interceptors.WorkflowClientInterceptor;
+import io.temporal.opentracing.OpenTracingClientInterceptor;
+import io.temporal.opentracing.OpenTracingWorkerInterceptor;
 import io.temporal.serviceclient.WorkflowServiceStubs;
 import io.temporal.worker.WorkerFactory;
 import io.temporal.workflow.WorkflowInterface;
@@ -96,11 +98,23 @@ public class TemporalProcessor {
     }
 
     @BuildStep
-    @Record(ExecutionTime.RUNTIME_INIT)
-    OpenTelemetryValidatedBuildItem validateOpenTelemetryInstrumentation(WorkflowClientRecorder clientRecorder,
-            WorkerFactoryRecorder factoryRecorder,
+    void produceOpenTelemetryInstrumentation(
+            BuildProducer<AdditionalBeanBuildItem> producer,
             Capabilities capabilities) {
-        return new OpenTelemetryValidatedBuildItem(capabilities.isPresent(OPENTELEMETRY_TRACER));
+
+        if (capabilities.isPresent(OPENTELEMETRY_TRACER)) {
+            producer.produce(AdditionalBeanBuildItem.builder()
+                    .addBeanClass(OpenTracingClientInterceptor.class)
+                    .setDefaultScope(DotName.createSimple(ApplicationScoped.class))
+                    .setUnremovable()
+                    .build());
+
+            producer.produce(AdditionalBeanBuildItem.builder()
+                    .addBeanClass(OpenTracingWorkerInterceptor.class)
+                    .setDefaultScope(DotName.createSimple(ApplicationScoped.class))
+                    .setUnremovable()
+                    .build());
+        }
     }
 
     @BuildStep(onlyIf = EnableMock.class)
@@ -279,13 +293,11 @@ public class TemporalProcessor {
     @Record(ExecutionTime.RUNTIME_INIT)
     WorkflowClientBuildItem recordWorkflowClient(
             WorkflowServiceStubsRecorder recorder,
-            WorkflowClientRecorder clientRecorder,
-            OpenTelemetryValidatedBuildItem openTelemetryValidatedBuildItem) {
+            WorkflowClientRecorder clientRecorder) {
 
         WorkflowServiceStubs workflowServiceStubs = recorder.createWorkflowServiceStubs();
-        boolean isOpenTelemetryEnabled = openTelemetryValidatedBuildItem.isEnabled();
         return new WorkflowClientBuildItem(
-                clientRecorder.createWorkflowClient(workflowServiceStubs, isOpenTelemetryEnabled));
+                clientRecorder.createWorkflowClient(workflowServiceStubs));
     }
 
     @BuildStep
@@ -354,8 +366,7 @@ public class TemporalProcessor {
     @BuildStep(onlyIfNot = EnableMock.class)
     @Record(ExecutionTime.RUNTIME_INIT)
     SyntheticBeanBuildItem produceWorkerFactorySyntheticBean(
-            WorkerFactoryRecorder workerFactoryRecorder,
-            OpenTelemetryValidatedBuildItem openTelemetryValidatedBuildItem) {
+            WorkerFactoryRecorder workerFactoryRecorder) {
         return SyntheticBeanBuildItem
                 .configure(WorkerFactory.class)
                 .scope(Singleton.class)
@@ -364,7 +375,7 @@ public class TemporalProcessor {
                 .addInjectionPoint(ClassType.create(WorkflowClient.class))
                 .addInjectionPoint(ParameterizedType.create(Instance.class, ClassType.create(WorkerInterceptor.class)),
                         AnnotationInstance.builder(Any.class).build())
-                .createWith(workerFactoryRecorder.createWorkerFactory(openTelemetryValidatedBuildItem.isEnabled()))
+                .createWith(workerFactoryRecorder.createWorkerFactory())
                 .setRuntimeInit()
                 .done();
     }
@@ -390,8 +401,8 @@ public class TemporalProcessor {
     ServiceStartBuildItem startWorkers(
             WorkerFactoryRecorder workerFactoryRecorder,
             ShutdownContextBuildItem shutdownContextBuildItem,
-            OpenTelemetryValidatedBuildItem openTelemetryValidatedBuildItem) {
-        workerFactoryRecorder.startWorkerFactory(shutdownContextBuildItem, openTelemetryValidatedBuildItem.isEnabled());
+            Capabilities capabilities) {
+        workerFactoryRecorder.startWorkerFactory(shutdownContextBuildItem, capabilities.isPresent(OPENTELEMETRY_TRACER));
         return new ServiceStartBuildItem("TemporalWorkers");
     }
 
