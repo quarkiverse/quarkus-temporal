@@ -1,5 +1,7 @@
 package io.quarkiverse.temporal.test.deployment;
 
+import static io.quarkiverse.temporal.Constants.TEMPORAL_TESTING_CAPABILITY;
+
 import jakarta.inject.Singleton;
 
 import org.jboss.jandex.ClassType;
@@ -29,7 +31,7 @@ public class TemporalTestProcessor {
 
     @BuildStep
     void capabilities(BuildProducer<CapabilityBuildItem> capabilityProducer) {
-        capabilityProducer.produce(new CapabilityBuildItem("io.quarkiverse.temporal.test", "temporal"));
+        capabilityProducer.produce(new CapabilityBuildItem(TEMPORAL_TESTING_CAPABILITY, "temporal"));
     }
 
     @Record(ExecutionTime.RUNTIME_INIT)
