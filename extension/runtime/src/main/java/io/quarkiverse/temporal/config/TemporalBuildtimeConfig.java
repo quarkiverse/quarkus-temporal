@@ -29,6 +29,13 @@ public interface TemporalBuildtimeConfig {
     boolean healthEnabled();
 
     /**
+     * Enable OpenTelemetry instrumentation, enabled by default if OpenTelemetry capability is detected.
+     */
+    @WithName("telemetry.enabled")
+    @WithDefault("true")
+    boolean telemetryEnabled();
+
+    /**
      * enable mock for testing
      */
     @WithDefault("true")

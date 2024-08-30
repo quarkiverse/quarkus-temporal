@@ -44,6 +44,23 @@ endif::add-copy-button-to-env-var[]
 |`true`
 
 
+a|icon:lock[title=Fixed at build time] [[quarkus-temporal_quarkus-temporal-telemetry-enabled]]`link:#quarkus-temporal_quarkus-temporal-telemetry-enabled[quarkus.temporal.telemetry.enabled]`
+
+
+[.description]
+--
+Enable OpenTelemetry instrumentation, enabled by default if OpenTelemetry capability is detected.
+
+ifdef::add-copy-button-to-env-var[]
+Environment variable: env_var_with_copy_button:+++QUARKUS_TEMPORAL_TELEMETRY_ENABLED+++[]
+endif::add-copy-button-to-env-var[]
+ifndef::add-copy-button-to-env-var[]
+Environment variable: `+++QUARKUS_TEMPORAL_TELEMETRY_ENABLED+++`
+endif::add-copy-button-to-env-var[]
+--|boolean 
+|`true`
+
+
 a|icon:lock[title=Fixed at build time] [[quarkus-temporal_quarkus-temporal-start-workers]]`link:#quarkus-temporal_quarkus-temporal-start-workers[quarkus.temporal.start-workers]`
 
 

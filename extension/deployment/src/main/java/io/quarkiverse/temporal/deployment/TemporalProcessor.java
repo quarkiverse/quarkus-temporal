@@ -1,6 +1,7 @@
 package io.quarkiverse.temporal.deployment;
 
 import static io.quarkiverse.temporal.Constants.DEFAULT_WORKER_NAME;
+import static io.quarkiverse.temporal.Constants.TEMPORAL_TESTING_CAPABILITY;
 import static io.quarkus.deployment.Capability.OPENTELEMETRY_TRACER;
 
 import java.util.ArrayList;
@@ -98,7 +99,7 @@ public class TemporalProcessor {
                 new UnremovableBeanBuildItem.BeanTypeExclusion(DotName.createSimple(GitInfo.class))));
     }
 
-    @BuildStep
+    @BuildStep(onlyIf = EnableTelemetry.class)
     void produceOpenTelemetryInstrumentation(
             BuildProducer<AdditionalBeanBuildItem> producer,
             Capabilities capabilities) {
@@ -121,7 +122,7 @@ public class TemporalProcessor {
     @BuildStep(onlyIf = EnableMock.class)
     @Produce(MockingValidatedBuildItem.class)
     void validateMockConfiguration(Capabilities capabilities) {
-        if (capabilities.isMissing("io.quarkiverse.temporal.test")) {
+        if (capabilities.isMissing(TEMPORAL_TESTING_CAPABILITY)) {
             throw new ConfigurationException("Please add the 'quarkus-temporal-test' extension to enable mocking.");
         }
     }
@@ -413,10 +414,10 @@ public class TemporalProcessor {
         }
     }
 
-    @BuildStep
+    @BuildStep(onlyIf = EnableTelemetry.class)
     @Record(ExecutionTime.RUNTIME_INIT)
     @Consume(WorkerFactoryInitializedBuildItem.class)
-    void bindOpenTracing(
+    void bindOpenTelemetry(
             ShutdownContextBuildItem shutdownContextBuildItem,
             OtelRecorder otelRecorder,
             Capabilities capabilities) {
@@ -450,6 +451,14 @@ public class TemporalProcessor {
 
         public boolean getAsBoolean() {
             return config.enableMock();
+        }
+    }
+
+    public static class EnableTelemetry implements BooleanSupplier {
+        TemporalBuildtimeConfig config;
+
+        public boolean getAsBoolean() {
+            return config.telemetryEnabled();
         }
     }
 
