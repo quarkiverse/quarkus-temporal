@@ -30,7 +30,7 @@ public class WorkflowStubRecorder {
     final TemporalRuntimeConfig runtimeConfig;
     final TemporalBuildtimeConfig buildtimeConfig;
 
-    public RetryOptions createRetryOptions(RetryRuntimeConfig config) {
+    RetryOptions createRetryOptions(RetryRuntimeConfig config) {
         if (config == null) {
             return RetryOptions.getDefaultInstance();
         }
@@ -46,33 +46,47 @@ public class WorkflowStubRecorder {
         return builder.build();
     }
 
+    <T> WorkflowOptions createWorkflowOptions(SyntheticCreationalContext<T> context, String worker, String workflowId) {
+
+        InjectionPoint injectionPoint = context.getInjectedReference(InjectionPoint.class);
+        TemporalWorkflowStub annotation = extractAnnotationFromInjectionPoint(injectionPoint);
+
+        WorkerRuntimeConfig workerRuntimeConfig = runtimeConfig.worker().get(worker);
+        WorkflowRuntimeConfig workflowRuntimeConfig = runtimeConfig.workflow().get(annotation.group());
+
+        WorkflowOptions.Builder options = WorkflowOptions.newBuilder()
+                .setRetryOptions(createRetryOptions(workflowRuntimeConfig.retries()))
+                .setDisableEagerExecution(workflowRuntimeConfig.disableEagerExecution())
+                .setWorkflowTaskTimeout(workflowRuntimeConfig.workflowTaskTimeout())
+                .setWorkflowIdConflictPolicy(WorkflowIdConflictPolicy
+                        .valueOf("WORKFLOW_ID_CONFLICT_POLICY_" + workflowRuntimeConfig.workflowIdConflictPolicy()))
+                .setWorkflowIdReusePolicy(WorkflowIdReusePolicy
+                        .valueOf("WORKFLOW_ID_REUSE_POLICY_" + workflowRuntimeConfig.workflowIdReusePolicy()))
+                .setTaskQueue(createQueueName(worker, workerRuntimeConfig));
+
+        workflowRuntimeConfig.cronSchedule().ifPresent(options::setCronSchedule);
+        workflowRuntimeConfig.startDelay().ifPresent(options::setStartDelay);
+        workflowRuntimeConfig.workflowRunTimeout().ifPresent(options::setWorkflowRunTimeout);
+        workflowRuntimeConfig.workflowExecutionTimeout().ifPresent(options::setWorkflowExecutionTimeout);
+
+        if (workflowId != null) {
+            options.setWorkflowId(workflowId);
+        } else if (!TemporalWorkflowStub.DEFAULT_WORKFLOW_ID.equals(annotation.workflowId())) {
+            options.setWorkflowId(annotation.workflowId());
+        }
+
+        return options.validateBuildWithDefaults();
+    }
+
+    public <T> Function<SyntheticCreationalContext<TemporalInstance<T>>, TemporalInstance<T>> createWorkflowInstance(
+            Class<T> workflow, String worker) {
+        return context -> workflowId -> context.getInjectedReference(WorkflowClient.class).newWorkflowStub(workflow,
+                createWorkflowOptions(context, worker, workflowId));
+    }
+
     public <T> Function<SyntheticCreationalContext<T>, T> createWorkflowStub(Class<T> workflow, String worker) {
-        return context -> {
-            InjectionPoint injectionPoint = context.getInjectedReference(InjectionPoint.class);
-            TemporalWorkflowStub annotation = extractAnnotationFromInjectionPoint(injectionPoint);
-            WorkerRuntimeConfig workerRuntimeConfig = runtimeConfig.worker().get(worker);
-            WorkflowRuntimeConfig workflowRuntimeConfig = runtimeConfig.workflow().get(annotation.group());
-            WorkflowOptions.Builder options = WorkflowOptions.newBuilder()
-                    .setRetryOptions(createRetryOptions(workflowRuntimeConfig.retries()))
-                    .setDisableEagerExecution(workflowRuntimeConfig.disableEagerExecution())
-                    .setWorkflowTaskTimeout(workflowRuntimeConfig.workflowTaskTimeout())
-                    .setWorkflowIdConflictPolicy(WorkflowIdConflictPolicy
-                            .valueOf("WORKFLOW_ID_CONFLICT_POLICY_" + workflowRuntimeConfig.workflowIdConflictPolicy()))
-                    .setWorkflowIdReusePolicy(WorkflowIdReusePolicy
-                            .valueOf("WORKFLOW_ID_REUSE_POLICY_" + workflowRuntimeConfig.workflowIdReusePolicy()))
-                    .setTaskQueue(createQueueName(worker, workerRuntimeConfig));
-
-            workflowRuntimeConfig.cronSchedule().ifPresent(options::setCronSchedule);
-            workflowRuntimeConfig.startDelay().ifPresent(options::setStartDelay);
-            workflowRuntimeConfig.workflowRunTimeout().ifPresent(options::setWorkflowRunTimeout);
-            workflowRuntimeConfig.workflowExecutionTimeout().ifPresent(options::setWorkflowExecutionTimeout);
-
-            if (!TemporalWorkflowStub.DEFAULT_WORKFLOW_ID.equals(annotation.workflowId())) {
-                options.setWorkflowId(annotation.workflowId());
-            }
-            return context.getInjectedReference(WorkflowClient.class).newWorkflowStub(workflow,
-                    options.validateBuildWithDefaults());
-        };
+        return context -> context.getInjectedReference(WorkflowClient.class).newWorkflowStub(workflow,
+                createWorkflowOptions(context, worker, null));
     }
 
     TemporalWorkflowStub extractAnnotationFromInjectionPoint(InjectionPoint injectionPoint) {

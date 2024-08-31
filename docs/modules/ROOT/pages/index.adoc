@@ -220,18 +220,18 @@ public class MyService {
 }
 ----
 
-The workflowId can be set at runtime by dynamically resolving the stub bean:
+The workflowId can be set at runtime by injecting a TemporalInstance:
 
 [source,java]
 ----
 public class MyService {
 
+    @Inject
+    @TemporalWorkflowStub
+    TemporalInstance<SimpleWorkflow> instance;
+
     public void startSubscription(WorkflowData data) {
-        SendEmailWorkflow workflow = CDI.current()
-                .select(SimpleWorkflow.class, TemporalWorkflowStub.Literal.builder()
-                        .worker("<default>")
-                        .workflowId("dynamicWorkflowId")
-                        .build()).get();
+        SendEmailWorkflow workflow = instance.workflowId("the-workflow-id");
         workflow.run(data);
     }
 
