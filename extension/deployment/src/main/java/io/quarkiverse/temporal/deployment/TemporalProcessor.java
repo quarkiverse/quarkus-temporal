@@ -41,6 +41,8 @@ import io.quarkiverse.temporal.WorkflowServiceStubsRecorder;
 import io.quarkiverse.temporal.WorkflowStubRecorder;
 import io.quarkiverse.temporal.config.TemporalBuildtimeConfig;
 import io.quarkus.arc.deployment.AdditionalBeanBuildItem;
+import io.quarkus.arc.deployment.BeanArchiveIndexBuildItem;
+import io.quarkus.arc.deployment.InjectionPointTransformerBuildItem;
 import io.quarkus.arc.deployment.SyntheticBeanBuildItem;
 import io.quarkus.arc.deployment.SyntheticBeansRuntimeInitBuildItem;
 import io.quarkus.arc.deployment.UnremovableBeanBuildItem;
@@ -296,6 +298,16 @@ public class TemporalProcessor {
     }
 
     @BuildStep
+    public void transformTemporalWorkflowStubAnnotations(
+            BeanArchiveIndexBuildItem index,
+            List<WorkflowBuildItem> workflows,
+            BuildProducer<InjectionPointTransformerBuildItem> injectionPointTransformer) {
+        injectionPointTransformer
+                .produce(new InjectionPointTransformerBuildItem(
+                        new TemporalWorkflowStubTransformer(index.getIndex(), workflows)));
+    }
+
+    @BuildStep
     void produceActivityBeans(
             List<ActivityImplBuildItem> activities,
             BuildProducer<AdditionalBeanBuildItem> producer) {
@@ -348,22 +360,6 @@ public class TemporalProcessor {
             WorkflowStubRecorder recorder) {
 
         for (WorkflowBuildItem workflowBuildItem : workflowImplBuildItems) {
-            if (workflowBuildItem.workers.length == 1) {
-                producer.produce(
-                        SyntheticBeanBuildItem.configure(workflowBuildItem.workflow)
-                                .scope(Dependent.class)
-                                .addInjectionPoint(ClassType.create(InjectionPoint.class))
-                                .addInjectionPoint(ClassType.create(WorkflowClient.class))
-                                .addQualifier()
-                                .annotation(TemporalWorkflowStub.class)
-                                .addValue("worker", TemporalWorkflowStub.DEFAULT_WORKER)
-                                .done()
-                                .createWith(
-                                        recorder.createWorkflowStub(workflowBuildItem.workflow, workflowBuildItem.workers[0]))
-                                .setRuntimeInit()
-                                .done());
-            }
-
             for (String worker : workflowBuildItem.workers) {
                 producer.produce(
                         SyntheticBeanBuildItem.configure(workflowBuildItem.workflow)
