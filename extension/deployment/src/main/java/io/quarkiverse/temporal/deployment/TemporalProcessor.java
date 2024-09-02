@@ -33,6 +33,7 @@ import org.jboss.jandex.ParameterizedType;
 import io.quarkiverse.temporal.OtelRecorder;
 import io.quarkiverse.temporal.TemporalActivity;
 import io.quarkiverse.temporal.TemporalHealthCheck;
+import io.quarkiverse.temporal.TemporalInstance;
 import io.quarkiverse.temporal.TemporalWorkflow;
 import io.quarkiverse.temporal.TemporalWorkflowStub;
 import io.quarkiverse.temporal.WorkerFactoryRecorder;
@@ -72,6 +73,8 @@ import io.temporal.worker.WorkerFactory;
 import io.temporal.workflow.WorkflowInterface;
 
 public class TemporalProcessor {
+
+    public static final DotName TEMPORAL_INSTANCE = DotName.createSimple(TemporalInstance.class);
 
     public static final DotName TEMPORAL_ACTIVITY = DotName.createSimple(TemporalActivity.class);
 
@@ -349,6 +352,24 @@ public class TemporalProcessor {
 
         for (WorkflowBuildItem workflowBuildItem : workflowImplBuildItems) {
             if (workflowBuildItem.workers.length == 1) {
+
+                producer.produce(
+                        SyntheticBeanBuildItem.configure(TEMPORAL_INSTANCE)
+                                .types(ParameterizedType.create(TEMPORAL_INSTANCE,
+                                        ClassType.create(workflowBuildItem.workflow)))
+                                .scope(Dependent.class)
+                                .addInjectionPoint(ClassType.create(InjectionPoint.class))
+                                .addInjectionPoint(ClassType.create(WorkflowClient.class))
+                                .addQualifier()
+                                .annotation(TemporalWorkflowStub.class)
+                                .addValue("worker", TemporalWorkflowStub.DEFAULT_WORKER)
+                                .done()
+                                .createWith(
+                                        recorder.createWorkflowInstance(workflowBuildItem.workflow,
+                                                workflowBuildItem.workers[0]))
+                                .setRuntimeInit()
+                                .done());
+
                 producer.produce(
                         SyntheticBeanBuildItem.configure(workflowBuildItem.workflow)
                                 .scope(Dependent.class)
@@ -365,6 +386,23 @@ public class TemporalProcessor {
             }
 
             for (String worker : workflowBuildItem.workers) {
+
+                producer.produce(
+                        SyntheticBeanBuildItem.configure(TEMPORAL_INSTANCE)
+                                .types(ParameterizedType.create(TEMPORAL_INSTANCE,
+                                        ClassType.create(workflowBuildItem.workflow)))
+                                .scope(Dependent.class)
+                                .addInjectionPoint(ClassType.create(InjectionPoint.class))
+                                .addInjectionPoint(ClassType.create(WorkflowClient.class))
+                                .addQualifier()
+                                .annotation(TemporalWorkflowStub.class)
+                                .addValue("worker", worker)
+                                .done()
+                                .createWith(
+                                        recorder.createWorkflowInstance(workflowBuildItem.workflow, worker))
+                                .setRuntimeInit()
+                                .done());
+
                 producer.produce(
                         SyntheticBeanBuildItem.configure(workflowBuildItem.workflow)
                                 .scope(Dependent.class)
