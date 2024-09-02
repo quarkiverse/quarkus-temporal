@@ -92,12 +92,11 @@ public class WorkflowClientRecorder {
      * Creates a new instance of {@link WorkflowClient} using the provided {@link WorkflowServiceStubs},
      * context propagators, and telemetry settings.
      *
-     * @param serviceStubs The {@link WorkflowServiceStubs} used to connect to the Temporal service.
      * @return A configured {@link WorkflowClient} instance.
      */
-    public Function<SyntheticCreationalContext<WorkflowClient>, WorkflowClient> createWorkflowClient(
-            WorkflowServiceStubs serviceStubs) {
-        return context -> WorkflowClient.newInstance(serviceStubs, createWorkflowClientOptions(context));
+    public Function<SyntheticCreationalContext<WorkflowClient>, WorkflowClient> createWorkflowClient() {
+        return context -> WorkflowClient.newInstance(context.getInjectedReference(WorkflowServiceStubs.class),
+                createWorkflowClientOptions(context));
     }
 
 }
