@@ -112,6 +112,41 @@ endif::add-copy-button-to-env-var[]
 |
 
 
+a| [[quarkus-temporal_quarkus-temporal-metrics-enabled]]`link:#quarkus-temporal_quarkus-temporal-metrics-enabled[quarkus.temporal.metrics.enabled]`
+
+
+[.description]
+--
+Enable Micrometer, enabled by default if Micrometer capability is detected.
+
+ifdef::add-copy-button-to-env-var[]
+Environment variable: env_var_with_copy_button:+++QUARKUS_TEMPORAL_METRICS_ENABLED+++[]
+endif::add-copy-button-to-env-var[]
+ifndef::add-copy-button-to-env-var[]
+Environment variable: `+++QUARKUS_TEMPORAL_METRICS_ENABLED+++`
+endif::add-copy-button-to-env-var[]
+--|boolean 
+|`true`
+
+
+a| [[quarkus-temporal_quarkus-temporal-metrics-report-duration]]`link:#quarkus-temporal_quarkus-temporal-metrics-report-duration[quarkus.temporal.metrics.report.duration]`
+
+
+[.description]
+--
+The interval at which we report metrics to the metric registry. Default is 15 seconds.
+
+ifdef::add-copy-button-to-env-var[]
+Environment variable: env_var_with_copy_button:+++QUARKUS_TEMPORAL_METRICS_REPORT_DURATION+++[]
+endif::add-copy-button-to-env-var[]
+ifndef::add-copy-button-to-env-var[]
+Environment variable: `+++QUARKUS_TEMPORAL_METRICS_REPORT_DURATION+++`
+endif::add-copy-button-to-env-var[]
+--|link:https://docs.oracle.com/javase/8/docs/api/java/time/Duration.html[Duration]
+  link:#duration-note-anchor-{summaryTableId}[icon:question-circle[title=More information about the Duration format]]
+|`15S`
+
+
 a|icon:lock[title=Fixed at build time] [[quarkus-temporal_quarkus-temporal-worker-build-id]]`link:#quarkus-temporal_quarkus-temporal-worker-build-id[quarkus.temporal.worker.build-id]`
 
 `link:#quarkus-temporal_quarkus-temporal-worker-build-id[quarkus.temporal.worker."worker-name".build-id]`

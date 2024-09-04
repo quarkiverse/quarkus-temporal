@@ -66,14 +66,14 @@ If you don't have control over the workflow class, it is also possible to bind i
 
 [source,properties]
 ----
-quarkus.temporal.worker.namedWorker.workflow-classes[0]: io.quarkiverse.temporal.SendEmailWorkflowImpl
+quarkus.temporal.worker.namedWorker.workflow-classes[0]=io.quarkiverse.temporal.SendEmailWorkflowImpl
 ----
 
 In this case, it will not be associated with the default worker unless you also bind it explicitely:
 
 [source,properties]
 ----
-quarkus.temporal.worker.workflow-classes[0]: io.quarkiverse.temporal.SendEmailWorkflowImpl
+quarkus.temporal.worker.workflow-classes[0]=io.quarkiverse.temporal.SendEmailWorkflowImpl
 ----
 
 Each worker can have at most one implementation of a given workflow, but a workflow can have implementations across multiple workers.
@@ -144,14 +144,14 @@ If you don't have control over the activity class, it is also possible to bind i
 
 [source,properties]
 ----
-quarkus.temporal.worker.namedWorker.activity-classes[0]: io.quarkiverse.temporal.SendEmailActivitiesImpl
+quarkus.temporal.worker.namedWorker.activity-classes[0]=io.quarkiverse.temporal.SendEmailActivitiesImpl
 ----
 
 In this case, it will not be associated with the default worker unless you also bind it explicitely:
 
 [source,properties]
 ----
-quarkus.temporal.worker.activity-classes[0]: io.quarkiverse.temporal.SendEmailActivitiesImpl
+quarkus.temporal.worker.activity-classes[0]=io.quarkiverse.temporal.SendEmailActivitiesImpl
 ----
 
 Similarly, each worker can have at most one implementation of a given activity, but an activity can have implementations across multiple workers.
@@ -248,6 +248,32 @@ To wire up Temporal to forward traces and spans to Quarkus OpenTelemetry simply 
     <groupId>io.quarkus</groupId>
     <artifactId>quarkus-opentelemetry</artifactId>
 </dependency>
+----
+
+This will enable it by default you can disable it with:
+
+[source,properties]
+----
+quarkus.temporal.telemetry.enabled=false
+----
+
+== Micrometer Metrics
+
+To wire up Temporal to forward Micrometer metrics to Quarkus OpenTelemetry simply add the Micrometer extension to your application.
+
+[source,xml]
+----
+<dependency>
+    <groupId>io.quarkus</groupId>
+    <artifactId>quarkus-micrometer-registry-prometheus</artifactId>
+</dependency>
+----
+
+This will enable it by default you can disable it with:
+
+[source,properties]
+----
+quarkus.temporal.metrics.enabled=false
 ----
 
 == Context Propagation

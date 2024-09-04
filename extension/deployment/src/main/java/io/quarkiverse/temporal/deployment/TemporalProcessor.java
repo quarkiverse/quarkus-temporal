@@ -3,6 +3,7 @@ package io.quarkiverse.temporal.deployment;
 import static io.quarkiverse.temporal.Constants.DEFAULT_WORKER_NAME;
 import static io.quarkiverse.temporal.Constants.TEMPORAL_TESTING_CAPABILITY;
 import static io.quarkus.deployment.Capability.OPENTELEMETRY_TRACER;
+import static io.quarkus.runtime.metrics.MetricsFactory.MICROMETER;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -57,6 +58,7 @@ import io.quarkus.deployment.builditem.CombinedIndexBuildItem;
 import io.quarkus.deployment.builditem.FeatureBuildItem;
 import io.quarkus.deployment.builditem.ServiceStartBuildItem;
 import io.quarkus.deployment.builditem.ShutdownContextBuildItem;
+import io.quarkus.deployment.metrics.MetricsCapabilityBuildItem;
 import io.quarkus.deployment.pkg.builditem.ArtifactResultBuildItem;
 import io.quarkus.info.GitInfo;
 import io.quarkus.runtime.configuration.ConfigurationException;
@@ -315,9 +317,12 @@ public class TemporalProcessor {
     @Record(ExecutionTime.RUNTIME_INIT)
     WorkflowClientBuildItem recordWorkflowClient(
             WorkflowServiceStubsRecorder recorder,
-            WorkflowClientRecorder clientRecorder) {
+            WorkflowClientRecorder clientRecorder,
+            Optional<MetricsCapabilityBuildItem> metricsCapability) {
 
-        WorkflowServiceStubs workflowServiceStubs = recorder.createWorkflowServiceStubs();
+        boolean micrometerSupported = metricsCapability.isPresent() && metricsCapability.get().metricsSupported(MICROMETER);
+
+        WorkflowServiceStubs workflowServiceStubs = recorder.createWorkflowServiceStubs(micrometerSupported);
         return new WorkflowClientBuildItem(
                 clientRecorder.createWorkflowClient(workflowServiceStubs));
     }
