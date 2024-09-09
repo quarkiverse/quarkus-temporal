@@ -15,8 +15,6 @@
     <modules>
         <module>extension</module>
         <module>test-extension</module>
-        <module>integration-tests</module>
-        <module>docs</module>
     </modules>
     <scm>
         <connection>scm:git:git@github.com:quarkiverse/quarkus-bucket4j.git</connection>
@@ -84,4 +82,30 @@
             </plugins>
         </pluginManagement>
     </build>
+    <profiles>
+        <profile>
+            <id>docs</id>
+            <activation>
+                <property>
+                    <name>performRelease</name>
+                    <value>!true</value>
+                </property>
+            </activation>
+            <modules>
+                <module>docs</module>
+            </modules>
+        </profile>
+        <profile>
+            <id>it</id>
+            <activation>
+                <property>
+                    <name>performRelease</name>
+                    <value>!true</value>
+                </property>
+            </activation>
+            <modules>
+                <module>integration-tests</module>
+            </modules>
+        </profile>
+    </profiles>
 </project>
