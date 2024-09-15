@@ -15,11 +15,23 @@ import io.smallrye.config.WithUnnamedKey;
 @ConfigRoot(phase = ConfigPhase.BUILD_AND_RUN_TIME_FIXED)
 public interface TemporalBuildtimeConfig {
 
+    enum ChannelType {
+        QUARKUS_MANAGED,
+        BUILT_IN
+    }
+
     /**
      * enable mock for testing
      */
     @WithDefault("false")
     Boolean enableMock();
+
+    /**
+     * either use a channel managed by temporal client (built-in) or use a channel managed by quarkus (quarkus-managed).
+     * In this case the channel can be configured using quarkus.grpc.clients.temporal-client.
+     */
+    @WithDefault("BUILT_IN")
+    ChannelType channelType();
 
     /**
      * If Temporal registers in the health check by pinging the service.

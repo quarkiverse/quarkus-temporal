@@ -2,6 +2,8 @@ package io.quarkiverse.temporal.deployment;
 
 import static io.quarkiverse.temporal.Constants.DEFAULT_WORKER_NAME;
 import static io.quarkiverse.temporal.Constants.TEMPORAL_TESTING_CAPABILITY;
+import static io.quarkiverse.temporal.config.TemporalBuildtimeConfig.ChannelType.BUILT_IN;
+import static io.quarkiverse.temporal.config.TemporalBuildtimeConfig.ChannelType.QUARKUS_MANAGED;
 import static io.quarkus.deployment.Capability.OPENTELEMETRY_TRACER;
 import static io.quarkus.runtime.metrics.MetricsFactory.MICROMETER;
 
@@ -31,6 +33,7 @@ import org.jboss.jandex.ClassType;
 import org.jboss.jandex.DotName;
 import org.jboss.jandex.ParameterizedType;
 
+import io.grpc.Channel;
 import io.quarkiverse.temporal.OtelRecorder;
 import io.quarkiverse.temporal.TemporalActivity;
 import io.quarkiverse.temporal.TemporalHealthCheck;
@@ -60,6 +63,9 @@ import io.quarkus.deployment.builditem.ServiceStartBuildItem;
 import io.quarkus.deployment.builditem.ShutdownContextBuildItem;
 import io.quarkus.deployment.metrics.MetricsCapabilityBuildItem;
 import io.quarkus.deployment.pkg.builditem.ArtifactResultBuildItem;
+import io.quarkus.grpc.GrpcClient;
+import io.quarkus.grpc.deployment.GrpcClientBuildItem;
+import io.quarkus.grpc.deployment.GrpcDotNames;
 import io.quarkus.info.GitInfo;
 import io.quarkus.runtime.configuration.ConfigurationException;
 import io.quarkus.smallrye.health.deployment.spi.HealthBuildItem;
@@ -313,38 +319,65 @@ public class TemporalProcessor {
         });
     }
 
+    @BuildStep(onlyIf = EnableQuarkusManagedChannel.class)
+    GrpcClientBuildItem produceGrpcClient() {
+        GrpcClientBuildItem grpcClientBuildItem = new GrpcClientBuildItem("temporal-client");
+        grpcClientBuildItem.addClient(
+                new GrpcClientBuildItem.ClientInfo(GrpcDotNames.CHANNEL, GrpcClientBuildItem.ClientType.CHANNEL, Set.of()));
+        return grpcClientBuildItem;
+    }
+
     @BuildStep(onlyIfNot = EnableMock.class)
     @Record(ExecutionTime.RUNTIME_INIT)
-    WorkflowClientBuildItem recordWorkflowClient(
-            WorkflowServiceStubsRecorder recorder,
-            WorkflowClientRecorder clientRecorder,
-            Optional<MetricsCapabilityBuildItem> metricsCapability) {
+    SyntheticBeanBuildItem produceWorkflowServiceStubSyntheticBean(TemporalBuildtimeConfig config,
+            Optional<MetricsCapabilityBuildItem> metricsCapability,
+            WorkflowServiceStubsRecorder recorder) {
 
         boolean micrometerSupported = metricsCapability.isPresent() && metricsCapability.get().metricsSupported(MICROMETER);
 
-        WorkflowServiceStubs workflowServiceStubs = recorder.createWorkflowServiceStubs(micrometerSupported);
-        return new WorkflowClientBuildItem(
-                clientRecorder.createWorkflowClient(workflowServiceStubs));
+        if (BUILT_IN.equals(config.channelType())) {
+            return SyntheticBeanBuildItem
+                    .configure(WorkflowServiceStubs.class)
+                    .scope(ApplicationScoped.class)
+                    .unremovable()
+                    .defaultBean()
+                    .createWith(recorder.createWorkflowServiceStubs(micrometerSupported))
+                    .setRuntimeInit()
+                    .done();
+        }
+
+        // QUARKUS_MANAGED
+        return SyntheticBeanBuildItem
+                .configure(WorkflowServiceStubs.class)
+                .scope(ApplicationScoped.class)
+                .unremovable()
+                .defaultBean()
+                .addInjectionPoint(ClassType.create(Channel.class),
+                        AnnotationInstance.builder(GrpcClient.class).value("temporal-client").build())
+                .createWith(recorder.createQuarkusManagedWorkflowServiceStubs(micrometerSupported))
+                .setRuntimeInit()
+                .done();
+
     }
 
-    @BuildStep
-    Optional<SyntheticBeanBuildItem> produceWorkflowClientSyntheticBean(
-            Optional<WorkflowClientBuildItem> workflowClientBuildItem) {
+    @BuildStep(onlyIfNot = EnableMock.class)
+    @Record(ExecutionTime.RUNTIME_INIT)
+    SyntheticBeanBuildItem produceWorkflowClientSyntheticBean(WorkflowClientRecorder clientRecorder) {
 
-        return workflowClientBuildItem
-                .map(buildItem -> SyntheticBeanBuildItem
-                        .configure(WorkflowClient.class)
-                        .scope(ApplicationScoped.class)
-                        .unremovable()
-                        .defaultBean()
-                        .addInjectionPoint(
-                                ParameterizedType.create(Instance.class, ClassType.create(WorkflowClientInterceptor.class)),
-                                AnnotationInstance.builder(Any.class).build())
-                        .addInjectionPoint(ParameterizedType.create(Instance.class, ClassType.create(ContextPropagator.class)),
-                                AnnotationInstance.builder(Any.class).build())
-                        .createWith(buildItem.workflowClient)
-                        .setRuntimeInit()
-                        .done());
+        return SyntheticBeanBuildItem
+                .configure(WorkflowClient.class)
+                .scope(ApplicationScoped.class)
+                .unremovable()
+                .defaultBean()
+                .addInjectionPoint(ClassType.create(WorkflowServiceStubs.class))
+                .addInjectionPoint(
+                        ParameterizedType.create(Instance.class, ClassType.create(WorkflowClientInterceptor.class)),
+                        AnnotationInstance.builder(Any.class).build())
+                .addInjectionPoint(ParameterizedType.create(Instance.class, ClassType.create(ContextPropagator.class)),
+                        AnnotationInstance.builder(Any.class).build())
+                .createWith(clientRecorder.createWorkflowClient())
+                .setRuntimeInit()
+                .done();
 
     }
 
@@ -486,6 +519,14 @@ public class TemporalProcessor {
                     .loadClass(classInfo.name().toString());
         } catch (ClassNotFoundException e) {
             throw new RuntimeException(e);
+        }
+    }
+
+    public static class EnableQuarkusManagedChannel implements BooleanSupplier {
+        TemporalBuildtimeConfig config;
+
+        public boolean getAsBoolean() {
+            return !config.enableMock() && config.channelType() == QUARKUS_MANAGED;
         }
     }
 
