@@ -886,6 +886,57 @@ endif::add-copy-button-to-env-var[]
 |
 
 
+a| [[quarkus-temporal_quarkus-temporal-connection-mtls-client-cert-path]]`link:#quarkus-temporal_quarkus-temporal-connection-mtls-client-cert-path[quarkus.temporal.connection.mtls.client-cert-path]`
+
+
+[.description]
+--
+Path to the client certificate.
+
+ifdef::add-copy-button-to-env-var[]
+Environment variable: env_var_with_copy_button:+++QUARKUS_TEMPORAL_CONNECTION_MTLS_CLIENT_CERT_PATH+++[]
+endif::add-copy-button-to-env-var[]
+ifndef::add-copy-button-to-env-var[]
+Environment variable: `+++QUARKUS_TEMPORAL_CONNECTION_MTLS_CLIENT_CERT_PATH+++`
+endif::add-copy-button-to-env-var[]
+--|string 
+|
+
+
+a| [[quarkus-temporal_quarkus-temporal-connection-mtls-client-key-path]]`link:#quarkus-temporal_quarkus-temporal-connection-mtls-client-key-path[quarkus.temporal.connection.mtls.client-key-path]`
+
+
+[.description]
+--
+Path to the client key.
+
+ifdef::add-copy-button-to-env-var[]
+Environment variable: env_var_with_copy_button:+++QUARKUS_TEMPORAL_CONNECTION_MTLS_CLIENT_KEY_PATH+++[]
+endif::add-copy-button-to-env-var[]
+ifndef::add-copy-button-to-env-var[]
+Environment variable: `+++QUARKUS_TEMPORAL_CONNECTION_MTLS_CLIENT_KEY_PATH+++`
+endif::add-copy-button-to-env-var[]
+--|string 
+|
+
+
+a| [[quarkus-temporal_quarkus-temporal-connection-mtls-password]]`link:#quarkus-temporal_quarkus-temporal-connection-mtls-password[quarkus.temporal.connection.mtls.password]`
+
+
+[.description]
+--
+Password for the client key.
+
+ifdef::add-copy-button-to-env-var[]
+Environment variable: env_var_with_copy_button:+++QUARKUS_TEMPORAL_CONNECTION_MTLS_PASSWORD+++[]
+endif::add-copy-button-to-env-var[]
+ifndef::add-copy-button-to-env-var[]
+Environment variable: `+++QUARKUS_TEMPORAL_CONNECTION_MTLS_PASSWORD+++`
+endif::add-copy-button-to-env-var[]
+--|string 
+|
+
+
 h|[[quarkus-temporal_quarkus-temporal-workflow-retries-retry-options]]link:#quarkus-temporal_quarkus-temporal-workflow-retries-retry-options[Retry options]
 
 h|Type
