@@ -27,4 +27,8 @@ public interface ConnectionRuntimeConfig {
      */
     RpcRetryRuntimeConfig rpcRetry();
 
+    /**
+     * mTLS Options.
+     */
+    MTLSRuntimeConfig mtls();
 }
