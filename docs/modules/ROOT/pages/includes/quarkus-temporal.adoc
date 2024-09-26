@@ -899,7 +899,7 @@ endif::add-copy-button-to-env-var[]
 ifndef::add-copy-button-to-env-var[]
 Environment variable: `+++QUARKUS_TEMPORAL_CONNECTION_MTLS_CLIENT_CERT_PATH+++`
 endif::add-copy-button-to-env-var[]
---|string 
+--|path 
 |
 
 
@@ -916,7 +916,7 @@ endif::add-copy-button-to-env-var[]
 ifndef::add-copy-button-to-env-var[]
 Environment variable: `+++QUARKUS_TEMPORAL_CONNECTION_MTLS_CLIENT_KEY_PATH+++`
 endif::add-copy-button-to-env-var[]
---|string 
+--|path 
 |
 
 
