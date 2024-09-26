@@ -51,7 +51,7 @@ public class WorkflowClientRecorder {
     /**
      * Creates an instance of {@link WorkflowClientOptions} based on the provided propagators and telemetry settings.
      *
-     * @param context
+     * @param context the workflow Synthetic Creation Context
      * @return A configured {@link WorkflowClientOptions} instance.
      */
     public WorkflowClientOptions createWorkflowClientOptions(
