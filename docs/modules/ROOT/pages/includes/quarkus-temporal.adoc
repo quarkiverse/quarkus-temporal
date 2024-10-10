@@ -717,7 +717,7 @@ a| [[quarkus-temporal_quarkus-temporal-connection-target]]`link:#quarkus-tempora
 
 [.description]
 --
-Sets a target string, which can be either a valid `NameResolver`-compliant URI, or an authority string. See `ManagedChannelBuilder++#++forTarget(String)` for more information about parameter format. Default is 127.0.0.1:7233
+Sets a target string, which can be either a valid `NameResolver`-compliant URI, or an authority string. See `ManagedChannelBuilder++#++forTarget(String)` for more information about parameter format.
 
 ifdef::add-copy-button-to-env-var[]
 Environment variable: env_var_with_copy_button:+++QUARKUS_TEMPORAL_CONNECTION_TARGET+++[]
@@ -726,7 +726,7 @@ ifndef::add-copy-button-to-env-var[]
 Environment variable: `+++QUARKUS_TEMPORAL_CONNECTION_TARGET+++`
 endif::add-copy-button-to-env-var[]
 --|string 
-|`127.0.0.1:7233`
+|required icon:exclamation-circle[title=Configuration property is required]
 
 
 a| [[quarkus-temporal_quarkus-temporal-connection-enable-https]]`link:#quarkus-temporal_quarkus-temporal-connection-enable-https[quarkus.temporal.connection.enable-https]`
