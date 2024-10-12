@@ -26,7 +26,7 @@
         <maven.compiler.release>11</maven.compiler.release>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <quarkus.version>3.8.6</quarkus.version>
+        <quarkus.version>3.15.1</quarkus.version>
         <temporal.version>1.25.2</temporal.version>
         <opentelemetry.version>1.32.0</opentelemetry.version>
     </properties>
@@ -68,6 +68,11 @@
                 <plugin>
                     <groupId>io.quarkus</groupId>
                     <artifactId>quarkus-maven-plugin</artifactId>
+                    <version>${quarkus.version}</version>
+                </plugin>
+                <plugin>
+                    <groupId>io.quarkus</groupId>
+                    <artifactId>quarkus-config-doc-maven-plugin</artifactId>
                     <version>${quarkus.version}</version>
                 </plugin>
                 <plugin>
