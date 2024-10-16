@@ -11,9 +11,8 @@ public interface ConnectionRuntimeConfig {
     /**
      * Sets a target string, which can be either a valid {@link NameResolver}-compliant URI, or an
      * authority string. See {@link ManagedChannelBuilder#forTarget(String)} for more information
-     * about parameter format. Default is 127.0.0.1:7233
+     * about parameter format.
      */
-    @WithDefault("127.0.0.1:7233")
     String target();
 
     /**

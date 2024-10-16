@@ -19,17 +19,18 @@ public class HealthCheckEnabledTest {
             .setArchiveProducer(() -> ShrinkWrap.create(JavaArchive.class)
                     .addAsResource(
                             new StringAsset(
-                                    "quarkus.temporal.start-workers: false\n" + "quarkus.temporal.health.enabled: true\n"),
+                                    "quarkus.temporal.start-workers: false\n" +
+                                            "quarkus.temporal.health.enabled: true\n"),
                             "application.properties"));
 
     @Test
-    public void testDataSourceHealthCheckExclusion() {
+    public void testDataSourceHealthCheck() {
         RestAssured.when().get("/q/health/ready")
                 .then()
-                .body("status", equalTo("DOWN")) // Verifies that the status at the root level is "DOWN"
+                .body("status", equalTo("UP")) // Verifies that the status at the root level is "DOWN"
                 .body("checks", hasSize(1)) // Verifies that there is exactly one check in the "checks" array
                 .body("checks[0].name", equalTo("Temporal")) // Verifies that the name of the first check is "Temporal"
-                .body("checks[0].status", equalTo("DOWN")) // Verifies that the status of the first check is "DOWN"
-                .body("checks[0].data.'127.0.0.1:7233'", equalTo("DOWN"));
+                .body("checks[0].status", equalTo("UP")) // Verifies that the status of the first check is "DOWN"
+        ;
     }
 }
