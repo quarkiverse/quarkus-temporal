@@ -45,6 +45,10 @@ Or add to you pom.xml directly:
 </dependency>
 ```
 
+## Demonstration Use Case
+
+[Quarkus Temporal Petstore](https://github.com/melloware/quarkus-temporal-petstore) is a comprehensive demonstration using Quarkus and Temporal. It simulates placing a new order on your Petstore website and fulfilling the order using a microservice architecture.
+
 > [!IMPORTANT]  
 > This extension is not supported in GraalVM Native Image mode due to complexities Temporal's use of `grpc-netty-shaded`.
 > Netty 5 will apparently fix the issue so it possibly might have to wait until that release.
