@@ -23,7 +23,7 @@ Using this service has some obvious advantages including but not limited to:
 
 ## Getting started
 
-Read the full [Quarkus Temporal documentation](https://docs.quarkiverse.io/quarkus-temporal/dev/index.html) or check out the [Quarkus Insights](https://www.youtube.com/live/XICZxuaeYwI?si=7ZZc-QQ6CVPGoSFF) video explaining what Temporal is and how to use it!
+Read the full [Quarkus Temporal documentation](https://docs.quarkiverse.io/quarkus-temporal/dev/index.html) or check out the [Quarkus Insights](https://youtu.be/XICZxuaeYwI) video explaining what Temporal is and how to use it!
 
 ### Installation
 
