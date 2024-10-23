@@ -255,6 +255,7 @@ This will enable it by default you can disable it with:
 [source,properties]
 ----
 quarkus.temporal.telemetry.enabled=false
+quarkus.otel.instrument.grpc=false
 ----
 
 == Micrometer Metrics
