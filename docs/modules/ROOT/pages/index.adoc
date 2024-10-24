@@ -256,6 +256,7 @@ This will enable it by default you can disable it with:
 ----
 quarkus.temporal.telemetry.enabled=false
 quarkus.otel.instrument.grpc=false
+quarkus.otel.instrument.vertx-http=false
 ----
 
 == Micrometer Metrics
@@ -279,10 +280,9 @@ quarkus.temporal.metrics.enabled=false
 
 == Context Propagation
 
-You can use an MDC (Mapped Diagnostic Context) Context Propagator to propagate information from the workflow client to workflow execution, workflow to activity, workflow to child workflow, and workflow to child thread created using `Async`.
+You can use an MDC (Mapped Diagnostic Context) Propagator to propagate information from the workflow client to workflow execution, workflow to activity, workflow to child workflow, and workflow to child thread created using `Async`.
 
-To enable the MDC propagator or any custom propagators simply produce a CDI
-bean implementing the `ContextPropagator` interface.
+To enable the MDC propagator or any custom propagators simply produce a CDI bean implementing the `ContextPropagator` interface.
 
 [source,java]
 ----
