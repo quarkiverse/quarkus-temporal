@@ -63,6 +63,14 @@
             <groupId>io.opentelemetry</groupId>
             <artifactId>opentelemetry-opentracing-shim</artifactId>
         </dependency>
+        <dependency>
+            <groupId>io.quarkus</groupId>
+            <artifactId>quarkus-vertx-http</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.vertx</groupId>
+            <artifactId>vertx-web-client</artifactId>
+        </dependency>
     </dependencies>
     <build>
         <plugins>
