@@ -9,10 +9,13 @@ import io.quarkus.runtime.annotations.ConfigGroup;
 public interface WorkerBuildtimeConfig {
 
     /**
-     * Set a unique identifier for this worker. The identifier should be stable with respect to the code the worker uses for
-     * workflows, activities, and interceptors. For more information see: TODO: Doc link
-     * A Build Id must be set if useBuildIdForVersioning is set true.
-     * Defaults to the latest commit id
+     * Assigns a unique identifier to this worker. The identifier must remain consistent with the code the worker
+     * utilizes for workflows, activities, and interceptors. For further details, refer to:
+     * <a href=
+     * "https://docs.temporal.io/develop/java/versioning#assign-a-build-id-to-your-worker-and-opt-in-to-worker-versioning">Temporal
+     * Build ID</a>.
+     * A Build ID is required if `useBuildIdForVersioning` is set to true.
+     * By default, the latest Git commit ID is used.
      */
     Optional<String> buildId();
 

@@ -1,12 +1,15 @@
 package io.quarkiverse.temporal;
 
 import java.util.List;
+import java.util.UUID;
 import java.util.function.Function;
 
 import jakarta.enterprise.inject.Any;
 import jakarta.enterprise.inject.Instance;
 import jakarta.enterprise.inject.spi.CDI;
 import jakarta.enterprise.util.TypeLiteral;
+
+import org.jboss.logging.Logger;
 
 import io.quarkiverse.temporal.config.TemporalBuildtimeConfig;
 import io.quarkiverse.temporal.config.TemporalRuntimeConfig;
@@ -25,6 +28,8 @@ import io.temporal.worker.WorkerOptions;
 
 @Recorder
 public class WorkerFactoryRecorder {
+
+    private static final Logger log = Logger.getLogger(WorkerFactoryRecorder.class);
 
     public WorkerFactoryRecorder(TemporalRuntimeConfig runtimeConfig, TemporalBuildtimeConfig buildtimeConfig) {
         this.runtimeConfig = runtimeConfig;
@@ -57,6 +62,22 @@ public class WorkerFactoryRecorder {
             return WorkerOptions.getDefaultInstance();
         }
 
+        // try configured id, then Git commit hash, then last resort UUID
+        String buildId = workerBuildtimeConfig.buildId()
+                .orElseGet(() -> {
+                    Instance<GitInfo> gitInfoInstance = CDI.current().select(GitInfo.class);
+                    if (!gitInfoInstance.isUnsatisfied()) {
+                        final String gitCommitId = gitInfoInstance.get().latestCommitId();
+                        log.infof("Worker Build Id using Git commit hash: %s", gitCommitId);
+                        return gitCommitId;
+                    } else {
+                        final String uuid = UUID.randomUUID().toString();
+                        log.warnf("Worker Build Id using UUID fallback because Git commit not found: %s", uuid);
+                        // Handle the case when GitInfo bean is not available
+                        return uuid; // or another fallback mechanism
+                    }
+                });
+
         WorkerOptions.Builder builder = WorkerOptions.newBuilder()
                 .setMaxWorkerActivitiesPerSecond(workerRuntimeConfig.maxWorkerActivitiesPerSecond())
                 .setMaxConcurrentActivityExecutionSize(workerRuntimeConfig.maxConcurrentActivityExecutionSize())
@@ -73,8 +94,7 @@ public class WorkerFactoryRecorder {
                 .setDisableEagerExecution(workerRuntimeConfig.disableEagerExecution())
                 .setUseBuildIdForVersioning(workerRuntimeConfig.useBuildIdForVersioning())
                 .setStickyTaskQueueDrainTimeout(workerRuntimeConfig.stickyTaskQueueDrainTimeout())
-                .setBuildId(workerBuildtimeConfig.buildId()
-                        .orElseGet(() -> CDI.current().select(GitInfo.class).get().latestCommitId()));
+                .setBuildId(buildId);
 
         workerRuntimeConfig.identity().ifPresent(builder::setIdentity);
 

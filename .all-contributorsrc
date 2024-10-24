@@ -54,6 +54,15 @@
       "contributions": [
         "test"
       ]
+    },
+    {
+      "login": "teedjay",
+      "name": "Thore Johnsen",
+      "avatar_url": "https://avatars.githubusercontent.com/u/1426570?v=4",
+      "profile": "https://teedjay.github.io/",
+      "contributions": [
+        "bug"
+      ]
     }
   ],
   "contributorsPerLine": 7,
