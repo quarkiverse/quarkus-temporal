@@ -53,6 +53,8 @@ Or add to you pom.xml directly:
 
 [Quarkus Temporal Petstore](https://github.com/melloware/quarkus-temporal-petstore) is a comprehensive demonstration using Quarkus and Temporal. It simulates placing a new order on your Petstore website and fulfilling the order using a microservice architecture.
 
+[![Quarkus Faces YouTube](http://img.youtube.com/vi/XICZxuaeYwI/0.jpg)](http://www.youtube.com/watch?v=XICZxuaeYwI "Quarkus Insights #183: Building Indestructible Services with Temporal")
+
 ## 🧑‍💻 Contributing
 
 - Contribution is the best way to support and get involved in community!
