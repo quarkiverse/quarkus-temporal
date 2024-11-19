@@ -15,6 +15,8 @@ import com.uber.m3.tally.StatsReporter;
 
 import io.grpc.Channel;
 import io.grpc.ManagedChannel;
+import io.grpc.Metadata;
+import io.grpc.stub.MetadataUtils;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.Metrics;
 import io.quarkiverse.temporal.config.ConnectionRuntimeConfig;
@@ -26,6 +28,7 @@ import io.quarkus.grpc.GrpcClient;
 import io.quarkus.runtime.annotations.Recorder;
 import io.quarkus.runtime.configuration.ConfigurationException;
 import io.quarkus.runtime.util.ClassPathUtils;
+import io.temporal.authorization.AuthorizationGrpcMetadataProvider;
 import io.temporal.common.reporter.MicrometerClientStatsReporter;
 import io.temporal.serviceclient.RpcRetryOptions;
 import io.temporal.serviceclient.SimpleSslContextBuilder;
@@ -69,21 +72,35 @@ public class WorkflowServiceStubsRecorder {
                 .setTarget(connection.target())
                 .setEnableHttps(connection.enableHttps());
 
-        MTLSRuntimeConfig mtls = connection.mtls();
+        // API KEY
+        if (connection.apiKey().isPresent()) {
+            // Create a Metadata object with the Temporal namespace header key.
+            Metadata.Key<String> key = Metadata.Key.of("temporal-namespace", Metadata.ASCII_STRING_MARSHALLER);
+            Metadata metadata = new Metadata();
+            metadata.put(key, runtimeConfig.namespace());
+            builder.setChannelInitializer(
+                    (channel) -> {
+                        channel.intercept(MetadataUtils.newAttachHeadersInterceptor(metadata));
+                    });
+            builder.addGrpcMetadataProvider(new AuthorizationGrpcMetadataProvider(() -> "Bearer " + connection.apiKey()));
+        } else {
+            // Mutual Transport Layer Security
+            MTLSRuntimeConfig mtls = connection.mtls();
 
-        if (mtls.clientCertPath().isPresent() != mtls.clientKeyPath().isPresent()) {
-            throw new ConfigurationException("Both client cert and key must be provided");
-        }
+            if (mtls.clientCertPath().isPresent() != mtls.clientKeyPath().isPresent()) {
+                throw new ConfigurationException("Both client cert and key must be provided");
+            }
 
-        if (mtls.clientCertPath().isPresent() && mtls.clientKeyPath().isPresent()) {
-            try {
-                SimpleSslContextBuilder sslContextBuilder = SimpleSslContextBuilder.forPKCS8(
-                        read(mtls.clientCertPath().get()),
-                        read(mtls.clientKeyPath().get()));
-                mtls.password().ifPresent(sslContextBuilder::setKeyPassword);
-                builder.setSslContext(sslContextBuilder.build());
-            } catch (SSLException e) {
-                throw new ConfigurationException("Failed to create SSL context", e);
+            if (mtls.clientCertPath().isPresent() && mtls.clientKeyPath().isPresent()) {
+                try {
+                    SimpleSslContextBuilder sslContextBuilder = SimpleSslContextBuilder.forPKCS8(
+                            read(mtls.clientCertPath().get()),
+                            read(mtls.clientKeyPath().get()));
+                    mtls.password().ifPresent(sslContextBuilder::setKeyPassword);
+                    builder.setSslContext(sslContextBuilder.build());
+                } catch (SSLException e) {
+                    throw new ConfigurationException("Failed to create SSL context", e);
+                }
             }
         }
 

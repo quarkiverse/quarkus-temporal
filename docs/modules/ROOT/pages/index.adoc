@@ -477,24 +477,46 @@ public class TestWorkflowClientInterceptor implements WorkflowClientInterceptor 
 
 == Temporal Cloud
 
-You may be using the Temporal Cloud offering instead of self-hosting. Each Temporal Cloud service Client has four prerequisites.
+You may be using the Temporal Cloud offering instead of self-hosting. Temporal Cloud supports both TLS and API key authentication.
 
-* The full Namespace ID from the https://cloud.temporal.io/namespaces[Cloud Namespace] details page
-* The gRPC endpoint from the https://cloud.temporal.io/namespaces[Cloud Namespace] details page
+=== TLS Authentication
+
+You must provide your own CA certificates. These certificates are needed to create a Namespace, which are in turn used to grant Temporal Clients and Workers access to it. You will need:
+
+* The full Namespace ID from the https://cloud.temporal.io/namespaces[Cloud Namespace] details page such as `<namespace>.<account>`
+* The gRPC endpoint from the https://cloud.temporal.io/namespaces[Cloud Namespace] details page such as `<namespace>.<account>.tmprl.cloud:7233`
 * Your mTLS private key
 * Your mTLS x509 Certificate
 
-To configure with Quarkus Temporal:
+To configure with Quarkus Temporal TLS:
 
 [source,properties]
 ----
 quarkus.temporal.namespace=your-namespace.123def
-quarkus.temporal.connection=your-namespace.123def.tmprl.cloud:7233
+quarkus.temporal.connection.target=your-namespace.123def.tmprl.cloud:7233
 quarkus.temporal.connection.mtls.client-cert-path=/your-temporal-x509.cert
 quarkus.temporal.connection.mtls.client-key-path=/your-temporal.key
 quarkus.temporal.connection.mtls.password=Passw0rd
 ----
 
+=== API Key Authentication
+
+Each Temporal Cloud API key is a unique identity linked to role-based access control (RBAC) settings to ensure secure and appropriate access.
+
+You will need:
+
+* The full Namespace ID from the https://cloud.temporal.io/namespaces[Cloud Namespace] details page such as `<namespace>.<account>`
+* The gRPC endpoint from the https://cloud.temporal.io/namespaces[Cloud Namespace] details page such as `<region>.<cloud_provider>.api.temporal.io:7233.`
+* Your API key
+
+To configure with Quarkus Temporal API key:
+
+[source,properties]
+----
+quarkus.temporal.namespace=<namespace>.<account>
+quarkus.temporal.connection.target=<region>.<cloud_provider>.api.temporal.io:7233
+quarkus.temporal.connection.api-key=<api-key>
+----
 
 [[extension-configuration-reference]]
 == Extension Configuration Reference
