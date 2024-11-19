@@ -731,6 +731,23 @@ endif::add-copy-button-to-env-var[]
 |boolean
 |`false`
 
+a| [[quarkus-temporal_quarkus-temporal-connection-api-key]] [.property-path]##link:#quarkus-temporal_quarkus-temporal-connection-api-key[`quarkus.temporal.connection.api-key`]##
+
+[.description]
+--
+Temporal Cloud API key is a unique identity linked to role-based access control (RBAC) settings to ensure secure and appropriate access.
+
+
+ifdef::add-copy-button-to-env-var[]
+Environment variable: env_var_with_copy_button:+++QUARKUS_TEMPORAL_CONNECTION_API_KEY+++[]
+endif::add-copy-button-to-env-var[]
+ifndef::add-copy-button-to-env-var[]
+Environment variable: `+++QUARKUS_TEMPORAL_CONNECTION_API_KEY+++`
+endif::add-copy-button-to-env-var[]
+--
+|string
+|
+
 a| [[quarkus-temporal_quarkus-temporal-connection-rpc-retry-initial-interval]] [.property-path]##link:#quarkus-temporal_quarkus-temporal-connection-rpc-retry-initial-interval[`quarkus.temporal.connection.rpc-retry.initial-interval`]##
 
 [.description]

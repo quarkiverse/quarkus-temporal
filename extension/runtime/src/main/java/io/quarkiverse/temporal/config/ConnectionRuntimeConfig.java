@@ -1,5 +1,7 @@
 package io.quarkiverse.temporal.config;
 
+import java.util.Optional;
+
 import io.grpc.ManagedChannelBuilder;
 import io.grpc.NameResolver;
 import io.quarkus.runtime.annotations.ConfigGroup;
@@ -21,6 +23,12 @@ public interface ConnectionRuntimeConfig {
      */
     @WithDefault("false")
     Boolean enableHttps();
+
+    /**
+     * Temporal Cloud API key is a unique identity linked to role-based access control (RBAC) settings to ensure secure and
+     * appropriate access.
+     */
+    Optional<String> apiKey();
 
     /**
      * Rpc Retry Options.
