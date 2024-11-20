@@ -82,7 +82,14 @@ public class WorkflowServiceStubsRecorder {
                     (channel) -> {
                         channel.intercept(MetadataUtils.newAttachHeadersInterceptor(metadata));
                     });
-            builder.addGrpcMetadataProvider(new AuthorizationGrpcMetadataProvider(() -> "Bearer " + connection.apiKey()));
+            builder.addGrpcMetadataProvider(
+                    new AuthorizationGrpcMetadataProvider(() -> "Bearer " + connection.apiKey().get()));
+            try {
+                builder.setSslContext(
+                        SimpleSslContextBuilder.noKeyOrCertChain().setUseInsecureTrustManager(false).build());
+            } catch (SSLException e) {
+                throw new ConfigurationException("Failed to create SSL context", e);
+            }
         } else {
             // Mutual Transport Layer Security
             MTLSRuntimeConfig mtls = connection.mtls();
@@ -117,7 +124,8 @@ public class WorkflowServiceStubsRecorder {
 
         WorkflowServiceStubsOptions.Builder builder = WorkflowServiceStubsOptions.newBuilder()
                 .setChannel(
-                        (ManagedChannel) context.getInjectedReference(Channel.class, GrpcClient.Literal.of("temporal-client")))
+                        (ManagedChannel) context.getInjectedReference(Channel.class,
+                                GrpcClient.Literal.of("temporal-client")))
                 .setMetricsScope(createScope(isMicrometerEnabled))
                 .setRpcRetryOptions(createRpcRetryOptions(connection.rpcRetry()));
 
@@ -165,7 +173,8 @@ public class WorkflowServiceStubsRecorder {
     /**
      * Read the content of the path.
      * <p>
-     * The file is read from the classpath if it exists, otherwise it is read from the file system.
+     * The file is read from the classpath if it exists, otherwise it is read from
+     * the file system.
      *
      * @param path the path, must not be {@code null}
      * @return the content of the file
