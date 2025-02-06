@@ -51,7 +51,7 @@ Or add to you pom.xml directly:
 
 ## Demonstration Use Case
 
-[Quarkus Temporal Petstore](https://github.com/melloware/quarkus-temporal-petstore) is a comprehensive demonstration using Quarkus and Temporal. It simulates placing a new order on your Petstore website and fulfilling the order using a microservice architecture.
+[Quarkus Temporal Petstore](https://github.com/melloware/quarkus-temporal-petstore) is a comprehensive demonstration using Quarkus and Temporal. It simulates placing a new order on your Petstore website and fulfilling the order using a microservice architecture.  This use case has been posted to [Temporal's Code Exchange](https://temporal.io/code-exchange/quarkus-temporal) catalog.
 
 [![Quarkus Faces YouTube](http://img.youtube.com/vi/XICZxuaeYwI/0.jpg)](http://www.youtube.com/watch?v=XICZxuaeYwI "Quarkus Insights #183: Building Indestructible Services with Temporal")
 
