@@ -39,7 +39,7 @@ ifndef::add-copy-button-to-env-var[]
 Environment variable: `+++QUARKUS_TEMPORAL_CHANNEL_TYPE+++`
 endif::add-copy-button-to-env-var[]
 --
-a|ChannelType
+a|`quarkus-managed`, `built-in`
 |`built-in`
 
 a|icon:lock[title=Fixed at build time] [[quarkus-temporal_quarkus-temporal-health-enabled]] [.property-path]##link:#quarkus-temporal_quarkus-temporal-health-enabled[`quarkus.temporal.health.enabled`]##
@@ -557,7 +557,7 @@ ifndef::add-copy-button-to-env-var[]
 Environment variable: `+++QUARKUS_TEMPORAL_WORKFLOW_WORKFLOW_ID_REUSE_POLICY+++`
 endif::add-copy-button-to-env-var[]
 --
-a|TemporalWorkflowIdReusePolicy
+a|`unspecified`, `allow-duplicate`, `allow-duplicate-failed-only`, `reject-duplicate`, `terminate-if-running`
 |`allow-duplicate`
 
 a| [[quarkus-temporal_quarkus-temporal-workflow-workflow-id-conflict-policy]] [.property-path]##link:#quarkus-temporal_quarkus-temporal-workflow-workflow-id-conflict-policy[`quarkus.temporal.workflow.workflow-id-conflict-policy`]##
@@ -576,7 +576,7 @@ ifndef::add-copy-button-to-env-var[]
 Environment variable: `+++QUARKUS_TEMPORAL_WORKFLOW_WORKFLOW_ID_CONFLICT_POLICY+++`
 endif::add-copy-button-to-env-var[]
 --
-a|TemporalWorkflowIdConflictPolicy
+a|`unspecified`, `fail`, `use-existing`, `terminate-existing`
 |`fail`
 
 a| [[quarkus-temporal_quarkus-temporal-workflow-workflow-run-timeout]] [.property-path]##link:#quarkus-temporal_quarkus-temporal-workflow-workflow-run-timeout[`quarkus.temporal.workflow.workflow-run-timeout`]##
@@ -881,7 +881,7 @@ ifndef::add-copy-button-to-env-var[]
 Environment variable: `+++QUARKUS_TEMPORAL_CONNECTION_RPC_RETRY_DO_NOT_RETRY+++`
 endif::add-copy-button-to-env-var[]
 --
-a|list of Code
+a|list of `ok`, `cancelled`, `unknown`, `invalid-argument`, `deadline-exceeded`, `not-found`, `already-exists`, `permission-denied`, `resource-exhausted`, `failed-precondition`, `aborted`, `out-of-range`, `unimplemented`, `internal`, `unavailable`, `data-loss`, `unauthenticated`
 |
 
 a| [[quarkus-temporal_quarkus-temporal-connection-mtls-client-cert-path]] [.property-path]##link:#quarkus-temporal_quarkus-temporal-connection-mtls-client-cert-path[`quarkus.temporal.connection.mtls.client-cert-path`]##
