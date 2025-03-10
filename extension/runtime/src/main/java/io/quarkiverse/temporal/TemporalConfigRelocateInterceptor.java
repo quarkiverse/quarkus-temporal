@@ -27,6 +27,7 @@ public class TemporalConfigRelocateInterceptor implements ConfigSourceIntercepto
                     return target.from()
                             .withName("quarkus.grpc.clients.temporal-client.host")
                             .withValue(connection[0])
+                            .withRawValue(connection[0])
                             .build();
                 }
                 return host;
@@ -38,6 +39,7 @@ public class TemporalConfigRelocateInterceptor implements ConfigSourceIntercepto
                     return target.from()
                             .withName("quarkus.grpc.clients.temporal-client.port")
                             .withValue(connection[1])
+                            .withRawValue(connection[1])
                             .build();
                 }
                 return port;
@@ -49,6 +51,7 @@ public class TemporalConfigRelocateInterceptor implements ConfigSourceIntercepto
                     return target.from()
                             .withName("quarkus.grpc.clients.temporal-client.test-port")
                             .withValue(connection[1])
+                            .withRawValue(connection[1])
                             .build();
                 }
                 return port;
