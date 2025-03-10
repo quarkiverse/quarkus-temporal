@@ -85,6 +85,9 @@ Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/d
       <td align="center" valign="top" width="14.28%"><a href="https://teedjay.github.io/"><img src="https://avatars.githubusercontent.com/u/1426570?v=4?s=100" width="100px;" alt="Thore Johnsen"/><br /><sub><b>Thore Johnsen</b></sub></a><br /><a href="https://github.com/quarkiverse/quarkus-temporal/issues?q=author%3Ateedjay" title="Bug reports">🐛</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://apibanking.com"><img src="https://avatars.githubusercontent.com/u/469760?v=4?s=100" width="100px;" alt="Akhilesh Kataria"/><br /><sub><b>Akhilesh Kataria</b></sub></a><br /><a href="#ideas-akil-rails" title="Ideas, Planning, & Feedback">🤔</a> <a href="https://github.com/quarkiverse/quarkus-temporal/commits?author=akil-rails" title="Tests">⚠️</a></td>
     </tr>
+    <tr>
+      <td align="center" valign="top" width="14.28%"><a href="http://www.radcortez.com"><img src="https://avatars.githubusercontent.com/u/5796305?v=4?s=100" width="100px;" alt="Roberto Cortez"/><br /><sub><b>Roberto Cortez</b></sub></a><br /><a href="https://github.com/quarkiverse/quarkus-temporal/commits?author=radcortez" title="Code">💻</a></td>
+    </tr>
   </tbody>
 </table>
 
