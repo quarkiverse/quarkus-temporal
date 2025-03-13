@@ -37,7 +37,7 @@ jobs:
       fail-fast: false
       matrix:
 #        os: [windows-latest, macos-latest, ubuntu-latest]
-        os: [ubuntu-latest]
+        os: [ubuntu-latest, macos-latest]
     runs-on: ${{ matrix.os }}
     steps:
       - name: Prepare git
@@ -48,7 +48,7 @@ jobs:
       - name: Set up JDK 21
         uses: actions/setup-java@v4
         with:
-          distribution: temurin
+          distribution: ${{startsWith(matrix.os,'macos') && 'liberica' || 'mandrel'}}
           java-version: 21
           cache: 'maven'
 
