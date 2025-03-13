@@ -87,6 +87,7 @@ Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/d
     </tr>
     <tr>
       <td align="center" valign="top" width="14.28%"><a href="http://www.radcortez.com"><img src="https://avatars.githubusercontent.com/u/5796305?v=4?s=100" width="100px;" alt="Roberto Cortez"/><br /><sub><b>Roberto Cortez</b></sub></a><br /><a href="https://github.com/quarkiverse/quarkus-temporal/commits?author=radcortez" title="Code">💻</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/luneo7"><img src="https://avatars.githubusercontent.com/u/8834774?v=4?s=100" width="100px;" alt="Lucas Rogerio Caetano Ferreira"/><br /><sub><b>Lucas Rogerio Caetano Ferreira</b></sub></a><br /><a href="https://github.com/quarkiverse/quarkus-temporal/commits?author=luneo7" title="Code">💻</a></td>
     </tr>
   </tbody>
 </table>
