@@ -49,6 +49,7 @@ jobs:
         uses: actions/setup-java@v4
         with:
           distribution: ${{startsWith(matrix.os,'macos') && 'liberica' || 'mandrel'}}
+          java-package: 'jdk+fx'
           java-version: 21
           cache: 'maven'
 
