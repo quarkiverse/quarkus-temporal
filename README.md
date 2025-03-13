@@ -19,7 +19,10 @@ Using this service has some obvious advantages including but not limited to:
 * Temporal delivers an ability to schedule a workflow (much like a cron job) and then pause, re-start, and stop them as needed.
 * Temporal allows you to simply code for durable execution.
 * Use external sources -- including human actions -- that interact seamlessly with Workflows.
-* Temporal allows you to inspect, replay, and rewind every Workflow execution, step by step. 
+* Temporal allows you to inspect, replay, and rewind every Workflow execution, step by step.
+
+> [!NOTE]
+> This extension also allows Temporal to work in a native executable built with GraalVM/Mandrel.
 
 ## Getting started
 
@@ -44,10 +47,6 @@ Or add to you pom.xml directly:
     <version>{project-version}</version>
 </dependency>
 ```
-
-> [!IMPORTANT]  
-> This extension is not supported in GraalVM Native Image mode due to complexities Temporal's use of `grpc-netty-shaded`.
-> Netty 5 will apparently fix the issue so it possibly might have to wait until that release.
 
 ## Demonstration Use Case
 
