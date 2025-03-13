@@ -54,3 +54,7 @@ jobs:
 
       - name: Build with Maven
         run: mvn -B clean install -Dno-format
+
+      - name: Build with Maven (Native)
+        run: mvn -B verify -Dnative -Dnative.surefire.skip -Dquarkus.native.native-image-xmx=13g
+        if: ${{ startsWith(matrix.os, 'windows') == false}}
