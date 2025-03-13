@@ -4,14 +4,14 @@
 SRC_NETTY_RUNTIME="quarkus/extensions/netty/runtime/src/main/java/io/quarkus/netty"
 SRC_GRPC_RUNTIME="quarkus/extensions/grpc-common/runtime/src/main/java/io/quarkus/grpc/common"
 
-DEST_NETTY_RUNTIME="extension/runtime/src/main/java/io/quarkiverse/temporal/nettyhandling"
-DEST_GRPC_RUNTIME="extension/runtime/src/main/java/io/quarkiverse/temporal/grpchandling"
+DEST_NETTY_RUNTIME="extension/runtime/src/main/java/io/quarkiverse/temporal/graal/nettyhandling"
+DEST_GRPC_RUNTIME="extension/runtime/src/main/java/io/quarkiverse/temporal/graal/grpchandling"
 
 SRC_NETTY_DEPLOYMENT="quarkus/extensions/netty/deployment/src/main/java/io/quarkus/netty/deployment"
 SRC_GRPC_DEPLOYMENT="quarkus/extensions/grpc-common/deployment/src/main/java/io/quarkus/grpc/common/deployment"
 
-DEST_NETTY_DEPLOYMENT="extension/deployment/src/main/java/io/quarkiverse/temporal/deployment/nettyhandling"
-DEST_GRPC_DEPLOYMENT="extension/deployment/src/main/java/io/quarkiverse/temporal/deployment/grpchandling"
+DEST_NETTY_DEPLOYMENT="extension/deployment/src/main/java/io/quarkiverse/temporal/deployment/graal/nettyhandling"
+DEST_GRPC_DEPLOYMENT="extension/deployment/src/main/java/io/quarkiverse/temporal/deployment/graal/grpchandling"
 
 # When bumping temporal we need to check if netty was updated and match with Quarkus version
 QUARKUS_VERSION=3.16.3
@@ -66,15 +66,15 @@ find "$DEST_GRPC_RUNTIME" "$DEST_GRPC_DEPLOYMENT" -type f -name "*.java" -exec s
 echo "$counter - Fixing imports and packages"
 ((counter++))
 find "$DEST_NETTY_RUNTIME" "$DEST_NETTY_DEPLOYMENT" -type f -name "*.java" -exec sed -i '' \
-    -e 's/io\.quarkus\.netty\.deployment/io.quarkiverse.temporal.deployment.nettyhandling/g' \
-    -e 's/io\.quarkus\.netty/io.quarkiverse.temporal.nettyhandling/g' \
-    -e 's/io\.quarkus\.netty\.runtime/io.quarkiverse.temporal.nettyhandling.runtime/g' \
-    -e 's/io\.quarkus\.netty\.runtime\.virtual/io.quarkiverse.temporal.nettyhandling.runtime.virtual/g' \
-    -e 's/io\.quarkus\.netty\.runtime\.graal/io.quarkiverse.temporal.nettyhandling.runtime.graal/g' \
+    -e 's/io\.quarkus\.netty\.deployment/io.quarkiverse.temporal.deployment.graal.nettyhandling/g' \
+    -e 's/io\.quarkus\.netty/io.quarkiverse.temporal.graal.nettyhandling/g' \
+    -e 's/io\.quarkus\.netty\.runtime/io.quarkiverse.temporal.graal.nettyhandling.runtime/g' \
+    -e 's/io\.quarkus\.netty\.runtime\.virtual/io.quarkiverse.temporal.graal.nettyhandling.runtime.virtual/g' \
+    -e 's/io\.quarkus\.netty\.runtime\.graal/io.quarkiverse.temporal.graal.nettyhandling.runtime.graal/g' \
     "{}" +
 find "$DEST_GRPC_RUNTIME" "$DEST_GRPC_DEPLOYMENT" -type f -name "*.java" -exec sed -i '' \
-    -e 's/io\.quarkus\.grpc\.common\.deployment/io.quarkiverse.temporal.deployment.grpchandling/g' \
-    -e 's/io\.quarkus\.grpc\.common\.runtime\.graal/io.quarkiverse.temporal.grpchandling.runtime.graal/g' \
+    -e 's/io\.quarkus\.grpc\.common\.deployment/io.quarkiverse.temporal.deployment.graal.grpchandling/g' \
+    -e 's/io\.quarkus\.grpc\.common\.runtime\.graal/io.quarkiverse.temporal.graal.grpchandling.runtime.graal/g' \
     "{}" +
 
 # Fix netty config as we need to make it compatible with newer Quarkus versions
@@ -83,8 +83,7 @@ echo "$counter - Fixing Netty config"
 ((counter++))
 sed -i '' '/import io.quarkus.runtime.annotations.ConfigItem;/d' "$DEST_NETTY_DEPLOYMENT/NettyBuildTimeConfig.java"
 sed -i '' 's/import io.quarkus.runtime.annotations.ConfigRoot;/import io.quarkus.runtime.annotations.ConfigRoot;\nimport io.smallrye.config.ConfigMapping;/' "$DEST_NETTY_DEPLOYMENT/NettyBuildTimeConfig.java"
-sed -i '' 's/@ConfigRoot(name = "netty", phase = ConfigPhase.BUILD_TIME)/@ConfigRoot(phase = ConfigPhase.BUILD_TIME)\n@ConfigMapping(prefix = "grpc.netty")/' "$DEST_NETTY_DEPLOYMENT/NettyBuildTimeConfig.java"
-sed -i '' 's/@ConfigRoot(name = "netty", phase = ConfigPhase.BUILD_TIME)/import io.smallrye.config.ConfigMapping;\n\n@ConfigRoot(phase = ConfigPhase.BUILD_TIME)\n@ConfigMapping(prefix = "quarkus.temporal.netty")/' "$DEST_NETTY_DEPLOYMENT/NettyBuildTimeConfig.java"
+sed -i '' 's/@ConfigRoot(name = "netty", phase = ConfigPhase.BUILD_TIME)/@ConfigRoot(phase = ConfigPhase.BUILD_TIME)\n@ConfigMapping(prefix = "quarkus.temporal.netty")/' "$DEST_NETTY_DEPLOYMENT/NettyBuildTimeConfig.java"
 sed -i '' 's/public class NettyBuildTimeConfig/public interface NettyBuildTimeConfig/' "$DEST_NETTY_DEPLOYMENT/NettyBuildTimeConfig.java"
 sed -i '' '/ConfigItem/d' "$DEST_NETTY_DEPLOYMENT/NettyBuildTimeConfig.java"
 sed -i '' 's/public OptionalInt allocatorMaxOrder;/OptionalInt allocatorMaxOrder();/' "$DEST_NETTY_DEPLOYMENT/NettyBuildTimeConfig.java"
