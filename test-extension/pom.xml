@@ -4,7 +4,7 @@
     <parent>
         <groupId>io.quarkiverse.temporal</groupId>
         <artifactId>quarkus-temporal-parent</artifactId>
-        <version>0.1.0</version>
+        <version>999-SNAPSHOT</version>
     </parent>
     <artifactId>quarkus-temporal-test-extension-parent</artifactId>
     <name>Quarkus Temporal Test Plugin - Parent</name>
