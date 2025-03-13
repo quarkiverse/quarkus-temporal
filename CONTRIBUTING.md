@@ -45,3 +45,14 @@ git remote add upstream https://github.com/quarkiverse/quarkus-temporal.git
 ```
   git push origin main
 ```
+
+## Updating Temporal version
+
+Whenever updating temporal version we might need to update Netty/GRPC GraalVM substitutions and configurations.
+
+Check if `grpc-netty-shaded` Netty version changed, later you would also need to check witch Quarkus version has
+the right substitutions, we can do that by checking Quarkus BOM and checking the Netty version.
+
+With the right Quarkus
+version we can update the `update-netty-substitutions.sh` file and run it, that script will clone Quarkus repo and update
+all Netty/GRPC code needed to run in native mode.
