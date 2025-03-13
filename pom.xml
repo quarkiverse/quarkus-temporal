@@ -8,7 +8,7 @@
     </parent>
     <groupId>io.quarkiverse.temporal</groupId>
     <artifactId>quarkus-temporal-parent</artifactId>
-    <version>999-SNAPSHOT</version>
+    <version>0.1.0</version>
     <packaging>pom</packaging>
     <name>Quarkus Temporal - Parent</name>
     <description>Temporal is a developer-first, open source platform that ensures the successful execution of services and applications.</description>
@@ -20,7 +20,7 @@
         <connection>scm:git:git@github.com:quarkiverse/quarkus-bucket4j.git</connection>
         <developerConnection>scm:git:git@github.com:quarkiverse/quarkus-bucket4j.git</developerConnection>
         <url>https://github.com/quarkiverse/quarkus-bucket4j</url>
-        <tag>HEAD</tag>
+        <tag>0.1.0</tag>
     </scm>
     <properties>
         <maven.compiler.release>17</maven.compiler.release>
