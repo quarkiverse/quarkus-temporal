@@ -1,26 +1,45 @@
 #!/bin/bash
 
-# Set directories as variables
+###################################################################################
+# Script: update-netty-substitutions.sh
+# Purpose: Updates and manages Netty and gRPC substitutions for Temporal extension
+#          by copying and modifying relevant files from Quarkus codebase.
+#
+# This script performs the following main tasks:
+# 1. Clones specific version of Quarkus repository
+# 2. Copies Netty and gRPC related files to appropriate directories
+# 3. Updates namespace references for shaded Netty
+# 4. Fixes imports and package declarations
+# 5. Updates configuration handling for compatibility
+###################################################################################
+
+# Directory structure for source files in Quarkus repository
+# These paths are relative to the Quarkus root directory
 SRC_NETTY_RUNTIME="quarkus/extensions/netty/runtime/src/main/java/io/quarkus/netty"
 SRC_GRPC_RUNTIME="quarkus/extensions/grpc-common/runtime/src/main/java/io/quarkus/grpc/common"
 
-DEST_NETTY_RUNTIME="extension/runtime/src/main/java/io/quarkiverse/temporal/graal/nettyhandling"
-DEST_GRPC_RUNTIME="extension/runtime/src/main/java/io/quarkiverse/temporal/graal/grpchandling"
+# Directory structure for destination files in our extension
+# Where the modified files will be placed
+DEST_NETTY_RUNTIME="extension/runtime/src/main/java/io/quarkiverse/temporal/graal/netty"
+DEST_GRPC_RUNTIME="extension/runtime/src/main/java/io/quarkiverse/temporal/graal/grpc"
 
+# Deployment source directories in Quarkus
 SRC_NETTY_DEPLOYMENT="quarkus/extensions/netty/deployment/src/main/java/io/quarkus/netty/deployment"
 SRC_GRPC_DEPLOYMENT="quarkus/extensions/grpc-common/deployment/src/main/java/io/quarkus/grpc/common/deployment"
 
-DEST_NETTY_DEPLOYMENT="extension/deployment/src/main/java/io/quarkiverse/temporal/deployment/graal/nettyhandling"
-DEST_GRPC_DEPLOYMENT="extension/deployment/src/main/java/io/quarkiverse/temporal/deployment/graal/grpchandling"
+# Deployment destination directories in our extension
+DEST_NETTY_DEPLOYMENT="extension/deployment/src/main/java/io/quarkiverse/temporal/deployment/graal/netty"
+DEST_GRPC_DEPLOYMENT="extension/deployment/src/main/java/io/quarkiverse/temporal/deployment/graal/grpc"
 
-# When bumping temporal we need to check if netty was updated and match with Quarkus version
-QUARKUS_VERSION=3.16.3
+# Quarkus version to use - this should match the version compatible with Temporal
+QUARKUS_VERSION=3.19.3
 
 echo "Using Quarkus version: $QUARKUS_VERSION"
 
 counter=1
 
-# Clone repo
+# Step 1: Clone Quarkus repository
+# Using sparse checkout to only get the needed directories
 echo "$counter - Cloning Quarkus"
 ((counter++))
 git clone --depth=1 --filter=blob:none --sparse --branch "$QUARKUS_VERSION" git@github.com:quarkusio/quarkus.git
@@ -28,6 +47,7 @@ cd quarkus
 git sparse-checkout set extensions/grpc-common extensions/netty bom/application
 cd ..
 
+# Extract Netty version from Quarkus BOM file
 BOM_FILE="quarkus/bom/application/pom.xml"
 NETTY_VERSION=$(sed -n 's/.*<netty.version>\(.*\)<\/netty.version>.*/\1/p' "$BOM_FILE")
 
@@ -37,48 +57,48 @@ else
     echo "The Netty target version is: $NETTY_VERSION"
 fi
 
-# Creating "nettyhandling" and "grpchandling" directories to keep pulled files separate from our extension's
-echo "$counter - Creating nettyhandling grpchandling directories"
+# Step 2: Create directory structure for the modified files
+echo "$counter - Creating netty grpc directories"
 ((counter++))
 mkdir -p "$DEST_NETTY_DEPLOYMENT"
 mkdir -p "$DEST_NETTY_RUNTIME"
 mkdir -p "$DEST_GRPC_DEPLOYMENT"
 mkdir -p "$DEST_GRPC_RUNTIME"
 
-# Copy files from runtime and deployment directories and overwrite existing
+# Step 3: Copy files from Quarkus to our extension
 echo "$counter - Copying files"
 ((counter++))
 cp -r "$SRC_NETTY_RUNTIME"/* "$DEST_NETTY_RUNTIME"
 cp -r "$SRC_NETTY_DEPLOYMENT"/* "$DEST_NETTY_DEPLOYMENT"
-
 cp -r "$SRC_GRPC_RUNTIME"/* "$DEST_GRPC_RUNTIME"
 cp -r "$SRC_GRPC_DEPLOYMENT"/* "$DEST_GRPC_DEPLOYMENT"
 
-# Prepend "io.grpc.netty.shaded." to all "io.netty" occurrences in the copied files
+# Step 4: Update namespace references
+# Replace regular Netty references with shaded Netty references
 echo "$counter - Replacing shaded netty namespace"
 ((counter++))
 find "$DEST_NETTY_RUNTIME" "$DEST_NETTY_DEPLOYMENT" -type f -name "*.java" -exec sed -i '' 's/io\.netty/io.grpc.netty.shaded.io.netty/g' "{}" +
 find "$DEST_GRPC_RUNTIME" "$DEST_GRPC_DEPLOYMENT" -type f -name "*.java" -exec sed -i '' 's/io\.grpc\.netty/io.grpc.netty.shaded.io.grpc.netty/g' "{}" +
 find "$DEST_GRPC_RUNTIME" "$DEST_GRPC_DEPLOYMENT" -type f -name "*.java" -exec sed -i '' 's/io\.netty/io.grpc.netty.shaded.io.netty/g' "{}" +
 
-
-# Fix the imports and packages
+# Step 5: Update package declarations and imports
+# Modify package names to match our extension's structure
 echo "$counter - Fixing imports and packages"
 ((counter++))
 find "$DEST_NETTY_RUNTIME" "$DEST_NETTY_DEPLOYMENT" -type f -name "*.java" -exec sed -i '' \
-    -e 's/io\.quarkus\.netty\.deployment/io.quarkiverse.temporal.deployment.graal.nettyhandling/g' \
-    -e 's/io\.quarkus\.netty/io.quarkiverse.temporal.graal.nettyhandling/g' \
-    -e 's/io\.quarkus\.netty\.runtime/io.quarkiverse.temporal.graal.nettyhandling.runtime/g' \
-    -e 's/io\.quarkus\.netty\.runtime\.virtual/io.quarkiverse.temporal.graal.nettyhandling.runtime.virtual/g' \
-    -e 's/io\.quarkus\.netty\.runtime\.graal/io.quarkiverse.temporal.graal.nettyhandling.runtime.graal/g' \
+    -e 's/io\.quarkus\.netty\.deployment/io.quarkiverse.temporal.deployment.graal.netty/g' \
+    -e 's/io\.quarkus\.netty/io.quarkiverse.temporal.graal.netty/g' \
+    -e 's/io\.quarkus\.netty\.runtime/io.quarkiverse.temporal.graal.netty/g' \
+    -e 's/io\.quarkus\.netty\.runtime\.virtual/io.quarkiverse.temporal.graal.netty.virtual/g' \
+    -e 's/io\.quarkus\.netty\.runtime\.graal/io.quarkiverse.temporal.graal.netty.graal/g' \
     "{}" +
 find "$DEST_GRPC_RUNTIME" "$DEST_GRPC_DEPLOYMENT" -type f -name "*.java" -exec sed -i '' \
-    -e 's/io\.quarkus\.grpc\.common\.deployment/io.quarkiverse.temporal.deployment.graal.grpchandling/g' \
-    -e 's/io\.quarkus\.grpc\.common\.runtime\.graal/io.quarkiverse.temporal.graal.grpchandling.runtime.graal/g' \
+    -e 's/io\.quarkus\.grpc\.common\.deployment/io.quarkiverse.temporal.deployment.graal.grpc/g' \
+    -e 's/io\.quarkus\.grpc\.common\.runtime\.graal/io.quarkiverse.temporal.graal.grpc/g' \
     "{}" +
 
-# Fix netty config as we need to make it compatible with newer Quarkus versions
-# Also setting the config prefix to quarkus.temporal.netty
+# Step 6: Update Netty configuration
+# Modify configuration to use newer Quarkus style and set custom prefix
 echo "$counter - Fixing Netty config"
 ((counter++))
 sed -i '' '/import io.quarkus.runtime.annotations.ConfigItem;/d' "$DEST_NETTY_DEPLOYMENT/NettyBuildTimeConfig.java"
@@ -89,16 +109,16 @@ sed -i '' '/ConfigItem/d' "$DEST_NETTY_DEPLOYMENT/NettyBuildTimeConfig.java"
 sed -i '' 's/public OptionalInt allocatorMaxOrder;/OptionalInt allocatorMaxOrder();/' "$DEST_NETTY_DEPLOYMENT/NettyBuildTimeConfig.java"
 sed -i '' 's/config.allocatorMaxOrder/config.allocatorMaxOrder()/' "$DEST_NETTY_DEPLOYMENT/NettyProcessor.java"
 
-#Delete two methods in NettyProcessor which we don't want to use
+# Step 7: Remove unwanted methods and files
 echo "$counter - Deleting code we don't want in NettyProcessor and GrpcCommonProcessor"
 ((counter++))
 ./deleteMethod.sh "LogCleanupFilterBuildItem cleanupMacDNSInLog" "$DEST_NETTY_DEPLOYMENT/NettyProcessor.java"
 ./deleteMethod.sh "public void configureNativeExecutable" "$DEST_GRPC_DEPLOYMENT/GrpcCommonProcessor.java"
-rm ${DEST_GRPC_RUNTIME}/runtime/graal/GrpcSubstitutions.java
+rm ${DEST_GRPC_RUNTIME}/GrpcSubstitutions.java
 rm ${DEST_GRPC_DEPLOYMENT}/GrpcDotNames.java
 
-
-# This isn't absolutely necessary, as Quarkus will optimise imports and remove unused/missing ones during compilation.
+# Step 8: Clean up imports
+# Remove unused imports that might cause compilation issues
 echo "$counter - Deleting missing import"
 ((counter++))
 sed -i '' '/import io.grpc.netty.shaded.io.netty.resolver.dns.DnsServerAddressStreamProviders;/d' "$DEST_NETTY_DEPLOYMENT/NettyProcessor.java"
@@ -111,7 +131,8 @@ sed -i '' '/import io.quarkus.deployment.builditem.CombinedIndexBuildItem;/d' "$
 sed -i '' '/import io.quarkus.deployment.builditem.nativeimage.ReflectiveClassBuildItem;/d' "$DEST_GRPC_DEPLOYMENT/GrpcCommonProcessor.java"
 sed -i '' '/import org.jboss.jandex.ClassInfo;/d' "$DEST_GRPC_DEPLOYMENT/GrpcCommonProcessor.java"
 
-# Delete the cloned repo
+# Step 9: Cleanup
+# Remove the temporary Quarkus clone
 echo "$counter - Deleting cloned repo"
 ((counter++))
 rm -rf "quarkus"
