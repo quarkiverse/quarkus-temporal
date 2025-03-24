@@ -91,6 +91,15 @@
       "contributions": [
         "code"
       ]
+    },
+    {
+      "login": "HoutanSadafi",
+      "name": "Houtan",
+      "avatar_url": "https://avatars.githubusercontent.com/u/1937004?v=4",
+      "profile": "https://github.com/HoutanSadafi",
+      "contributions": [
+        "bug"
+      ]
     }
   ],
   "contributorsPerLine": 7,
