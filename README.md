@@ -8,6 +8,7 @@
 [![Version](https://img.shields.io/maven-central/v/io.quarkiverse.temporal/quarkus-temporal?logo=apache-maven&style=flat-square)](https://search.maven.org/artifact/io.quarkiverse.temporal/quarkus-temporal)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg?style=flat-square)](https://opensource.org/licenses/Apache-2.0)
 [![Build](https://github.com/quarkiverse/quarkus-temporal/actions/workflows/build.yml/badge.svg)](https://github.com/quarkiverse/quarkus-temporal/actions/workflows/build.yml)
+[![Static Badge for Temporal Code Exchange](https://img.shields.io/badge/Temporal-Code_Exchange_Featured-blue?style=flat-square&logo=temporal&labelColor=141414&color=444CE7)](https://temporal.io/code-exchange/quarkus-temporal) 
 
 A Quarkus extension that lets you utilize [Temporal](https://temporal.io/), orchestrating both mission-critical and mainstream workloads.
 
