@@ -2,6 +2,7 @@ package io.quarkiverse.temporal;
 
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 
 import jakarta.enterprise.inject.Any;
@@ -121,7 +122,11 @@ public class WorkerFactoryRecorder {
     public void startWorkerFactory(ShutdownContext shutdownContext) {
         WorkerFactory workerFactory = CDI.current().select(WorkerFactory.class).get();
         workerFactory.start();
-        shutdownContext.addShutdownTask(workerFactory::shutdown);
+        shutdownContext.addShutdownTask(() -> {
+            workerFactory.shutdown();
+            runtimeConfig.terminationTimeout()
+                    .ifPresent(timeout -> workerFactory.awaitTermination(timeout.toMillis(), TimeUnit.MILLISECONDS));
+        });
     }
 
     public static String createQueueName(String name, WorkerRuntimeConfig config) {

@@ -69,6 +69,8 @@ public class WorkflowServiceStubsRecorder {
                 .setTarget(connection.target())
                 .setEnableHttps(connection.enableHttps());
 
+        connection.rpcLongPollTimeout().ifPresent(builder::setRpcLongPollTimeout);
+
         // API KEY
         if (connection.apiKey().isPresent()) {
             // Create a Metadata object with the Temporal namespace header key.
@@ -118,6 +120,8 @@ public class WorkflowServiceStubsRecorder {
                                 GrpcClient.Literal.of("temporal-client")))
                 .setMetricsScope(createScope(isMicrometerEnabled))
                 .setRpcRetryOptions(createRpcRetryOptions(connection.rpcRetry()));
+
+        connection.rpcLongPollTimeout().ifPresent(builder::setRpcLongPollTimeout);
 
         MTLSRuntimeConfig mtls = connection.mtls();
 

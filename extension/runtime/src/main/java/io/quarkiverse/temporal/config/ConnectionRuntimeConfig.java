@@ -1,5 +1,6 @@
 package io.quarkiverse.temporal.config;
 
+import java.time.Duration;
 import java.util.Optional;
 
 import io.grpc.ManagedChannelBuilder;
@@ -39,4 +40,11 @@ public interface ConnectionRuntimeConfig {
      * mTLS Options.
      */
     MTLSRuntimeConfig mtls();
+
+    /**
+     * Sets the rpc timeout value for the following long poll based operations: PollWorkflowTaskQueue, PollActivityTaskQueue,
+     * GetWorkflowExecutionHistory.
+     * If not set uses Temporal default timeout of 70 seconds.
+     */
+    Optional<Duration> rpcLongPollTimeout();
 }

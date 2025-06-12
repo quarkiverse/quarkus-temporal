@@ -42,9 +42,8 @@ public class ClientConfigTest {
                                     "quarkus.temporal.connection.rpc-retry.maximum-attempts: 19\n" +
                                     "quarkus.temporal.connection.rpc-retry.maximum-interval: 23s\n" +
                                     "quarkus.temporal.connection.rpc-retry.maximum-jitter-coefficient: 0.29\n" +
-                                    "quarkus.temporal.connection.rpc-retry.do-not-retry[0]: NOT_FOUND\n"
-
-                            ),
+                                    "quarkus.temporal.connection.rpc-retry.do-not-retry[0]: NOT_FOUND\n" +
+                                    "quarkus.temporal.connection.rpc-long-poll-timeout: 10s\n"),
                             "application.properties"));
 
     @Inject
@@ -62,6 +61,7 @@ public class ClientConfigTest {
     public void testWorkflowServiceStubsConfiguration() {
         WorkflowServiceStubsOptions options = client.getWorkflowServiceStubs().getOptions();
         Assertions.assertEquals("customTarget:1234", options.getTarget());
+        Assertions.assertEquals(Duration.of(10, ChronoUnit.SECONDS), options.getRpcLongPollTimeout());
         Assertions.assertTrue(options.getEnableHttps());
     }
 

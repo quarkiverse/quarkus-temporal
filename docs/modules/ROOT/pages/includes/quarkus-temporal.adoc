@@ -217,6 +217,27 @@ endif::add-copy-button-to-env-var[]
 |link:https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/time/Duration.html[Duration] link:#duration-note-anchor-quarkus-temporal_quarkus-temporal[icon:question-circle[title=More information about the Duration format]]
 |`15S`
 
+a| [[quarkus-temporal_quarkus-temporal-termination-timeout]] [.property-path]##link:#quarkus-temporal_quarkus-temporal-termination-timeout[`quarkus.temporal.termination-timeout`]##
+ifdef::add-copy-button-to-config-props[]
+config_property_copy_button:+++quarkus.temporal.termination-timeout+++[]
+endif::add-copy-button-to-config-props[]
+
+
+[.description]
+--
+When set blocks shutdown until all tasks are completed or timeout is reached.
+
+
+ifdef::add-copy-button-to-env-var[]
+Environment variable: env_var_with_copy_button:+++QUARKUS_TEMPORAL_TERMINATION_TIMEOUT+++[]
+endif::add-copy-button-to-env-var[]
+ifndef::add-copy-button-to-env-var[]
+Environment variable: `+++QUARKUS_TEMPORAL_TERMINATION_TIMEOUT+++`
+endif::add-copy-button-to-env-var[]
+--
+|link:https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/time/Duration.html[Duration] link:#duration-note-anchor-quarkus-temporal_quarkus-temporal[icon:question-circle[title=More information about the Duration format]]
+|
+
 a|icon:lock[title=Fixed at build time] [[quarkus-temporal_quarkus-temporal-worker-build-id]] [.property-path]##link:#quarkus-temporal_quarkus-temporal-worker-build-id[`quarkus.temporal.worker.build-id`]##
 ifdef::add-copy-button-to-config-props[]
 config_property_copy_button:+++quarkus.temporal.worker.build-id+++[]
@@ -1241,6 +1262,27 @@ Environment variable: `+++QUARKUS_TEMPORAL_CONNECTION_MTLS_PASSWORD+++`
 endif::add-copy-button-to-env-var[]
 --
 |string
+|
+
+a| [[quarkus-temporal_quarkus-temporal-connection-rpc-long-poll-timeout]] [.property-path]##link:#quarkus-temporal_quarkus-temporal-connection-rpc-long-poll-timeout[`quarkus.temporal.connection.rpc-long-poll-timeout`]##
+ifdef::add-copy-button-to-config-props[]
+config_property_copy_button:+++quarkus.temporal.connection.rpc-long-poll-timeout+++[]
+endif::add-copy-button-to-config-props[]
+
+
+[.description]
+--
+Sets the rpc timeout value for the following long poll based operations: PollWorkflowTaskQueue, PollActivityTaskQueue, GetWorkflowExecutionHistory. If not set uses Temporal default timeout of 70 seconds.
+
+
+ifdef::add-copy-button-to-env-var[]
+Environment variable: env_var_with_copy_button:+++QUARKUS_TEMPORAL_CONNECTION_RPC_LONG_POLL_TIMEOUT+++[]
+endif::add-copy-button-to-env-var[]
+ifndef::add-copy-button-to-env-var[]
+Environment variable: `+++QUARKUS_TEMPORAL_CONNECTION_RPC_LONG_POLL_TIMEOUT+++`
+endif::add-copy-button-to-env-var[]
+--
+|link:https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/time/Duration.html[Duration] link:#duration-note-anchor-quarkus-temporal_quarkus-temporal[icon:question-circle[title=More information about the Duration format]]
 |
 
 
