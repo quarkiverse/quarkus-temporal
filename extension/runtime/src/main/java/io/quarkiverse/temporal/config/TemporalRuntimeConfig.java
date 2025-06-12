@@ -68,4 +68,9 @@ public interface TemporalRuntimeConfig {
     @WithDefaults
     @WithUnnamedKey(DEFAULT_WORKER_NAME)
     Map<String, WorkflowRuntimeConfig> workflow();
+
+    /**
+     * When set blocks shutdown until all tasks are completed or timeout is reached.
+     */
+    Optional<Duration> terminationTimeout();
 }
