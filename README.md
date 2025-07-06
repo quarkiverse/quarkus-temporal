@@ -1,7 +1,11 @@
 <div align="center">
-<img src="https://raw.githubusercontent.com/quarkiverse/quarkus-temporal/master/docs/modules/ROOT/assets/images/quarkus.svg" width="67" height="70" ><img src="https://raw.githubusercontent.com/quarkiverse/quarkus-temporal/master/docs/modules/ROOT/assets/images/plus-sign.svg" height="70" ><img src="https://raw.githubusercontent.com/quarkiverse/quarkus-temporal/master/docs/modules/ROOT/assets/images/temporal_logo.svg" height="70" >
+  <div style="display: flex; align-items: center; justify-content: center; gap: 8px;">
+    <img src="https://raw.githubusercontent.com/quarkiverse/.github/main/assets/images/quarkus.svg" alt="Quarkus logo" style="height: 70px; width: auto;">
+    <img src="https://raw.githubusercontent.com/quarkiverse/.github/main/assets/images/plus-sign.svg" alt="Plus sign" style="height: 70px; width: auto;">
+    <img src="https://raw.githubusercontent.com/quarkiverse/quarkus-temporal/master/docs/modules/ROOT/assets/images/temporal_logo.svg" alt="Temporal logo" style="height: 70px; width: auto;">
+  </div>
 
-# Quarkus Temporal
+  <h1>Quarkus Temporal</h1>
 </div>
 <br>
 
