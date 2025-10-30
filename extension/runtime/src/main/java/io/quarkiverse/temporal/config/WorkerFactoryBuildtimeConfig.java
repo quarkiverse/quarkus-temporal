@@ -9,7 +9,7 @@ public interface WorkerFactoryBuildtimeConfig {
      * Use virtual threads for workflow execution. Default is false.
      */
     @WithDefault("false")
-    boolean useVirtualWorkflowThreads();
+    boolean usingVirtualWorkflowThreads();
 
     /**
      * Maximum number of threads the worker factory can use to run workflows. Default is 600.

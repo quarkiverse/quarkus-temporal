@@ -45,7 +45,7 @@ public class WorkerFactoryRecorder {
         WorkerFactoryOptions.Builder options = WorkerFactoryOptions.newBuilder();
 
         var wf = runtimeConfig.workerFactory();
-        options.setUsingVirtualWorkflowThreads(wf.useVirtualWorkflowThreads());
+        options.setUsingVirtualWorkflowThreads(wf.usingVirtualWorkflowThreads());
         options.setMaxWorkflowThreadCount(wf.maxWorkflowThreadCount());
         options.setWorkflowCacheSize(wf.workflowCacheSize());
 
