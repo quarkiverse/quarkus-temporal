@@ -44,6 +44,11 @@ public class WorkerFactoryRecorder {
             SyntheticCreationalContext<WorkerFactory> context) {
         WorkerFactoryOptions.Builder options = WorkerFactoryOptions.newBuilder();
 
+        var wf = runtimeConfig.workerFactory();
+        options.setUsingVirtualWorkflowThreads(wf.useVirtualWorkflowThreads());
+        options.setMaxWorkflowThreadCount(wf.maxWorkflowThreadCount());
+        options.setWorkflowCacheSize(wf.workflowCacheSize());
+
         Instance<WorkerInterceptor> interceptorInstance = context.getInjectedReference(new TypeLiteral<>() {
         }, Any.Literal.INSTANCE);
 
@@ -58,7 +63,7 @@ public class WorkerFactoryRecorder {
     }
 
     WorkerOptions createWorkerOptions(WorkerRuntimeConfig workerRuntimeConfig,
-            WorkerBuildtimeConfig workerBuildtimeConfig) {
+                                      WorkerBuildtimeConfig workerBuildtimeConfig) {
         if (workerRuntimeConfig == null) {
             return WorkerOptions.getDefaultInstance();
         }
