@@ -63,7 +63,7 @@ public class WorkerFactoryRecorder {
     }
 
     WorkerOptions createWorkerOptions(WorkerRuntimeConfig workerRuntimeConfig,
-                                      WorkerBuildtimeConfig workerBuildtimeConfig) {
+            WorkerBuildtimeConfig workerBuildtimeConfig) {
         if (workerRuntimeConfig == null) {
             return WorkerOptions.getDefaultInstance();
         }
