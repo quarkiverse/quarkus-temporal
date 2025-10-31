@@ -1421,6 +1421,74 @@ endif::add-copy-button-to-env-var[]
 |
 
 
+h|[[quarkus-temporal_section_quarkus-temporal-worker-factory]] [.section-name.section-level0]##link:#quarkus-temporal_section_quarkus-temporal-worker-factory[Configuration for the worker factory that drives how workflows and activities are executed]##
+h|Type
+h|Default
+
+a| [[quarkus-temporal_quarkus-temporal-worker-factory-using-virtual-workflow-threads]] [.property-path]##link:#quarkus-temporal_quarkus-temporal-worker-factory-using-virtual-workflow-threads[`quarkus.temporal.worker-factory.using-virtual-workflow-threads`]##
+ifdef::add-copy-button-to-config-props[]
+config_property_copy_button:+++quarkus.temporal.worker-factory.using-virtual-workflow-threads+++[]
+endif::add-copy-button-to-config-props[]
+
+
+[.description]
+--
+Use virtual threads for workflow execution. Default is false.
+
+
+ifdef::add-copy-button-to-env-var[]
+Environment variable: env_var_with_copy_button:+++QUARKUS_TEMPORAL_WORKER_FACTORY_USING_VIRTUAL_WORKFLOW_THREADS+++[]
+endif::add-copy-button-to-env-var[]
+ifndef::add-copy-button-to-env-var[]
+Environment variable: `+++QUARKUS_TEMPORAL_WORKER_FACTORY_USING_VIRTUAL_WORKFLOW_THREADS+++`
+endif::add-copy-button-to-env-var[]
+--
+|boolean
+|`false`
+
+a| [[quarkus-temporal_quarkus-temporal-worker-factory-max-workflow-thread-count]] [.property-path]##link:#quarkus-temporal_quarkus-temporal-worker-factory-max-workflow-thread-count[`quarkus.temporal.worker-factory.max-workflow-thread-count`]##
+ifdef::add-copy-button-to-config-props[]
+config_property_copy_button:+++quarkus.temporal.worker-factory.max-workflow-thread-count+++[]
+endif::add-copy-button-to-config-props[]
+
+
+[.description]
+--
+Maximum number of threads the worker factory can use to run workflows. Default is 600.
+
+
+ifdef::add-copy-button-to-env-var[]
+Environment variable: env_var_with_copy_button:+++QUARKUS_TEMPORAL_WORKER_FACTORY_MAX_WORKFLOW_THREAD_COUNT+++[]
+endif::add-copy-button-to-env-var[]
+ifndef::add-copy-button-to-env-var[]
+Environment variable: `+++QUARKUS_TEMPORAL_WORKER_FACTORY_MAX_WORKFLOW_THREAD_COUNT+++`
+endif::add-copy-button-to-env-var[]
+--
+|int
+|`600`
+
+a| [[quarkus-temporal_quarkus-temporal-worker-factory-workflow-cache-size]] [.property-path]##link:#quarkus-temporal_quarkus-temporal-worker-factory-workflow-cache-size[`quarkus.temporal.worker-factory.workflow-cache-size`]##
+ifdef::add-copy-button-to-config-props[]
+config_property_copy_button:+++quarkus.temporal.worker-factory.workflow-cache-size+++[]
+endif::add-copy-button-to-config-props[]
+
+
+[.description]
+--
+Number of workflow instances to keep in cache per worker factory. Default is 600.
+
+
+ifdef::add-copy-button-to-env-var[]
+Environment variable: env_var_with_copy_button:+++QUARKUS_TEMPORAL_WORKER_FACTORY_WORKFLOW_CACHE_SIZE+++[]
+endif::add-copy-button-to-env-var[]
+ifndef::add-copy-button-to-env-var[]
+Environment variable: `+++QUARKUS_TEMPORAL_WORKER_FACTORY_WORKFLOW_CACHE_SIZE+++`
+endif::add-copy-button-to-env-var[]
+--
+|int
+|`600`
+
+
 |===
 
 ifndef::no-duration-note[]

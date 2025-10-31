@@ -70,6 +70,12 @@ public interface TemporalRuntimeConfig {
     Map<String, WorkflowRuntimeConfig> workflow();
 
     /**
+     * Configuration for the worker factory that drives how workflows and activities are executed.
+     */
+    @ConfigDocSection
+    WorkerFactoryBuildtimeConfig workerFactory();
+
+    /**
      * When set blocks shutdown until all tasks are completed or timeout is reached.
      */
     Optional<Duration> terminationTimeout();
