@@ -100,6 +100,15 @@
       "contributions": [
         "bug"
       ]
+    },
+    {
+      "login": "marcalc",
+      "name": "Marcos Alcantara",
+      "avatar_url": "https://avatars.githubusercontent.com/u/194899?v=4",
+      "profile": "https://github.com/marcalc",
+      "contributions": [
+        "code"
+      ]
     }
   ],
   "contributorsPerLine": 7,
