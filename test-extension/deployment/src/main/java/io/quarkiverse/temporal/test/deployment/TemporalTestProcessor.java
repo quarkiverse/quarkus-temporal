@@ -22,6 +22,7 @@ import io.quarkus.deployment.builditem.CapabilityBuildItem;
 import io.quarkus.deployment.builditem.FeatureBuildItem;
 import io.temporal.client.WorkflowClient;
 import io.temporal.common.context.ContextPropagator;
+import io.temporal.common.converter.DataConverter;
 import io.temporal.common.interceptors.WorkflowClientInterceptor;
 import io.temporal.testing.TestWorkflowEnvironment;
 import io.temporal.worker.WorkerFactory;
@@ -63,6 +64,8 @@ public class TemporalTestProcessor {
                         ParameterizedType.create(Instance.class, ClassType.create(WorkflowClientInterceptor.class)),
                         AnnotationInstance.builder(Any.class).build())
                 .addInjectionPoint(ParameterizedType.create(Instance.class, ClassType.create(ContextPropagator.class)),
+                        AnnotationInstance.builder(Any.class).build())
+                .addInjectionPoint(ParameterizedType.create(Instance.class, ClassType.create(DataConverter.class)),
                         AnnotationInstance.builder(Any.class).build())
                 .createWith(recorder.createTestWorkflowClient(testWorkflowEnvironmentBuildItem.testWorkflowEnvironment))
                 .setRuntimeInit()

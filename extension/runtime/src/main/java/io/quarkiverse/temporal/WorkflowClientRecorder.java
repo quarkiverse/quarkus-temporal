@@ -7,7 +7,6 @@ import java.util.stream.Collectors;
 
 import jakarta.enterprise.inject.Any;
 import jakarta.enterprise.inject.Instance;
-import jakarta.enterprise.inject.spi.CDI;
 import jakarta.enterprise.util.TypeLiteral;
 
 import io.quarkiverse.temporal.config.TemporalBuildtimeConfig;
@@ -66,7 +65,8 @@ public class WorkflowClientRecorder {
                 .setNamespace(runtimeConfig.namespace());
 
         // obtain the data converter from CDI at runtime if available
-        Instance<DataConverter> dataConverterInstance = CDI.current().select(DataConverter.class);
+        Instance<DataConverter> dataConverterInstance = context.getInjectedReference(new TypeLiteral<>() {
+        }, Any.Literal.INSTANCE);
         DataConverter dataConverter = dataConverterInstance.isResolvable()
                 ? dataConverterInstance.get()
                 : null;
