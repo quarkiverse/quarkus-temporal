@@ -5,7 +5,6 @@ import jakarta.enterprise.inject.Instance;
 import jakarta.enterprise.inject.Produces;
 
 import io.temporal.common.converter.DataConverter;
-import io.temporal.common.converter.DefaultDataConverter;
 
 @ApplicationScoped
 public class TemporalDataConverterProducer {
@@ -21,6 +20,6 @@ public class TemporalDataConverterProducer {
     public DataConverter dataConverter() {
         return userProvided.isResolvable()
                 ? userProvided.get()
-                : DefaultDataConverter.newDefaultInstance();
+                : null;
     }
 }
