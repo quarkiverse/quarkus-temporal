@@ -11,7 +11,6 @@ import io.restassured.RestAssured;
  */
 @QuarkusTest
 public class DataConverterCdiIT {
-
     @Test
     void shouldUseCdiProvidedDataConverter() {
         String result = RestAssured.get("/converter-probe")

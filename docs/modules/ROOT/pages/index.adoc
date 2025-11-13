@@ -419,6 +419,47 @@ public class MDCContextPropagator implements ContextPropagator {
 }
 ----
 
+== Data Converter
+
+You can customize how data is serialized and deserialized by providing a custom DataConverter. To do this, create a CDI producer for the DataConverter:
+
+[source,java]
+----
+@ApplicationScoped
+public class TemporalDataConverterProducer {
+
+    @Produces
+    public DataConverter produceDataConverter() {
+        return DataConverter.newDefaultInstance();
+    }
+}
+----
+
+The produced DataConverter will be automatically used by the WorkflowClient. You can customize the DataConverter by adding your own PayloadConverter implementations or by using the existing ones:
+
+[source,java]
+----
+@ApplicationScoped
+public class TemporalDataConverterProducer {
+
+    @Produces
+    public DataConverter produceDataConverter() {
+        // Create a custom ObjectMapper based on the DefaultObjectMapper
+        ObjectMapper objectMapper = JacksonJsonPayloadConverter.newDefaultObjectMapper()
+                    .registerKotlinModule()
+                    .registerModule(ParameterNamesModule())
+
+        // Create JacksonJsonPayloadConverter with custom ObjectMapper
+        JacksonJsonPayloadConverter jacksonConverter = 
+            new JacksonJsonPayloadConverter(objectMapper);
+
+        // Use the custom converter in the DataConverter
+        return DefaultDataConverter.newDefaultInstance()
+            .withPayloadConverterOverrides(jacksonConverter);
+    }
+}
+----
+
 == Interceptors
 
 Interceptors are a mechanism for modifying inbound and outbound SDK calls. Interceptors are commonly used to add tracing and authorization to the scheduling and execution of Workflows and Activities. You can compare these to "middleware" in other frameworks.
@@ -467,6 +508,7 @@ public class TestWorkflowClientInterceptor implements WorkflowClientInterceptor 
     }
 }
 ----
+
 
 == Temporal Cloud
 
