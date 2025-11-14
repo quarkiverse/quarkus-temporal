@@ -468,6 +468,49 @@ public class TestWorkflowClientInterceptor implements WorkflowClientInterceptor 
 }
 ----
 
+== Data Converter
+
+You can customize how data is serialized and deserialized by providing a custom DataConverter. To do this, create a CDI producer for the DataConverter:
+
+[source,java]
+----
+@ApplicationScoped
+public class CustomDataConverterProducer {
+
+    @Produces
+    public DataConverter produceDataConverter() {
+        return new CustomDataConverter();
+    }
+}
+----
+
+The produced DataConverter will be automatically used by the WorkflowClient. You can customize the DataConverter by adding your own PayloadConverter implementations or by using the existing ones:
+
+[source,java]
+----
+@ApplicationScoped
+public class TemporalKotlinDataConverterProducer {
+
+    @Produces
+    public DataConverter produceDataConverter() {
+        // Create a custom ObjectMapper based on the DefaultObjectMapper
+        ObjectMapper objectMapper = JacksonJsonPayloadConverter.newDefaultObjectMapper()
+                    .findAndRegisterModules()
+                    // or more specifically
+                    // .registerKotlinModule()
+                    // .registerModule(ParameterNamesModule())
+
+        // Create JacksonJsonPayloadConverter with custom ObjectMapper
+        JacksonJsonPayloadConverter jacksonConverter =
+            new JacksonJsonPayloadConverter(objectMapper);
+
+        // Use the custom converter in the DataConverter
+        return DefaultDataConverter.newDefaultInstance()
+            .withPayloadConverterOverrides(jacksonConverter);
+    }
+}
+----
+
 == Temporal Cloud
 
 You may be using the Temporal Cloud offering instead of self-hosting. Temporal Cloud supports both TLS and API key authentication.

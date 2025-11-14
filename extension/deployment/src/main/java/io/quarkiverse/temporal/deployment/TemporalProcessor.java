@@ -72,6 +72,7 @@ import io.quarkus.smallrye.health.deployment.spi.HealthBuildItem;
 import io.temporal.activity.ActivityInterface;
 import io.temporal.client.WorkflowClient;
 import io.temporal.common.context.ContextPropagator;
+import io.temporal.common.converter.DataConverter;
 import io.temporal.common.interceptors.WorkerInterceptor;
 import io.temporal.common.interceptors.WorkflowClientInterceptor;
 import io.temporal.opentracing.OpenTracingClientInterceptor;
@@ -374,6 +375,9 @@ public class TemporalProcessor {
                         ParameterizedType.create(Instance.class, ClassType.create(WorkflowClientInterceptor.class)),
                         AnnotationInstance.builder(Any.class).build())
                 .addInjectionPoint(ParameterizedType.create(Instance.class, ClassType.create(ContextPropagator.class)),
+                        AnnotationInstance.builder(Any.class).build())
+                .addInjectionPoint(
+                        ParameterizedType.create(Instance.class, ClassType.create(DataConverter.class)),
                         AnnotationInstance.builder(Any.class).build())
                 .createWith(clientRecorder.createWorkflowClient())
                 .setRuntimeInit()

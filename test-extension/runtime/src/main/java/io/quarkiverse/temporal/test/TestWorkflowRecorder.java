@@ -1,26 +1,50 @@
 package io.quarkiverse.temporal.test;
 
+import java.util.Optional;
 import java.util.function.Function;
 
+import io.quarkiverse.temporal.WorkflowClientOptionsSupport;
 import io.quarkus.arc.SyntheticCreationalContext;
-import io.quarkus.runtime.RuntimeValue;
 import io.quarkus.runtime.annotations.Recorder;
 import io.temporal.client.WorkflowClient;
+import io.temporal.client.WorkflowClientOptions;
+import io.temporal.testing.TestEnvironmentOptions;
 import io.temporal.testing.TestWorkflowEnvironment;
 import io.temporal.worker.WorkerFactory;
 
 @Recorder
 public class TestWorkflowRecorder {
-    public TestWorkflowEnvironment createTestWorkflowEnvironment() {
-        return TestWorkflowEnvironment.newInstance();
+    public Function<SyntheticCreationalContext<TestWorkflowEnvironment>, TestWorkflowEnvironment> createTestWorkflowEnvironment() {
+        return context -> {
+            TestEnvironmentOptions options = TestEnvironmentOptions.newBuilder()
+                    .setWorkflowClientOptions(createTestWorkflowClientOptions(context))
+                    .build();
+
+            return TestWorkflowEnvironment.newInstance(options);
+        };
     }
 
-    public Function<SyntheticCreationalContext<WorkflowClient>, WorkflowClient> createTestWorkflowClient(
-            TestWorkflowEnvironment testWorkflowEnvironment) {
-        return context -> testWorkflowEnvironment.getWorkflowClient();
+    /**
+     * Builds the {@link WorkflowClientOptions} used by the mock TestWorkflowEnvironment, while honoring the CDI wiring.
+     */
+    public WorkflowClientOptions createTestWorkflowClientOptions(SyntheticCreationalContext<?> context) {
+        return WorkflowClientOptionsSupport.buildFromContext(
+                context,
+                "default",
+                Optional.empty());
     }
 
-    public RuntimeValue<WorkerFactory> createTestWorkerFactory(TestWorkflowEnvironment testWorkflowEnvironment) {
-        return new RuntimeValue<>(testWorkflowEnvironment.getWorkerFactory());
+    public Function<SyntheticCreationalContext<WorkflowClient>, WorkflowClient> createTestWorkflowClient() {
+        return context -> {
+            TestWorkflowEnvironment testWorkflowEnvironment = context.getInjectedReference(TestWorkflowEnvironment.class);
+            return testWorkflowEnvironment.getWorkflowClient();
+        };
+    }
+
+    public Function<SyntheticCreationalContext<WorkerFactory>, WorkerFactory> createTestWorkerFactory() {
+        return context -> {
+            TestWorkflowEnvironment testWorkflowEnvironment = context.getInjectedReference(TestWorkflowEnvironment.class);
+            return testWorkflowEnvironment.getWorkerFactory();
+        };
     }
 }
