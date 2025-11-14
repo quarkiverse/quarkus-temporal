@@ -1,13 +1,6 @@
 package io.quarkiverse.temporal;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.function.Function;
-import java.util.stream.Collectors;
-
-import jakarta.enterprise.inject.Any;
-import jakarta.enterprise.inject.Instance;
-import jakarta.enterprise.util.TypeLiteral;
 
 import io.quarkiverse.temporal.config.TemporalBuildtimeConfig;
 import io.quarkiverse.temporal.config.TemporalRuntimeConfig;
@@ -15,9 +8,6 @@ import io.quarkus.arc.SyntheticCreationalContext;
 import io.quarkus.runtime.annotations.Recorder;
 import io.temporal.client.WorkflowClient;
 import io.temporal.client.WorkflowClientOptions;
-import io.temporal.common.context.ContextPropagator;
-import io.temporal.common.converter.DataConverter;
-import io.temporal.common.interceptors.WorkflowClientInterceptor;
 import io.temporal.serviceclient.WorkflowServiceStubs;
 
 /**
@@ -57,48 +47,15 @@ public class WorkflowClientRecorder {
      */
     public WorkflowClientOptions createWorkflowClientOptions(
             SyntheticCreationalContext<WorkflowClient> context) {
+
         if (runtimeConfig == null) {
             return WorkflowClientOptions.getDefaultInstance();
         }
 
-        WorkflowClientOptions.Builder builder = WorkflowClientOptions.newBuilder()
-                .setNamespace(runtimeConfig.namespace());
-
-        // obtain the data converter from CDI at runtime if available
-        Instance<DataConverter> dataConverterInstance = context.getInjectedReference(new TypeLiteral<>() {
-        }, Any.Literal.INSTANCE);
-        DataConverter dataConverter = dataConverterInstance.isResolvable()
-                ? dataConverterInstance.get()
-                : null;
-
-        if (dataConverter != null) {
-            builder.setDataConverter(dataConverter);
-        }
-
-        runtimeConfig.identity().ifPresent(builder::setIdentity);
-
-        // discover interceptors
-        Instance<WorkflowClientInterceptor> interceptorInstance = context.getInjectedReference(new TypeLiteral<>() {
-        }, Any.Literal.INSTANCE);
-
-        List<WorkflowClientInterceptor> interceptors = interceptorInstance.stream()
-                .collect(Collectors.toCollection(ArrayList::new));
-
-        if (!interceptors.isEmpty()) {
-            builder.setInterceptors(interceptors.toArray(new WorkflowClientInterceptor[0]));
-        }
-
-        // discover propagators
-        Instance<ContextPropagator> contextPropagatorInstance = context.getInjectedReference(new TypeLiteral<>() {
-        }, Any.Literal.INSTANCE);
-
-        List<ContextPropagator> propagators = contextPropagatorInstance.stream()
-                .collect(Collectors.toCollection(ArrayList::new));
-        if (!propagators.isEmpty()) {
-            builder.setContextPropagators(propagators);
-        }
-
-        return builder.validateAndBuildWithDefaults();
+        return WorkflowClientOptionsSupport.buildFromContext(
+                context,
+                runtimeConfig.namespace(),
+                runtimeConfig.identity());
     }
 
     /**

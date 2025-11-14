@@ -43,47 +43,51 @@ public class TemporalTestProcessor {
 
     @Record(ExecutionTime.RUNTIME_INIT)
     @BuildStep(onlyIf = TemporalProcessor.EnableMock.class)
-    TestWorkflowEnvironmentBuildItem recordTestEnvironment(
-            TestWorkflowRecorder recorder) {
-        TestWorkflowEnvironment testWorkflowEnvironment = recorder.createTestWorkflowEnvironment();
-        return new TestWorkflowEnvironmentBuildItem(testWorkflowEnvironment);
+    SyntheticBeanBuildItem recordTestEnvironment(TestWorkflowRecorder recorder) {
+        return SyntheticBeanBuildItem
+                .configure(TestWorkflowEnvironment.class)
+                .scope(Singleton.class)
+                .unremovable()
+                .addInjectionPoint(
+                        ParameterizedType.create(Instance.class, ClassType.create(WorkflowClientInterceptor.class)),
+                        AnnotationInstance.builder(Any.class).build())
+                .addInjectionPoint(
+                        ParameterizedType.create(Instance.class, ClassType.create(ContextPropagator.class)),
+                        AnnotationInstance.builder(Any.class).build())
+                .addInjectionPoint(
+                        ParameterizedType.create(Instance.class, ClassType.create(DataConverter.class)),
+                        AnnotationInstance.builder(Any.class).build())
+                .createWith(recorder.createTestWorkflowEnvironment())
+                .setRuntimeInit()
+                .done();
     }
 
     @Record(ExecutionTime.RUNTIME_INIT)
     @BuildStep(onlyIf = TemporalProcessor.EnableMock.class)
-    SyntheticBeanBuildItem recordWorkflowClient(
-            TestWorkflowEnvironmentBuildItem testWorkflowEnvironmentBuildItem,
-            TestWorkflowRecorder recorder) {
+    SyntheticBeanBuildItem recordWorkflowClient(TestWorkflowRecorder recorder) {
 
         return SyntheticBeanBuildItem
                 .configure(WorkflowClient.class)
                 .scope(ApplicationScoped.class)
                 .unremovable()
                 .defaultBean()
-                .addInjectionPoint(
-                        ParameterizedType.create(Instance.class, ClassType.create(WorkflowClientInterceptor.class)),
-                        AnnotationInstance.builder(Any.class).build())
-                .addInjectionPoint(ParameterizedType.create(Instance.class, ClassType.create(ContextPropagator.class)),
-                        AnnotationInstance.builder(Any.class).build())
-                .addInjectionPoint(ParameterizedType.create(Instance.class, ClassType.create(DataConverter.class)),
-                        AnnotationInstance.builder(Any.class).build())
-                .createWith(recorder.createTestWorkflowClient(testWorkflowEnvironmentBuildItem.testWorkflowEnvironment))
+                .addInjectionPoint(ClassType.create(TestWorkflowEnvironment.class))
+                .createWith(recorder.createTestWorkflowClient())
                 .setRuntimeInit()
                 .done();
     }
 
     @BuildStep(onlyIf = TemporalProcessor.EnableMock.class)
     @Record(ExecutionTime.RUNTIME_INIT)
-    SyntheticBeanBuildItem produceWorkerFactorySyntheticBean(
-            TestWorkflowEnvironmentBuildItem testWorkflowEnvironmentBuildItem,
-            TestWorkflowRecorder recorder) {
+    SyntheticBeanBuildItem produceWorkerFactorySyntheticBean(TestWorkflowRecorder recorder) {
         return SyntheticBeanBuildItem
                 .configure(WorkerFactory.class)
                 .scope(Singleton.class)
                 .unremovable()
                 .defaultBean()
+                .addInjectionPoint(ClassType.create(TestWorkflowEnvironment.class))
                 .addInjectionPoint(ClassType.create(WorkflowClient.class))
-                .runtimeValue(recorder.createTestWorkerFactory(testWorkflowEnvironmentBuildItem.testWorkflowEnvironment))
+                .createWith(recorder.createTestWorkerFactory())
                 .setRuntimeInit()
                 .done();
     }

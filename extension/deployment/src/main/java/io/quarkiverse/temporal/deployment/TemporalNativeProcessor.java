@@ -21,6 +21,7 @@ import io.temporal.activity.ActivityInterface;
 import io.temporal.client.ActivityCompletionClient;
 import io.temporal.client.WorkflowClient;
 import io.temporal.client.schedules.ScheduleClient;
+import io.temporal.common.converter.JacksonJsonPayloadConverter;
 import io.temporal.internal.sync.AsyncInternal;
 import io.temporal.internal.sync.StubMarker;
 import io.temporal.serviceclient.CloudServiceStubs;
@@ -49,6 +50,14 @@ public class TemporalNativeProcessor {
                 .builder(NettyChannelProvider.class)
                 .methods()
                 .reason(getClass().getName() + " built-in provider")
+                .build());
+
+        reflectiveClass.produce(ReflectiveClassBuildItem
+                .builder(JacksonJsonPayloadConverter.class)
+                .constructors()
+                .methods()
+                .fields()
+                .reason("Temporal DataConverter uses JacksonJsonPayloadConverter")
                 .build());
 
         nativeImageConfig.produce(NativeImageConfigBuildItem.builder()

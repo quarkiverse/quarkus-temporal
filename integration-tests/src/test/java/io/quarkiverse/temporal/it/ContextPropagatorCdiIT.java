@@ -5,25 +5,25 @@ import jakarta.inject.Inject;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import io.quarkiverse.temporal.it.util.CustomDataConverter;
+import io.quarkiverse.temporal.it.util.MDCContextPropagator;
 import io.quarkus.test.junit.QuarkusTest;
 import io.temporal.client.WorkflowClient;
 import io.temporal.client.WorkflowClientOptions;
-import io.temporal.common.converter.DataConverter;
+import io.temporal.common.context.ContextPropagator;
 
 /**
- * Ensures the DataConverter used by WorkflowClient comes from CDI.
+ * Ensures the ContextPropagator used by WorkflowClient comes from CDI.
  */
 @QuarkusTest
-public class DataConverterCdiIT {
+public class ContextPropagatorCdiIT {
     @Inject
     WorkflowClient client;
 
     @Test
-    void shouldUseCdiProvidedDataConverter() {
+    void shouldUseCdiProvidedContextPropagator() {
         WorkflowClientOptions opts = client.getOptions();
-        DataConverter dc = opts.getDataConverter();
-        String result = dc instanceof CustomDataConverter ? "CDI" : (dc == null ? "NULL" : dc.getClass().getName());
+        ContextPropagator cp = opts.getContextPropagators().get(0);
+        String result = cp instanceof MDCContextPropagator ? "CDI" : (cp == null ? "NULL" : cp.getClass().getName());
 
         Assertions.assertEquals("CDI", result);
     }
