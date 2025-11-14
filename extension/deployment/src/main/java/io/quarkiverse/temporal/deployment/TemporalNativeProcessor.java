@@ -51,14 +51,6 @@ public class TemporalNativeProcessor {
                 .reason(getClass().getName() + " built-in provider")
                 .build());
 
-        //        reflectiveClass.produce(ReflectiveClassBuildItem
-        //                .builder(JacksonJsonPayloadConverter.class)
-        //                .constructors()
-        //                .methods()
-        //                .fields()
-        //                .reason("Temporal DataConverter uses JacksonJsonPayloadConverter")
-        //                .build());
-
         nativeImageConfig.produce(NativeImageConfigBuildItem.builder()
                 .addRuntimeInitializedClass("io.grpc.netty.shaded.io.grpc.netty.GrpcSslContexts")
                 .build());
