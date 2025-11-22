@@ -140,9 +140,9 @@ public class TemporalProcessor {
     }
 
     @BuildStep
-    HealthBuildItem addHealthCheck(Capabilities capabilities, TemporalBuildtimeConfig buildtimeConfig) {
+    HealthBuildItem addHealthCheck(Capabilities capabilities, TemporalBuildtimeConfig buildTimeConfig) {
         if (capabilities.isPresent(Capability.SMALLRYE_HEALTH)) {
-            return new HealthBuildItem(TemporalHealthCheck.class.getName(), buildtimeConfig.healthEnabled());
+            return new HealthBuildItem(TemporalHealthCheck.class.getName(), buildTimeConfig.healthEnabled());
         } else {
             return null;
         }
@@ -158,25 +158,23 @@ public class TemporalProcessor {
 
         Map<DotName, Set<String>> explicitBinding = new HashMap<>();
 
-        temporalBuildtimeConfig.worker().forEach((worker, config) -> {
-            config.workflowClasses().ifPresent(classes -> {
-                for (String workflowClass : classes) {
-                    DotName className = DotName.createSimple(workflowClass);
-                    ClassInfo classInfo = beanArchiveBuildItem.getIndex().getClassByName(className);
-                    if (doesNotImplementAnnotatedInterface(beanArchiveBuildItem, classInfo, WORKFLOW_INTERFACE)) {
-                        throw new ConfigurationException("Class " + workflowClass + " is not an workflow");
-                    }
-                    explicitBinding.computeIfAbsent(className, (k) -> new HashSet<>())
-                            .add(worker);
+        temporalBuildtimeConfig.worker().forEach((worker, config) -> config.workflowClasses().ifPresent(classes -> {
+            for (String workflowClass : classes) {
+                DotName className = DotName.createSimple(workflowClass);
+                ClassInfo classInfo = beanArchiveBuildItem.getIndex().getClassByName(className);
+                if (doesNotImplementAnnotatedInterface(beanArchiveBuildItem, classInfo, WORKFLOW_INTERFACE)) {
+                    throw new ConfigurationException("Class " + workflowClass + " is not an workflow");
                 }
-            });
-        });
+                explicitBinding.computeIfAbsent(className, (k) -> new HashSet<>())
+                        .add(worker);
+            }
+        }));
 
         Collection<AnnotationInstance> workflowInterfaces = beanArchiveBuildItem.getIndex().getAnnotations(WORKFLOW_INTERFACE);
         for (AnnotationInstance workflowInterface : workflowInterfaces) {
             ClassInfo workflow = workflowInterface.target().asClass();
             Collection<ClassInfo> allKnownImplementors = beanArchiveBuildItem.getIndex()
-                    .getAllKnownImplementors(workflow.asClass().name());
+                    .getAllKnownImplementations(workflow.asClass().name());
             Set<String> seenWorkers = new HashSet<>();
             for (ClassInfo implementor : allKnownImplementors) {
                 AnnotationInstance temporalWorkflow = implementor.annotation(TEMPORAL_WORKFLOW);
@@ -204,25 +202,23 @@ public class TemporalProcessor {
             BuildProducer<ActivityImplBuildItem> producer) {
 
         Map<DotName, Set<String>> explicitBinding = new HashMap<>();
-        temporalBuildtimeConfig.worker().forEach((worker, config) -> {
-            config.activityClasses().ifPresent(classes -> {
-                for (String activityClass : classes) {
-                    DotName className = DotName.createSimple(activityClass);
-                    ClassInfo classInfo = beanArchiveBuildItem.getIndex().getClassByName(className);
-                    if (doesNotImplementAnnotatedInterface(beanArchiveBuildItem, classInfo, ACTIVITY_INTERFACE)) {
-                        throw new ConfigurationException("Class " + activityClass + " is not an activity");
-                    }
-                    explicitBinding.computeIfAbsent(DotName.createSimple(activityClass), (k) -> new HashSet<>())
-                            .add(worker);
+        temporalBuildtimeConfig.worker().forEach((worker, config) -> config.activityClasses().ifPresent(classes -> {
+            for (String activityClass : classes) {
+                DotName className = DotName.createSimple(activityClass);
+                ClassInfo classInfo = beanArchiveBuildItem.getIndex().getClassByName(className);
+                if (doesNotImplementAnnotatedInterface(beanArchiveBuildItem, classInfo, ACTIVITY_INTERFACE)) {
+                    throw new ConfigurationException("Class " + activityClass + " is not an activity");
                 }
-            });
-        });
+                explicitBinding.computeIfAbsent(DotName.createSimple(activityClass), (k) -> new HashSet<>())
+                        .add(worker);
+            }
+        }));
 
         Collection<AnnotationInstance> instances = beanArchiveBuildItem.getIndex().getAnnotations(ACTIVITY_INTERFACE);
         for (AnnotationInstance activityInterface : instances) {
             ClassInfo activity = activityInterface.target().asClass();
             Collection<ClassInfo> allKnownImplementors = beanArchiveBuildItem.getIndex()
-                    .getAllKnownImplementors(activity.name());
+                    .getAllKnownImplementations(activity.name());
             Set<String> seenWorkers = new HashSet<>();
             for (ClassInfo implementor : allKnownImplementors) {
                 AnnotationInstance temporalActivity = implementor.annotation(TEMPORAL_ACTIVITY);
@@ -311,13 +307,11 @@ public class TemporalProcessor {
     void produceActivityBeans(
             List<ActivityImplBuildItem> activities,
             BuildProducer<AdditionalBeanBuildItem> producer) {
-        activities.forEach(activity -> {
-            producer.produce(AdditionalBeanBuildItem.builder()
-                    .addBeanClass(activity.clazz)
-                    .setDefaultScope(DotName.createSimple(ApplicationScoped.class))
-                    .setUnremovable()
-                    .build());
-        });
+        activities.forEach(activity -> producer.produce(AdditionalBeanBuildItem.builder()
+                .addBeanClass(activity.clazz)
+                .setDefaultScope(DotName.createSimple(ApplicationScoped.class))
+                .setUnremovable()
+                .build()));
     }
 
     @BuildStep(onlyIf = EnableQuarkusManagedChannel.class)

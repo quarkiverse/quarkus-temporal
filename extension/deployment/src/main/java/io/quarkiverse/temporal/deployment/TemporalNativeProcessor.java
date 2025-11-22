@@ -93,7 +93,7 @@ public class TemporalNativeProcessor {
         for (var annotation : combinedIndexBuildItem.getIndex()
                 .getAnnotations(annotationInterface)) {
             for (var implementor : combinedIndexBuildItem.getIndex()
-                    .getAllKnownImplementors(annotation.target().asClass().toString())) {
+                    .getAllKnownImplementations(annotation.target().asClass().toString())) {
                 reflection.produce(ReflectiveClassBuildItem
                         .builder(implementor.asClass().toString())
                         .constructors()
