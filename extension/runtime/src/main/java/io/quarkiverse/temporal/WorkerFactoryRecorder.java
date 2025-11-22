@@ -18,6 +18,7 @@ import io.quarkiverse.temporal.config.WorkerBuildtimeConfig;
 import io.quarkiverse.temporal.config.WorkerRuntimeConfig;
 import io.quarkus.arc.SyntheticCreationalContext;
 import io.quarkus.info.GitInfo;
+import io.quarkus.runtime.RuntimeValue;
 import io.quarkus.runtime.ShutdownContext;
 import io.quarkus.runtime.annotations.Recorder;
 import io.temporal.client.WorkflowClient;
@@ -32,19 +33,26 @@ public class WorkerFactoryRecorder {
 
     private static final Logger log = Logger.getLogger(WorkerFactoryRecorder.class);
 
-    public WorkerFactoryRecorder(TemporalRuntimeConfig runtimeConfig, TemporalBuildtimeConfig buildtimeConfig) {
+    /**
+     * The runtime configuration for Temporal.
+     */
+    final RuntimeValue<TemporalRuntimeConfig> runtimeConfig;
+
+    /**
+     * The build-time configuration for Temporal.
+     */
+    final TemporalBuildtimeConfig buildtimeConfig;
+
+    public WorkerFactoryRecorder(RuntimeValue<TemporalRuntimeConfig> runtimeConfig, TemporalBuildtimeConfig buildtimeConfig) {
         this.runtimeConfig = runtimeConfig;
         this.buildtimeConfig = buildtimeConfig;
     }
-
-    final TemporalRuntimeConfig runtimeConfig;
-    final TemporalBuildtimeConfig buildtimeConfig;
 
     WorkerFactoryOptions createWorkerFactoryOptions(
             SyntheticCreationalContext<WorkerFactory> context) {
         WorkerFactoryOptions.Builder options = WorkerFactoryOptions.newBuilder();
 
-        var wf = runtimeConfig.workerFactory();
+        var wf = runtimeConfig.getValue().workerFactory();
         options.setUsingVirtualWorkflowThreads(wf.usingVirtualWorkflowThreads());
         options.setMaxWorkflowThreadCount(wf.maxWorkflowThreadCount());
         options.setWorkflowCacheSize(wf.workflowCacheSize());
@@ -111,7 +119,7 @@ public class WorkerFactoryRecorder {
     public void createWorker(String name, List<Class<?>> workflows,
             List<Class<?>> activities) {
         WorkerFactory workerFactory = CDI.current().select(WorkerFactory.class).get();
-        WorkerRuntimeConfig workerRuntimeConfig = runtimeConfig.worker().get(name);
+        WorkerRuntimeConfig workerRuntimeConfig = runtimeConfig.getValue().worker().get(name);
         WorkerBuildtimeConfig workerBuildtimeConfig = buildtimeConfig.worker().get(name);
 
         Worker worker = workerFactory.newWorker(createQueueName(name, workerRuntimeConfig),
@@ -129,7 +137,7 @@ public class WorkerFactoryRecorder {
         workerFactory.start();
         shutdownContext.addShutdownTask(() -> {
             workerFactory.shutdown();
-            runtimeConfig.terminationTimeout()
+            runtimeConfig.getValue().terminationTimeout()
                     .ifPresent(timeout -> workerFactory.awaitTermination(timeout.toMillis(), TimeUnit.MILLISECONDS));
         });
     }

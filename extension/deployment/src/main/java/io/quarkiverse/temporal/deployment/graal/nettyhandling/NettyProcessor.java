@@ -32,7 +32,6 @@ import io.quarkus.deployment.builditem.nativeimage.NativeImageResourceBuildItem;
 import io.quarkus.deployment.builditem.nativeimage.NativeImageSystemPropertyBuildItem;
 import io.quarkus.deployment.builditem.nativeimage.ReflectiveClassBuildItem;
 import io.quarkus.deployment.builditem.nativeimage.RuntimeInitializedClassBuildItem;
-import io.quarkus.deployment.builditem.nativeimage.RuntimeReinitializedClassBuildItem;
 import io.quarkus.deployment.builditem.nativeimage.UnsafeAccessedFieldBuildItem;
 import io.quarkus.deployment.logging.LogCleanupFilterBuildItem;
 
@@ -337,8 +336,8 @@ class NettyProcessor {
     }
 
     @BuildStep
-    public RuntimeReinitializedClassBuildItem reinitScheduledFutureTask() {
-        return new RuntimeReinitializedClassBuildItem(
+    public RuntimeInitializedClassBuildItem reinitScheduledFutureTask() {
+        return new RuntimeInitializedClassBuildItem(
                 "io.quarkiverse.temporal.graal.nettyhandling.runtime.graal.Holder_io_netty_util_concurrent_ScheduledFutureTask");
     }
 

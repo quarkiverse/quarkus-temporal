@@ -12,6 +12,7 @@ import io.quarkiverse.temporal.config.TemporalRuntimeConfig;
 import io.quarkiverse.temporal.config.WorkerRuntimeConfig;
 import io.quarkiverse.temporal.config.WorkflowRuntimeConfig;
 import io.quarkus.arc.SyntheticCreationalContext;
+import io.quarkus.runtime.RuntimeValue;
 import io.quarkus.runtime.annotations.Recorder;
 import io.temporal.api.enums.v1.WorkflowIdConflictPolicy;
 import io.temporal.api.enums.v1.WorkflowIdReusePolicy;
@@ -22,13 +23,20 @@ import io.temporal.common.RetryOptions;
 @Recorder
 public class WorkflowStubRecorder {
 
-    public WorkflowStubRecorder(TemporalRuntimeConfig runtimeConfig, TemporalBuildtimeConfig buildtimeConfig) {
+    /**
+     * The runtime configuration for Temporal.
+     */
+    final RuntimeValue<TemporalRuntimeConfig> runtimeConfig;
+
+    /**
+     * The build-time configuration for Temporal.
+     */
+    final TemporalBuildtimeConfig buildtimeConfig;
+
+    public WorkflowStubRecorder(RuntimeValue<TemporalRuntimeConfig> runtimeConfig, TemporalBuildtimeConfig buildtimeConfig) {
         this.runtimeConfig = runtimeConfig;
         this.buildtimeConfig = buildtimeConfig;
     }
-
-    final TemporalRuntimeConfig runtimeConfig;
-    final TemporalBuildtimeConfig buildtimeConfig;
 
     RetryOptions createRetryOptions(RetryRuntimeConfig config) {
         if (config == null) {
@@ -51,8 +59,8 @@ public class WorkflowStubRecorder {
         InjectionPoint injectionPoint = context.getInjectedReference(InjectionPoint.class);
         TemporalWorkflowStub annotation = extractAnnotationFromInjectionPoint(injectionPoint);
 
-        WorkerRuntimeConfig workerRuntimeConfig = runtimeConfig.worker().get(worker);
-        WorkflowRuntimeConfig workflowRuntimeConfig = runtimeConfig.workflow().get(annotation.group());
+        WorkerRuntimeConfig workerRuntimeConfig = runtimeConfig.getValue().worker().get(worker);
+        WorkflowRuntimeConfig workflowRuntimeConfig = runtimeConfig.getValue().workflow().get(annotation.group());
 
         WorkflowOptions.Builder options = WorkflowOptions.newBuilder()
                 .setRetryOptions(createRetryOptions(workflowRuntimeConfig.retries()))

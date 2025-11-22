@@ -6,6 +6,7 @@ import java.util.Map;
 import jakarta.inject.Singleton;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 import org.jboss.logging.Logger;
 import org.slf4j.MDC;
 
@@ -123,7 +124,7 @@ public class MDCContextPropagator implements ContextPropagator {
                 if (data != null && !data.isEmpty()) {
 
                     // Check if the value isn't {}'s
-                    if (!StringUtils.equals("{}", data.toStringUtf8())) {
+                    if (!Strings.CI.equals("{}", data.toStringUtf8())) {
                         payloadValue = GlobalDataConverter.get().fromPayload(payload, String.class, String.class);
                     }
                 }
