@@ -1,7 +1,6 @@
 package io.quarkiverse.temporal.deployment.devui;
 
 import java.util.List;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
 import io.quarkiverse.temporal.deployment.WorkerBuildItem;
@@ -10,11 +9,9 @@ import io.quarkus.deployment.IsDevelopment;
 import io.quarkus.deployment.annotations.BuildProducer;
 import io.quarkus.deployment.annotations.BuildStep;
 import io.quarkus.devui.spi.page.CardPageBuildItem;
-import io.quarkus.devui.spi.page.ExternalPageBuilder;
 import io.quarkus.devui.spi.page.Page;
 import io.quarkus.devui.spi.page.PageBuilder;
 import io.quarkus.devui.spi.page.TableDataPageBuilder;
-import io.temporal.client.WorkflowClient;
 
 /**
  * Dev UI card for displaying important details such Temporal version.
@@ -25,13 +22,6 @@ public class TemporalDevUIProcessor {
     void createCard(BuildProducer<CardPageBuildItem> cardPageBuildItemBuildProducer, List<WorkflowBuildItem> workflows,
             List<WorkerBuildItem> workers) {
         final CardPageBuildItem card = new CardPageBuildItem();
-
-        final PageBuilder<ExternalPageBuilder> versionPage = Page.externalPageBuilder("Version")
-                .icon("font-awesome-solid:book")
-                .url("https://temporal.io")
-                .doNotEmbed()
-                .staticLabel(Objects.toString(WorkflowClient.class.getPackage().getImplementationVersion(), "?"));
-        card.addPage(versionPage);
 
         final PageBuilder<TableDataPageBuilder> workflowsPage = Page.tableDataPageBuilder("Workflows")
                 .icon("font-awesome-solid:arrow-right")
@@ -57,8 +47,6 @@ public class TemporalDevUIProcessor {
 
         card.addBuildTimeData("workers",
                 workers.stream().map(WorkerBuildTimeData::new).collect(Collectors.toList()));
-
-        card.setCustomCard("qwc-temporal-card.js");
 
         cardPageBuildItemBuildProducer.produce(card);
     }
