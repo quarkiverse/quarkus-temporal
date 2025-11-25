@@ -4,7 +4,7 @@
     <parent>
         <groupId>io.quarkiverse.temporal</groupId>
         <artifactId>quarkus-temporal-extension-parent</artifactId>
-        <version>999-SNAPSHOT</version>
+        <version>0.2.1</version>
     </parent>
     <artifactId>quarkus-temporal-deployment</artifactId>
     <name>Quarkus Temporal - Deployment</name>
