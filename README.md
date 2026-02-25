@@ -95,6 +95,7 @@ Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/d
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/HoutanSadafi"><img src="https://avatars.githubusercontent.com/u/1937004?v=4?s=100" width="100px;" alt="Houtan"/><br /><sub><b>Houtan</b></sub></a><br /><a href="https://github.com/quarkiverse/quarkus-temporal/issues?q=author%3AHoutanSadafi" title="Bug reports">🐛</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/marcalc"><img src="https://avatars.githubusercontent.com/u/194899?v=4?s=100" width="100px;" alt="Marcos Alcantara"/><br /><sub><b>Marcos Alcantara</b></sub></a><br /><a href="https://github.com/quarkiverse/quarkus-temporal/commits?author=marcalc" title="Code">💻</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/jknocek"><img src="https://avatars.githubusercontent.com/u/2366799?v=4?s=100" width="100px;" alt="jknocek"/><br /><sub><b>jknocek</b></sub></a><br /><a href="https://github.com/quarkiverse/quarkus-temporal/commits?author=jknocek" title="Code">💻</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/scott-maass-rp"><img src="https://avatars.githubusercontent.com/u/201841607?v=4?s=100" width="100px;" alt="scott-maass-rp"/><br /><sub><b>scott-maass-rp</b></sub></a><br /><a href="https://github.com/quarkiverse/quarkus-temporal/commits?author=scott-maass-rp" title="Code">💻</a></td>
     </tr>
   </tbody>
 </table>
