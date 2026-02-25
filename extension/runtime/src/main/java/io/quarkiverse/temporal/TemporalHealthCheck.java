@@ -1,13 +1,15 @@
 package io.quarkiverse.temporal;
 
-import io.temporal.api.workflowservice.v1.GetSystemInfoRequest;
-import io.temporal.api.workflowservice.v1.GetSystemInfoResponse;
-import io.temporal.serviceclient.WorkflowServiceStubs;
 import jakarta.enterprise.context.ApplicationScoped;
+
 import org.eclipse.microprofile.health.HealthCheck;
 import org.eclipse.microprofile.health.HealthCheckResponse;
 import org.eclipse.microprofile.health.HealthCheckResponseBuilder;
 import org.eclipse.microprofile.health.Readiness;
+
+import io.temporal.api.workflowservice.v1.GetSystemInfoRequest;
+import io.temporal.api.workflowservice.v1.GetSystemInfoResponse;
+import io.temporal.serviceclient.WorkflowServiceStubs;
 
 @ApplicationScoped
 @Readiness
