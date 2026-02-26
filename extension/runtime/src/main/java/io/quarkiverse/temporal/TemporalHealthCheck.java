@@ -8,16 +8,16 @@ import org.eclipse.microprofile.health.HealthCheckResponseBuilder;
 import org.eclipse.microprofile.health.Readiness;
 
 import io.temporal.api.workflowservice.v1.GetSystemInfoRequest;
-import io.temporal.api.workflowservice.v1.GetSystemInfoResponse;
+import io.temporal.client.WorkflowClient;
 import io.temporal.serviceclient.WorkflowServiceStubs;
 
 @ApplicationScoped
 @Readiness
 public class TemporalHealthCheck implements HealthCheck {
-    WorkflowServiceStubs workflowServiceStubs;
+    private final WorkflowClient workflowClient;
 
-    public TemporalHealthCheck(WorkflowServiceStubs workflowServiceStubs) {
-        this.workflowServiceStubs = workflowServiceStubs;
+    public TemporalHealthCheck(WorkflowClient workflowClient) {
+        this.workflowClient = workflowClient;
     }
 
     @Override
@@ -26,18 +26,14 @@ public class TemporalHealthCheck implements HealthCheck {
         String target = "Unknown";
 
         try {
-            if (workflowServiceStubs != null) {
-                target = workflowServiceStubs.getOptions().getTarget();
-                GetSystemInfoResponse systemInfo = workflowServiceStubs
-                        .blockingStub()
-                        .getSystemInfo(GetSystemInfoRequest.newBuilder().build());
+            WorkflowServiceStubs workflowServiceStubs = workflowClient.getWorkflowServiceStubs();
+            target = workflowServiceStubs.getOptions().getTarget();
+            workflowServiceStubs
+                    .blockingStub()
+                    .getSystemInfo(GetSystemInfoRequest.newBuilder().build());
 
-                return responseBuilder.up().withData(target, "UP").build();
-            }
-            return responseBuilder
-                    .down()
-                    .withData("error", "Stubs not initialized")
-                    .build();
+            return responseBuilder.up().withData(target, "UP").build();
+
         } catch (Exception e) {
             return responseBuilder
                     .down()
