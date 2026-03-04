@@ -1,6 +1,7 @@
 package io.quarkiverse.temporal.deployment.devui;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import io.quarkiverse.temporal.deployment.WorkerBuildItem;
@@ -12,9 +13,13 @@ import io.quarkus.devui.spi.page.CardPageBuildItem;
 import io.quarkus.devui.spi.page.Page;
 import io.quarkus.devui.spi.page.PageBuilder;
 import io.quarkus.devui.spi.page.TableDataPageBuilder;
+import io.temporal.client.WorkflowClient;
 
 /**
- * Dev UI card for displaying important details such Temporal version.
+ * Quarkus deployment processor that contributes the Temporal card/pages to Dev UI.
+ *
+ * This processor runs only in dev mode and publishes build-time metadata (workers/workflows)
+ * so developers can inspect extension wiring from the Quarkus Dev UI.
  */
 public class TemporalDevUIProcessor {
 
@@ -22,6 +27,10 @@ public class TemporalDevUIProcessor {
     void createCard(BuildProducer<CardPageBuildItem> cardPageBuildItemBuildProducer, List<WorkflowBuildItem> workflows,
             List<WorkerBuildItem> workers) {
         final CardPageBuildItem card = new CardPageBuildItem();
+        // Quarkus Dev UI iterates library versions; initialize it to avoid null access on newer Quarkus versions.
+        String temporalSdkVersion = Optional.ofNullable(WorkflowClient.class.getPackage().getImplementationVersion())
+                .orElse("unknown");
+        card.addLibraryVersion("Temporal Java SDK", temporalSdkVersion, "temporal-sdk", "https://temporal.io");
 
         final PageBuilder<TableDataPageBuilder> workflowsPage = Page.tableDataPageBuilder("Workflows")
                 .icon("font-awesome-solid:arrow-right")
