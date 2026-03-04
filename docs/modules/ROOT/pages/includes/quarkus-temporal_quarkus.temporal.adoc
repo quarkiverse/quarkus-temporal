@@ -1488,6 +1488,90 @@ endif::add-copy-button-to-env-var[]
 |int
 |`+++600+++`
 
+a| [[quarkus-temporal_quarkus-temporal-worker-factory-fail-on-startup-error]] [.property-path]##link:#quarkus-temporal_quarkus-temporal-worker-factory-fail-on-startup-error[`quarkus.temporal.worker-factory.fail-on-startup-error`]##
+ifdef::add-copy-button-to-config-props[]
+config_property_copy_button:+++quarkus.temporal.worker-factory.fail-on-startup-error+++[]
+endif::add-copy-button-to-config-props[]
+
+
+[.description]
+--
+Controls whether application startup fails when Temporal workers cannot start (for example, when the Temporal server is unreachable). Set to false to let the application continue booting without started workers.
+
+
+ifdef::add-copy-button-to-env-var[]
+Environment variable: env_var_with_copy_button:+++QUARKUS_TEMPORAL_WORKER_FACTORY_FAIL_ON_STARTUP_ERROR+++[]
+endif::add-copy-button-to-env-var[]
+ifndef::add-copy-button-to-env-var[]
+Environment variable: `+++QUARKUS_TEMPORAL_WORKER_FACTORY_FAIL_ON_STARTUP_ERROR+++`
+endif::add-copy-button-to-env-var[]
+--
+|boolean
+|`+++true+++`
+
+a| [[quarkus-temporal_quarkus-temporal-worker-factory-startup-max-attempts]] [.property-path]##link:#quarkus-temporal_quarkus-temporal-worker-factory-startup-max-attempts[`quarkus.temporal.worker-factory.startup-max-attempts`]##
+ifdef::add-copy-button-to-config-props[]
+config_property_copy_button:+++quarkus.temporal.worker-factory.startup-max-attempts+++[]
+endif::add-copy-button-to-config-props[]
+
+
+[.description]
+--
+Maximum number of attempts to start workers during application startup. This is useful when Temporal is temporarily unavailable at boot time. Ignored when startupBackgroundRetryEnabled is true.
+
+
+ifdef::add-copy-button-to-env-var[]
+Environment variable: env_var_with_copy_button:+++QUARKUS_TEMPORAL_WORKER_FACTORY_STARTUP_MAX_ATTEMPTS+++[]
+endif::add-copy-button-to-env-var[]
+ifndef::add-copy-button-to-env-var[]
+Environment variable: `+++QUARKUS_TEMPORAL_WORKER_FACTORY_STARTUP_MAX_ATTEMPTS+++`
+endif::add-copy-button-to-env-var[]
+--
+|int
+|`+++1+++`
+
+a| [[quarkus-temporal_quarkus-temporal-worker-factory-startup-retry-delay]] [.property-path]##link:#quarkus-temporal_quarkus-temporal-worker-factory-startup-retry-delay[`quarkus.temporal.worker-factory.startup-retry-delay`]##
+ifdef::add-copy-button-to-config-props[]
+config_property_copy_button:+++quarkus.temporal.worker-factory.startup-retry-delay+++[]
+endif::add-copy-button-to-config-props[]
+
+
+[.description]
+--
+Delay between startup retry attempts when worker startup fails.
+
+
+ifdef::add-copy-button-to-env-var[]
+Environment variable: env_var_with_copy_button:+++QUARKUS_TEMPORAL_WORKER_FACTORY_STARTUP_RETRY_DELAY+++[]
+endif::add-copy-button-to-env-var[]
+ifndef::add-copy-button-to-env-var[]
+Environment variable: `+++QUARKUS_TEMPORAL_WORKER_FACTORY_STARTUP_RETRY_DELAY+++`
+endif::add-copy-button-to-env-var[]
+--
+|link:https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/time/Duration.html[Duration] link:#duration-note-anchor-quarkus-temporal_quarkus-temporal[icon:question-circle[title=More information about the Duration format]]
+|`+++2S+++`
+
+a| [[quarkus-temporal_quarkus-temporal-worker-factory-startup-background-retry-enabled]] [.property-path]##link:#quarkus-temporal_quarkus-temporal-worker-factory-startup-background-retry-enabled[`quarkus.temporal.worker-factory.startup-background-retry-enabled`]##
+ifdef::add-copy-button-to-config-props[]
+config_property_copy_button:+++quarkus.temporal.worker-factory.startup-background-retry-enabled+++[]
+endif::add-copy-button-to-config-props[]
+
+
+[.description]
+--
+When enabled (and failOnStartupError is false), worker startup retries run in the background and do not block application startup.
+
+
+ifdef::add-copy-button-to-env-var[]
+Environment variable: env_var_with_copy_button:+++QUARKUS_TEMPORAL_WORKER_FACTORY_STARTUP_BACKGROUND_RETRY_ENABLED+++[]
+endif::add-copy-button-to-env-var[]
+ifndef::add-copy-button-to-env-var[]
+Environment variable: `+++QUARKUS_TEMPORAL_WORKER_FACTORY_STARTUP_BACKGROUND_RETRY_ENABLED+++`
+endif::add-copy-button-to-env-var[]
+--
+|boolean
+|`+++false+++`
+
 
 |===
 

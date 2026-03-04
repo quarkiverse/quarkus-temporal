@@ -2,7 +2,10 @@ package io.quarkiverse.temporal;
 
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Function;
 
 import jakarta.enterprise.inject.Any;
@@ -28,6 +31,19 @@ import io.temporal.worker.WorkerFactory;
 import io.temporal.worker.WorkerFactoryOptions;
 import io.temporal.worker.WorkerOptions;
 
+/**
+ * Quarkus recorder responsible for creating and starting Temporal {@link WorkerFactory} instances.
+ *
+ * In Quarkus extensions, recorders are invoked from deployment build steps at runtime init to
+ * perform runtime wiring that cannot be done at augmentation time. This recorder handles:
+ *
+ * <ul>
+ * <li>Building worker factory/worker options from extension config</li>
+ * <li>Creating workers and registering discovered workflow/activity implementations</li>
+ * <li>Starting workers with configurable startup resilience (blocking retries or background retries)</li>
+ * <li>Registering graceful shutdown behavior with {@link ShutdownContext}</li>
+ * </ul>
+ */
 @Recorder
 public class WorkerFactoryRecorder {
 
@@ -48,6 +64,11 @@ public class WorkerFactoryRecorder {
         this.buildtimeConfig = buildtimeConfig;
     }
 
+    /**
+     * Builds {@link WorkerFactoryOptions} from runtime config and CDI-discovered worker interceptors.
+     *
+     * This method is invoked by the synthetic bean creator during runtime init.
+     */
     WorkerFactoryOptions createWorkerFactoryOptions(
             SyntheticCreationalContext<WorkerFactory> context) {
         WorkerFactoryOptions.Builder options = WorkerFactoryOptions.newBuilder();
@@ -66,10 +87,14 @@ public class WorkerFactoryRecorder {
     }
 
     public Function<SyntheticCreationalContext<WorkerFactory>, WorkerFactory> createWorkerFactory() {
+        // Synthetic bean creator for WorkerFactory. Actual start happens in a separate runtime build step.
         return context -> WorkerFactory.newInstance(context.getInjectedReference(WorkflowClient.class),
                 createWorkerFactoryOptions(context));
     }
 
+    /**
+     * Builds {@link WorkerOptions} for a specific worker name from extension config.
+     */
     WorkerOptions createWorkerOptions(WorkerRuntimeConfig workerRuntimeConfig,
             WorkerBuildtimeConfig workerBuildtimeConfig) {
         if (workerRuntimeConfig == null) {
@@ -118,6 +143,8 @@ public class WorkerFactoryRecorder {
 
     public void createWorker(String name, List<Class<?>> workflows,
             List<Class<?>> activities) {
+        // Workers are created during runtime init and registered with workflow/activity implementations.
+        // Starting polling threads is intentionally deferred to startWorkerFactory(...).
         WorkerFactory workerFactory = CDI.current().select(WorkerFactory.class).get();
         WorkerRuntimeConfig workerRuntimeConfig = runtimeConfig.getValue().worker().get(name);
         WorkerBuildtimeConfig workerBuildtimeConfig = buildtimeConfig.worker().get(name);
@@ -133,12 +160,129 @@ public class WorkerFactoryRecorder {
     }
 
     public void startWorkerFactory(ShutdownContext shutdownContext) {
+        // This method is invoked from TemporalProcessor.startWorkers(...) during runtime init.
+        // Any exception thrown here can fail Quarkus startup.
         WorkerFactory workerFactory = CDI.current().select(WorkerFactory.class).get();
-        workerFactory.start();
+        var workerFactoryConfig = runtimeConfig.getValue().workerFactory();
+        boolean failOnStartupError = workerFactoryConfig.failOnStartupError();
+        int maxAttempts = Math.max(workerFactoryConfig.startupMaxAttempts(), 1);
+        long retryDelayMillis = Math.max(workerFactoryConfig.startupRetryDelay().toMillis(), 0);
+        boolean startupBackgroundRetryEnabled = workerFactoryConfig.startupBackgroundRetryEnabled();
+
+        // Background retry mode intentionally decouples app startup from Temporal availability.
+        if (startupBackgroundRetryEnabled) {
+            if (!failOnStartupError) {
+                // In this mode Quarkus startup proceeds immediately while worker startup is retried asynchronously.
+                startWorkerFactoryInBackground(shutdownContext, workerFactory, retryDelayMillis);
+                return;
+            }
+            log.warn(
+                    "quarkus.temporal.worker-factory.startup-background-retry-enabled=true requires quarkus.temporal.worker-factory.fail-on-startup-error=false. Falling back to blocking startup behavior.");
+        }
+
+        // Blocking startup mode: retry a bounded number of times, then either fail or continue based on config.
+        RuntimeException lastError = null;
+        for (int attempt = 1; attempt <= maxAttempts; attempt++) {
+            try {
+                // Temporal SDK contacts server capabilities as part of start(); this can fail if server is unavailable.
+                workerFactory.start();
+                shutdownContext.addShutdownTask(() -> {
+                    workerFactory.shutdown();
+                    runtimeConfig.getValue().terminationTimeout()
+                            .ifPresent(timeout -> workerFactory.awaitTermination(timeout.toMillis(), TimeUnit.MILLISECONDS));
+                });
+                return;
+            } catch (RuntimeException e) {
+                lastError = e;
+                if (attempt < maxAttempts) {
+                    log.warnf(e,
+                            "Temporal worker startup failed (attempt %d/%d). Retrying in %d ms",
+                            attempt, maxAttempts, retryDelayMillis);
+                    if (retryDelayMillis > 0) {
+                        try {
+                            Thread.sleep(retryDelayMillis);
+                        } catch (InterruptedException ie) {
+                            Thread.currentThread().interrupt();
+                            if (failOnStartupError) {
+                                throw new IllegalStateException(
+                                        "Interrupted while retrying Temporal worker startup",
+                                        ie);
+                            }
+                            log.error(
+                                    "Interrupted while retrying Temporal worker startup. Continuing without started workers because quarkus.temporal.worker-factory.fail-on-startup-error=false",
+                                    ie);
+                            return;
+                        }
+                    }
+                    continue;
+                }
+
+                if (failOnStartupError) {
+                    throw e;
+                }
+                log.error(
+                        "Temporal worker startup failed. Continuing because quarkus.temporal.worker-factory.fail-on-startup-error=false",
+                        e);
+                return;
+            }
+        }
+
+        if (failOnStartupError && lastError != null) {
+            throw lastError;
+        }
+    }
+
+    /**
+     * Starts a daemon retry loop for worker startup.
+     *
+     * Used when startup should not block waiting for Temporal availability.
+     */
+    void startWorkerFactoryInBackground(ShutdownContext shutdownContext, WorkerFactory workerFactory, long retryDelayMillis) {
+        // Keep retrying on a daemon thread until startup succeeds or Quarkus shuts down.
+        AtomicBoolean running = new AtomicBoolean(true);
+        AtomicBoolean started = new AtomicBoolean(false);
+        ExecutorService startupExecutor = Executors.newSingleThreadExecutor(runnable -> {
+            Thread thread = new Thread(runnable, "temporal-worker-startup");
+            thread.setDaemon(true);
+            return thread;
+        });
+
+        startupExecutor.submit(() -> {
+            int attempt = 0;
+            while (running.get() && !started.get()) {
+                attempt++;
+                try {
+                    workerFactory.start();
+                    started.set(true);
+                    log.infof("Temporal workers started in background (attempt %d)", attempt);
+                    return;
+                } catch (RuntimeException e) {
+                    log.warnf(e,
+                            "Temporal worker startup failed in background (attempt %d). Retrying in %d ms",
+                            attempt, retryDelayMillis);
+                    if (retryDelayMillis > 0) {
+                        try {
+                            Thread.sleep(retryDelayMillis);
+                        } catch (InterruptedException ie) {
+                            Thread.currentThread().interrupt();
+                            log.debug("Temporal worker startup background retry interrupted", ie);
+                            return;
+                        }
+                    }
+                }
+            }
+        });
+
         shutdownContext.addShutdownTask(() -> {
-            workerFactory.shutdown();
-            runtimeConfig.getValue().terminationTimeout()
-                    .ifPresent(timeout -> workerFactory.awaitTermination(timeout.toMillis(), TimeUnit.MILLISECONDS));
+            // Stop background retries first so no new start attempts race with shutdown.
+            running.set(false);
+            startupExecutor.shutdownNow();
+            // Avoid calling shutdown on a factory that never managed to start.
+            if (started.get()) {
+                workerFactory.shutdown();
+                runtimeConfig.getValue().terminationTimeout()
+                        .ifPresent(timeout -> workerFactory.awaitTermination(timeout.toMillis(), TimeUnit.MILLISECONDS));
+            }
         });
     }
 

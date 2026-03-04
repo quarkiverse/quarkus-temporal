@@ -554,6 +554,52 @@ quarkus.temporal.connection.target=<region>.<cloud_provider>.api.temporal.io:723
 quarkus.temporal.connection.api-key=<api-key>
 ----
 
+== Temporal Startup Resilience
+
+By default, Temporal workers are started during Quarkus startup. If Temporal is unreachable, startup fails.
+
+Default behavior:
+
+* `quarkus.temporal.worker-factory.fail-on-startup-error=true`
+* `quarkus.temporal.worker-factory.startup-max-attempts=1`
+* `quarkus.temporal.worker-factory.startup-retry-delay=2s`
+* `quarkus.temporal.worker-factory.startup-background-retry-enabled=false`
+
+Use this mode when you want startup to retry a fixed number of times and then continue:
+
+[source,properties]
+----
+quarkus.temporal.worker-factory.fail-on-startup-error=false
+quarkus.temporal.worker-factory.startup-max-attempts=10
+quarkus.temporal.worker-factory.startup-retry-delay=5s
+quarkus.temporal.worker-factory.startup-background-retry-enabled=false
+----
+
+[NOTE]
+====
+In this mode, after the configured attempts are exhausted, Quarkus starts (because `fail-on-startup-error` is false), but worker startup retries stop.
+If Temporal becomes available later, workers will not auto-start in this mode.
+====
+
+Use this mode when you want Quarkus to start immediately and workers to retry in the background until Temporal is available:
+
+[source,properties]
+----
+quarkus.temporal.worker-factory.fail-on-startup-error=false
+quarkus.temporal.worker-factory.startup-background-retry-enabled=true
+quarkus.temporal.worker-factory.startup-retry-delay=5s
+----
+
+[TIP]
+====
+Use this second mode for continuous polling/retry until Temporal is reachable.
+====
+
+Notes:
+
+* Background retry requires `fail-on-startup-error=false`.
+* In background retry mode, `startup-max-attempts` is ignored and retries continue until success or shutdown.
+
 [[extension-configuration-reference]]
 == Extension Configuration Reference
 
