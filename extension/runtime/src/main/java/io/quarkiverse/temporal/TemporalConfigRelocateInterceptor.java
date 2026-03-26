@@ -13,52 +13,32 @@ public class TemporalConfigRelocateInterceptor implements ConfigSourceIntercepto
     @Override
     public ConfigValue getValue(ConfigSourceInterceptorContext context, String name) {
 
-        ConfigValue target = context.proceed("quarkus.temporal.connection.target");
-        if (target == null) {
-            return context.proceed(name);
-        }
-        String[] connection = processConnectString(target.getValue());
-
         switch (name) {
-            case "quarkus.grpc.clients.temporal-client.host": {
-
-                ConfigValue host = context.proceed("quarkus.grpc.clients.temporal-client.host");
-                if (host == null && connection[0] != null) {
-                    return target.from()
-                            .withName("quarkus.grpc.clients.temporal-client.host")
-                            .withValue(connection[0])
-                            .withRawValue(connection[0])
-                            .build();
-                }
-                return host;
-            }
-            case "quarkus.grpc.clients.temporal-client.port": {
-
-                ConfigValue port = context.proceed("quarkus.grpc.clients.temporal-client.port");
-                if (port == null && connection[1] != null) {
-                    return target.from()
-                            .withName("quarkus.grpc.clients.temporal-client.port")
-                            .withValue(connection[1])
-                            .withRawValue(connection[1])
-                            .build();
-                }
-                return port;
-            }
-            case "quarkus.grpc.clients.temporal-client.test-port": {
-
-                ConfigValue port = context.proceed("quarkus.grpc.clients.temporal-client.test-port");
-                if (port == null && connection[1] != null) {
-                    return target.from()
-                            .withName("quarkus.grpc.clients.temporal-client.test-port")
-                            .withValue(connection[1])
-                            .withRawValue(connection[1])
-                            .build();
-                }
-                return port;
-            }
+            case "quarkus.grpc.clients.temporal-client.host":
+                return relocate(context, name, 0);
+            case "quarkus.grpc.clients.temporal-client.port":
+            case "quarkus.grpc.clients.temporal-client.test-port":
+                return relocate(context, name, 1);
         }
 
         return context.proceed(name);
+    }
+
+    private ConfigValue relocate(ConfigSourceInterceptorContext context, String name, int index) {
+        ConfigValue existing = context.proceed(name);
+        if (existing != null) {
+            return existing;
+        }
+        ConfigValue target = context.proceed("quarkus.temporal.connection.target");
+        if (target == null) {
+            return null;
+        }
+        String[] connection = processConnectString(target.getValue());
+        return target.from()
+                .withName(name)
+                .withValue(connection[index])
+                .withRawValue(connection[index])
+                .build();
     }
 
     @Override
