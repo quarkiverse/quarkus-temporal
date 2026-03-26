@@ -121,6 +121,7 @@ echo "$counter - Deleting code we don't want in NettyProcessor and GrpcCommonPro
 ((counter++))
 ./deleteMethod.sh "LogCleanupFilterBuildItem cleanupMacDNSInLog" "$DEST_NETTY_DEPLOYMENT/NettyProcessor.java"
 ./deleteMethod.sh "public void configureNativeExecutable" "$DEST_GRPC_DEPLOYMENT/GrpcCommonProcessor.java"
+./deleteMethod.sh "private static void reflectiveClasses" "$DEST_GRPC_DEPLOYMENT/GrpcCommonProcessor.java"
 rm ${DEST_GRPC_RUNTIME}/runtime/graal/GrpcSubstitutions.java
 rm ${DEST_GRPC_DEPLOYMENT}/GrpcDotNames.java
 
@@ -131,6 +132,7 @@ echo "$counter - Deleting missing import"
 perl -ni -e 'print unless /import io\.grpc\.netty\.shaded\.io\.netty\.resolver\.dns\.DnsServerAddressStreamProviders;/' "$DEST_NETTY_DEPLOYMENT/NettyProcessor.java"
 perl -ni -e 'print unless
     /import java\.util\.Collection;/
+    || /import java\.util\.Set;/
     || /import io\.grpc\.internal\.DnsNameResolverProvider;/
     || /import io\.grpc\.internal\.PickFirstLoadBalancerProvider;/
     || /import io\.grpc\.netty\.shaded\.io\.grpc\.netty\.NettyChannelProvider;/
@@ -138,6 +140,7 @@ perl -ni -e 'print unless
     || /import io\.quarkus\.deployment\.builditem\.CombinedIndexBuildItem;/
     || /import io\.quarkus\.deployment\.builditem\.nativeimage\.ReflectiveClassBuildItem;/
     || /import org\.jboss\.jandex\.ClassInfo;/
+    || /import org\.jboss\.jandex\.DotName;/
     ' "$DEST_GRPC_DEPLOYMENT/GrpcCommonProcessor.java"
 
 # Step 9: Cleanup
