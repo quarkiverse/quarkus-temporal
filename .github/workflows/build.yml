@@ -49,6 +49,7 @@ jobs:
         uses: graalvm/setup-graalvm@v1
         with:
           distribution: 'mandrel'
+          version: '23.1.10.0-Final'
           java-package: 'jdk+fx'
           java-version: '21'
           github-token: ${{ secrets.GITHUB_TOKEN }}
