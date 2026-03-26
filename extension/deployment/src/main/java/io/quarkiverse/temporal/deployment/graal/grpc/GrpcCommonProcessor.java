@@ -1,9 +1,16 @@
 package io.quarkiverse.temporal.deployment.graal.grpc;
 
 import io.quarkus.deployment.annotations.BuildStep;
+import io.quarkus.deployment.builditem.IndexDependencyBuildItem;
 import io.quarkus.deployment.builditem.nativeimage.NativeImageConfigBuildItem;
 
 public class GrpcCommonProcessor {
+
+    @BuildStep
+    public IndexDependencyBuildItem indexProtobuf() {
+        // needed with reflection lookup
+        return new IndexDependencyBuildItem("com.google.protobuf", "protobuf-java");
+    }
 
     @BuildStep
     NativeImageConfigBuildItem nativeImageConfiguration() {
@@ -17,7 +24,8 @@ public class GrpcCommonProcessor {
                 .addRuntimeInitializedClass("io.grpc.netty.shaded.io.grpc.netty.NettyServerBuilder")
                 .addRuntimeInitializedClass("io.grpc.netty.shaded.io.grpc.netty.NettyChannelBuilder")
                 .addRuntimeInitializedClass("io.grpc.internal.RetriableStream")
-                .addRuntimeReinitializedClass("com.google.protobuf.UnsafeUtil");
+                .addRuntimeInitializedClass("com.google.protobuf.JavaFeaturesProto")
+                .addRuntimeInitializedClass("com.google.protobuf.UnsafeUtil");
         return builder.build();
     }
 

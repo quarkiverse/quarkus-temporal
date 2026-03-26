@@ -7,7 +7,7 @@ h|[.header-title]##Configuration property##
 h|Type
 h|Default
 
-a|icon:lock[title=Fixed at build time] [[quarkus-temporal_quarkus-temporal-netty-allocator-max-order]] [.property-path]##link:#quarkus-temporal_quarkus-temporal-netty-allocator-max-order[`quarkus.temporal.netty.allocator-max-order`]##
+a|icon:lock[title=Fixed at build time] [[quarkus-temporal_quarkus-temporal-netty-allocator-max-order]] [.property-path]##link:#quarkus-temporal_quarkus-temporal-netty-allocator-max-order[`+++quarkus.temporal.netty.allocator-max-order+++`]##
 ifdef::add-copy-button-to-config-props[]
 config_property_copy_button:+++quarkus.temporal.netty.allocator-max-order+++[]
 endif::add-copy-button-to-config-props[]
@@ -28,7 +28,7 @@ endif::add-copy-button-to-env-var[]
 |int
 |
 
-a|icon:lock[title=Fixed at build time] [[quarkus-temporal_quarkus-temporal-enable-mock]] [.property-path]##link:#quarkus-temporal_quarkus-temporal-enable-mock[`quarkus.temporal.enable-mock`]##
+a|icon:lock[title=Fixed at build time] [[quarkus-temporal_quarkus-temporal-enable-mock]] [.property-path]##link:#quarkus-temporal_quarkus-temporal-enable-mock[`+++quarkus.temporal.enable-mock+++`]##
 ifdef::add-copy-button-to-config-props[]
 config_property_copy_button:+++quarkus.temporal.enable-mock+++[]
 endif::add-copy-button-to-config-props[]
@@ -49,7 +49,7 @@ endif::add-copy-button-to-env-var[]
 |boolean
 |`+++false+++`
 
-a|icon:lock[title=Fixed at build time] [[quarkus-temporal_quarkus-temporal-channel-type]] [.property-path]##link:#quarkus-temporal_quarkus-temporal-channel-type[`quarkus.temporal.channel-type`]##
+a|icon:lock[title=Fixed at build time] [[quarkus-temporal_quarkus-temporal-channel-type]] [.property-path]##link:#quarkus-temporal_quarkus-temporal-channel-type[`+++quarkus.temporal.channel-type+++`]##
 ifdef::add-copy-button-to-config-props[]
 config_property_copy_button:+++quarkus.temporal.channel-type+++[]
 endif::add-copy-button-to-config-props[]
@@ -70,7 +70,7 @@ endif::add-copy-button-to-env-var[]
 a|`quarkus-managed`, `built-in`
 |`+++built-in+++`
 
-a|icon:lock[title=Fixed at build time] [[quarkus-temporal_quarkus-temporal-health-enabled]] [.property-path]##link:#quarkus-temporal_quarkus-temporal-health-enabled[`quarkus.temporal.health.enabled`]##
+a|icon:lock[title=Fixed at build time] [[quarkus-temporal_quarkus-temporal-health-enabled]] [.property-path]##link:#quarkus-temporal_quarkus-temporal-health-enabled[`+++quarkus.temporal.health.enabled+++`]##
 ifdef::add-copy-button-to-config-props[]
 config_property_copy_button:+++quarkus.temporal.health.enabled+++[]
 endif::add-copy-button-to-config-props[]
@@ -91,7 +91,7 @@ endif::add-copy-button-to-env-var[]
 |boolean
 |`+++true+++`
 
-a|icon:lock[title=Fixed at build time] [[quarkus-temporal_quarkus-temporal-telemetry-enabled]] [.property-path]##link:#quarkus-temporal_quarkus-temporal-telemetry-enabled[`quarkus.temporal.telemetry.enabled`]##
+a|icon:lock[title=Fixed at build time] [[quarkus-temporal_quarkus-temporal-telemetry-enabled]] [.property-path]##link:#quarkus-temporal_quarkus-temporal-telemetry-enabled[`+++quarkus.temporal.telemetry.enabled+++`]##
 ifdef::add-copy-button-to-config-props[]
 config_property_copy_button:+++quarkus.temporal.telemetry.enabled+++[]
 endif::add-copy-button-to-config-props[]
@@ -112,7 +112,7 @@ endif::add-copy-button-to-env-var[]
 |boolean
 |`+++true+++`
 
-a|icon:lock[title=Fixed at build time] [[quarkus-temporal_quarkus-temporal-start-workers]] [.property-path]##link:#quarkus-temporal_quarkus-temporal-start-workers[`quarkus.temporal.start-workers`]##
+a|icon:lock[title=Fixed at build time] [[quarkus-temporal_quarkus-temporal-start-workers]] [.property-path]##link:#quarkus-temporal_quarkus-temporal-start-workers[`+++quarkus.temporal.start-workers+++`]##
 ifdef::add-copy-button-to-config-props[]
 config_property_copy_button:+++quarkus.temporal.start-workers+++[]
 endif::add-copy-button-to-config-props[]
@@ -133,7 +133,7 @@ endif::add-copy-button-to-env-var[]
 |boolean
 |`+++true+++`
 
-a| [[quarkus-temporal_quarkus-temporal-namespace]] [.property-path]##link:#quarkus-temporal_quarkus-temporal-namespace[`quarkus.temporal.namespace`]##
+a| [[quarkus-temporal_quarkus-temporal-namespace]] [.property-path]##link:#quarkus-temporal_quarkus-temporal-namespace[`+++quarkus.temporal.namespace+++`]##
 ifdef::add-copy-button-to-config-props[]
 config_property_copy_button:+++quarkus.temporal.namespace+++[]
 endif::add-copy-button-to-config-props[]
@@ -154,7 +154,7 @@ endif::add-copy-button-to-env-var[]
 |string
 |`+++default+++`
 
-a| [[quarkus-temporal_quarkus-temporal-identity]] [.property-path]##link:#quarkus-temporal_quarkus-temporal-identity[`quarkus.temporal.identity`]##
+a| [[quarkus-temporal_quarkus-temporal-identity]] [.property-path]##link:#quarkus-temporal_quarkus-temporal-identity[`+++quarkus.temporal.identity+++`]##
 ifdef::add-copy-button-to-config-props[]
 config_property_copy_button:+++quarkus.temporal.identity+++[]
 endif::add-copy-button-to-config-props[]
@@ -175,7 +175,7 @@ endif::add-copy-button-to-env-var[]
 |string
 |
 
-a| [[quarkus-temporal_quarkus-temporal-metrics-enabled]] [.property-path]##link:#quarkus-temporal_quarkus-temporal-metrics-enabled[`quarkus.temporal.metrics.enabled`]##
+a| [[quarkus-temporal_quarkus-temporal-metrics-enabled]] [.property-path]##link:#quarkus-temporal_quarkus-temporal-metrics-enabled[`+++quarkus.temporal.metrics.enabled+++`]##
 ifdef::add-copy-button-to-config-props[]
 config_property_copy_button:+++quarkus.temporal.metrics.enabled+++[]
 endif::add-copy-button-to-config-props[]
@@ -196,7 +196,7 @@ endif::add-copy-button-to-env-var[]
 |boolean
 |`+++true+++`
 
-a| [[quarkus-temporal_quarkus-temporal-metrics-report-duration]] [.property-path]##link:#quarkus-temporal_quarkus-temporal-metrics-report-duration[`quarkus.temporal.metrics.report.duration`]##
+a| [[quarkus-temporal_quarkus-temporal-metrics-report-duration]] [.property-path]##link:#quarkus-temporal_quarkus-temporal-metrics-report-duration[`+++quarkus.temporal.metrics.report.duration+++`]##
 ifdef::add-copy-button-to-config-props[]
 config_property_copy_button:+++quarkus.temporal.metrics.report.duration+++[]
 endif::add-copy-button-to-config-props[]
@@ -217,7 +217,7 @@ endif::add-copy-button-to-env-var[]
 |link:https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/time/Duration.html[Duration] link:#duration-note-anchor-quarkus-temporal_quarkus-temporal[icon:question-circle[title=More information about the Duration format]]
 |`+++15S+++`
 
-a| [[quarkus-temporal_quarkus-temporal-termination-timeout]] [.property-path]##link:#quarkus-temporal_quarkus-temporal-termination-timeout[`quarkus.temporal.termination-timeout`]##
+a| [[quarkus-temporal_quarkus-temporal-termination-timeout]] [.property-path]##link:#quarkus-temporal_quarkus-temporal-termination-timeout[`+++quarkus.temporal.termination-timeout+++`]##
 ifdef::add-copy-button-to-config-props[]
 config_property_copy_button:+++quarkus.temporal.termination-timeout+++[]
 endif::add-copy-button-to-config-props[]
@@ -238,13 +238,13 @@ endif::add-copy-button-to-env-var[]
 |link:https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/time/Duration.html[Duration] link:#duration-note-anchor-quarkus-temporal_quarkus-temporal[icon:question-circle[title=More information about the Duration format]]
 |
 
-a|icon:lock[title=Fixed at build time] [[quarkus-temporal_quarkus-temporal-worker-build-id]] [.property-path]##link:#quarkus-temporal_quarkus-temporal-worker-build-id[`quarkus.temporal.worker.build-id`]##
+a|icon:lock[title=Fixed at build time] [[quarkus-temporal_quarkus-temporal-worker-build-id]] [.property-path]##link:#quarkus-temporal_quarkus-temporal-worker-build-id[`+++quarkus.temporal.worker.build-id+++`]##
 ifdef::add-copy-button-to-config-props[]
 config_property_copy_button:+++quarkus.temporal.worker.build-id+++[]
 endif::add-copy-button-to-config-props[]
 
 
-`quarkus.temporal.worker."worker-name".build-id`
+`+++quarkus.temporal.worker."worker-name".build-id+++`
 ifdef::add-copy-button-to-config-props[]
 config_property_copy_button:+++quarkus.temporal.worker."worker-name".build-id+++[]
 endif::add-copy-button-to-config-props[]
@@ -264,13 +264,13 @@ endif::add-copy-button-to-env-var[]
 |string
 |
 
-a|icon:lock[title=Fixed at build time] [[quarkus-temporal_quarkus-temporal-worker-workflow-classes]] [.property-path]##link:#quarkus-temporal_quarkus-temporal-worker-workflow-classes[`quarkus.temporal.worker.workflow-classes`]##
+a|icon:lock[title=Fixed at build time] [[quarkus-temporal_quarkus-temporal-worker-workflow-classes]] [.property-path]##link:#quarkus-temporal_quarkus-temporal-worker-workflow-classes[`+++quarkus.temporal.worker.workflow-classes+++`]##
 ifdef::add-copy-button-to-config-props[]
 config_property_copy_button:+++quarkus.temporal.worker.workflow-classes+++[]
 endif::add-copy-button-to-config-props[]
 
 
-`quarkus.temporal.worker."worker-name".workflow-classes`
+`+++quarkus.temporal.worker."worker-name".workflow-classes+++`
 ifdef::add-copy-button-to-config-props[]
 config_property_copy_button:+++quarkus.temporal.worker."worker-name".workflow-classes+++[]
 endif::add-copy-button-to-config-props[]
@@ -290,13 +290,13 @@ endif::add-copy-button-to-env-var[]
 |list of string
 |
 
-a|icon:lock[title=Fixed at build time] [[quarkus-temporal_quarkus-temporal-worker-activity-classes]] [.property-path]##link:#quarkus-temporal_quarkus-temporal-worker-activity-classes[`quarkus.temporal.worker.activity-classes`]##
+a|icon:lock[title=Fixed at build time] [[quarkus-temporal_quarkus-temporal-worker-activity-classes]] [.property-path]##link:#quarkus-temporal_quarkus-temporal-worker-activity-classes[`+++quarkus.temporal.worker.activity-classes+++`]##
 ifdef::add-copy-button-to-config-props[]
 config_property_copy_button:+++quarkus.temporal.worker.activity-classes+++[]
 endif::add-copy-button-to-config-props[]
 
 
-`quarkus.temporal.worker."worker-name".activity-classes`
+`+++quarkus.temporal.worker."worker-name".activity-classes+++`
 ifdef::add-copy-button-to-config-props[]
 config_property_copy_button:+++quarkus.temporal.worker."worker-name".activity-classes+++[]
 endif::add-copy-button-to-config-props[]
@@ -316,13 +316,13 @@ endif::add-copy-button-to-env-var[]
 |list of string
 |
 
-a| [[quarkus-temporal_quarkus-temporal-worker-task-queue]] [.property-path]##link:#quarkus-temporal_quarkus-temporal-worker-task-queue[`quarkus.temporal.worker.task-queue`]##
+a| [[quarkus-temporal_quarkus-temporal-worker-task-queue]] [.property-path]##link:#quarkus-temporal_quarkus-temporal-worker-task-queue[`+++quarkus.temporal.worker.task-queue+++`]##
 ifdef::add-copy-button-to-config-props[]
 config_property_copy_button:+++quarkus.temporal.worker.task-queue+++[]
 endif::add-copy-button-to-config-props[]
 
 
-`quarkus.temporal.worker."worker-name".task-queue`
+`+++quarkus.temporal.worker."worker-name".task-queue+++`
 ifdef::add-copy-button-to-config-props[]
 config_property_copy_button:+++quarkus.temporal.worker."worker-name".task-queue+++[]
 endif::add-copy-button-to-config-props[]
@@ -342,13 +342,13 @@ endif::add-copy-button-to-env-var[]
 |string
 |
 
-a| [[quarkus-temporal_quarkus-temporal-worker-max-worker-activities-per-second]] [.property-path]##link:#quarkus-temporal_quarkus-temporal-worker-max-worker-activities-per-second[`quarkus.temporal.worker.max-worker-activities-per-second`]##
+a| [[quarkus-temporal_quarkus-temporal-worker-max-worker-activities-per-second]] [.property-path]##link:#quarkus-temporal_quarkus-temporal-worker-max-worker-activities-per-second[`+++quarkus.temporal.worker.max-worker-activities-per-second+++`]##
 ifdef::add-copy-button-to-config-props[]
 config_property_copy_button:+++quarkus.temporal.worker.max-worker-activities-per-second+++[]
 endif::add-copy-button-to-config-props[]
 
 
-`quarkus.temporal.worker."worker-name".max-worker-activities-per-second`
+`+++quarkus.temporal.worker."worker-name".max-worker-activities-per-second+++`
 ifdef::add-copy-button-to-config-props[]
 config_property_copy_button:+++quarkus.temporal.worker."worker-name".max-worker-activities-per-second+++[]
 endif::add-copy-button-to-config-props[]
@@ -368,13 +368,13 @@ endif::add-copy-button-to-env-var[]
 |double
 |`+++0+++`
 
-a| [[quarkus-temporal_quarkus-temporal-worker-max-concurrent-activity-execution-size]] [.property-path]##link:#quarkus-temporal_quarkus-temporal-worker-max-concurrent-activity-execution-size[`quarkus.temporal.worker.max-concurrent-activity-execution-size`]##
+a| [[quarkus-temporal_quarkus-temporal-worker-max-concurrent-activity-execution-size]] [.property-path]##link:#quarkus-temporal_quarkus-temporal-worker-max-concurrent-activity-execution-size[`+++quarkus.temporal.worker.max-concurrent-activity-execution-size+++`]##
 ifdef::add-copy-button-to-config-props[]
 config_property_copy_button:+++quarkus.temporal.worker.max-concurrent-activity-execution-size+++[]
 endif::add-copy-button-to-config-props[]
 
 
-`quarkus.temporal.worker."worker-name".max-concurrent-activity-execution-size`
+`+++quarkus.temporal.worker."worker-name".max-concurrent-activity-execution-size+++`
 ifdef::add-copy-button-to-config-props[]
 config_property_copy_button:+++quarkus.temporal.worker."worker-name".max-concurrent-activity-execution-size+++[]
 endif::add-copy-button-to-config-props[]
@@ -394,13 +394,13 @@ endif::add-copy-button-to-env-var[]
 |int
 |`+++200+++`
 
-a| [[quarkus-temporal_quarkus-temporal-worker-max-concurrent-workflow-task-execution-size]] [.property-path]##link:#quarkus-temporal_quarkus-temporal-worker-max-concurrent-workflow-task-execution-size[`quarkus.temporal.worker.max-concurrent-workflow-task-execution-size`]##
+a| [[quarkus-temporal_quarkus-temporal-worker-max-concurrent-workflow-task-execution-size]] [.property-path]##link:#quarkus-temporal_quarkus-temporal-worker-max-concurrent-workflow-task-execution-size[`+++quarkus.temporal.worker.max-concurrent-workflow-task-execution-size+++`]##
 ifdef::add-copy-button-to-config-props[]
 config_property_copy_button:+++quarkus.temporal.worker.max-concurrent-workflow-task-execution-size+++[]
 endif::add-copy-button-to-config-props[]
 
 
-`quarkus.temporal.worker."worker-name".max-concurrent-workflow-task-execution-size`
+`+++quarkus.temporal.worker."worker-name".max-concurrent-workflow-task-execution-size+++`
 ifdef::add-copy-button-to-config-props[]
 config_property_copy_button:+++quarkus.temporal.worker."worker-name".max-concurrent-workflow-task-execution-size+++[]
 endif::add-copy-button-to-config-props[]
@@ -420,13 +420,13 @@ endif::add-copy-button-to-env-var[]
 |int
 |`+++200+++`
 
-a| [[quarkus-temporal_quarkus-temporal-worker-max-concurrent-local-activity-execution-size]] [.property-path]##link:#quarkus-temporal_quarkus-temporal-worker-max-concurrent-local-activity-execution-size[`quarkus.temporal.worker.max-concurrent-local-activity-execution-size`]##
+a| [[quarkus-temporal_quarkus-temporal-worker-max-concurrent-local-activity-execution-size]] [.property-path]##link:#quarkus-temporal_quarkus-temporal-worker-max-concurrent-local-activity-execution-size[`+++quarkus.temporal.worker.max-concurrent-local-activity-execution-size+++`]##
 ifdef::add-copy-button-to-config-props[]
 config_property_copy_button:+++quarkus.temporal.worker.max-concurrent-local-activity-execution-size+++[]
 endif::add-copy-button-to-config-props[]
 
 
-`quarkus.temporal.worker."worker-name".max-concurrent-local-activity-execution-size`
+`+++quarkus.temporal.worker."worker-name".max-concurrent-local-activity-execution-size+++`
 ifdef::add-copy-button-to-config-props[]
 config_property_copy_button:+++quarkus.temporal.worker."worker-name".max-concurrent-local-activity-execution-size+++[]
 endif::add-copy-button-to-config-props[]
@@ -446,13 +446,13 @@ endif::add-copy-button-to-env-var[]
 |int
 |`+++200+++`
 
-a| [[quarkus-temporal_quarkus-temporal-worker-max-task-queue-activities-per-second]] [.property-path]##link:#quarkus-temporal_quarkus-temporal-worker-max-task-queue-activities-per-second[`quarkus.temporal.worker.max-task-queue-activities-per-second`]##
+a| [[quarkus-temporal_quarkus-temporal-worker-max-task-queue-activities-per-second]] [.property-path]##link:#quarkus-temporal_quarkus-temporal-worker-max-task-queue-activities-per-second[`+++quarkus.temporal.worker.max-task-queue-activities-per-second+++`]##
 ifdef::add-copy-button-to-config-props[]
 config_property_copy_button:+++quarkus.temporal.worker.max-task-queue-activities-per-second+++[]
 endif::add-copy-button-to-config-props[]
 
 
-`quarkus.temporal.worker."worker-name".max-task-queue-activities-per-second`
+`+++quarkus.temporal.worker."worker-name".max-task-queue-activities-per-second+++`
 ifdef::add-copy-button-to-config-props[]
 config_property_copy_button:+++quarkus.temporal.worker."worker-name".max-task-queue-activities-per-second+++[]
 endif::add-copy-button-to-config-props[]
@@ -472,13 +472,13 @@ endif::add-copy-button-to-env-var[]
 |double
 |`+++0+++`
 
-a| [[quarkus-temporal_quarkus-temporal-worker-max-concurrent-workflow-task-pollers]] [.property-path]##link:#quarkus-temporal_quarkus-temporal-worker-max-concurrent-workflow-task-pollers[`quarkus.temporal.worker.max-concurrent-workflow-task-pollers`]##
+a| [[quarkus-temporal_quarkus-temporal-worker-max-concurrent-workflow-task-pollers]] [.property-path]##link:#quarkus-temporal_quarkus-temporal-worker-max-concurrent-workflow-task-pollers[`+++quarkus.temporal.worker.max-concurrent-workflow-task-pollers+++`]##
 ifdef::add-copy-button-to-config-props[]
 config_property_copy_button:+++quarkus.temporal.worker.max-concurrent-workflow-task-pollers+++[]
 endif::add-copy-button-to-config-props[]
 
 
-`quarkus.temporal.worker."worker-name".max-concurrent-workflow-task-pollers`
+`+++quarkus.temporal.worker."worker-name".max-concurrent-workflow-task-pollers+++`
 ifdef::add-copy-button-to-config-props[]
 config_property_copy_button:+++quarkus.temporal.worker."worker-name".max-concurrent-workflow-task-pollers+++[]
 endif::add-copy-button-to-config-props[]
@@ -498,13 +498,13 @@ endif::add-copy-button-to-env-var[]
 |int
 |`+++5+++`
 
-a| [[quarkus-temporal_quarkus-temporal-worker-max-concurrent-activity-task-pollers]] [.property-path]##link:#quarkus-temporal_quarkus-temporal-worker-max-concurrent-activity-task-pollers[`quarkus.temporal.worker.max-concurrent-activity-task-pollers`]##
+a| [[quarkus-temporal_quarkus-temporal-worker-max-concurrent-activity-task-pollers]] [.property-path]##link:#quarkus-temporal_quarkus-temporal-worker-max-concurrent-activity-task-pollers[`+++quarkus.temporal.worker.max-concurrent-activity-task-pollers+++`]##
 ifdef::add-copy-button-to-config-props[]
 config_property_copy_button:+++quarkus.temporal.worker.max-concurrent-activity-task-pollers+++[]
 endif::add-copy-button-to-config-props[]
 
 
-`quarkus.temporal.worker."worker-name".max-concurrent-activity-task-pollers`
+`+++quarkus.temporal.worker."worker-name".max-concurrent-activity-task-pollers+++`
 ifdef::add-copy-button-to-config-props[]
 config_property_copy_button:+++quarkus.temporal.worker."worker-name".max-concurrent-activity-task-pollers+++[]
 endif::add-copy-button-to-config-props[]
@@ -524,13 +524,13 @@ endif::add-copy-button-to-env-var[]
 |int
 |`+++5+++`
 
-a| [[quarkus-temporal_quarkus-temporal-worker-local-activity-worker-only]] [.property-path]##link:#quarkus-temporal_quarkus-temporal-worker-local-activity-worker-only[`quarkus.temporal.worker.local-activity-worker-only`]##
+a| [[quarkus-temporal_quarkus-temporal-worker-local-activity-worker-only]] [.property-path]##link:#quarkus-temporal_quarkus-temporal-worker-local-activity-worker-only[`+++quarkus.temporal.worker.local-activity-worker-only+++`]##
 ifdef::add-copy-button-to-config-props[]
 config_property_copy_button:+++quarkus.temporal.worker.local-activity-worker-only+++[]
 endif::add-copy-button-to-config-props[]
 
 
-`quarkus.temporal.worker."worker-name".local-activity-worker-only`
+`+++quarkus.temporal.worker."worker-name".local-activity-worker-only+++`
 ifdef::add-copy-button-to-config-props[]
 config_property_copy_button:+++quarkus.temporal.worker."worker-name".local-activity-worker-only+++[]
 endif::add-copy-button-to-config-props[]
@@ -550,13 +550,13 @@ endif::add-copy-button-to-env-var[]
 |boolean
 |`+++false+++`
 
-a| [[quarkus-temporal_quarkus-temporal-worker-default-deadlock-detection-timeout]] [.property-path]##link:#quarkus-temporal_quarkus-temporal-worker-default-deadlock-detection-timeout[`quarkus.temporal.worker.default-deadlock-detection-timeout`]##
+a| [[quarkus-temporal_quarkus-temporal-worker-default-deadlock-detection-timeout]] [.property-path]##link:#quarkus-temporal_quarkus-temporal-worker-default-deadlock-detection-timeout[`+++quarkus.temporal.worker.default-deadlock-detection-timeout+++`]##
 ifdef::add-copy-button-to-config-props[]
 config_property_copy_button:+++quarkus.temporal.worker.default-deadlock-detection-timeout+++[]
 endif::add-copy-button-to-config-props[]
 
 
-`quarkus.temporal.worker."worker-name".default-deadlock-detection-timeout`
+`+++quarkus.temporal.worker."worker-name".default-deadlock-detection-timeout+++`
 ifdef::add-copy-button-to-config-props[]
 config_property_copy_button:+++quarkus.temporal.worker."worker-name".default-deadlock-detection-timeout+++[]
 endif::add-copy-button-to-config-props[]
@@ -576,13 +576,13 @@ endif::add-copy-button-to-env-var[]
 |long
 |`+++1000+++`
 
-a| [[quarkus-temporal_quarkus-temporal-worker-max-heartbeat-throttle-interval]] [.property-path]##link:#quarkus-temporal_quarkus-temporal-worker-max-heartbeat-throttle-interval[`quarkus.temporal.worker.max-heartbeat-throttle-interval`]##
+a| [[quarkus-temporal_quarkus-temporal-worker-max-heartbeat-throttle-interval]] [.property-path]##link:#quarkus-temporal_quarkus-temporal-worker-max-heartbeat-throttle-interval[`+++quarkus.temporal.worker.max-heartbeat-throttle-interval+++`]##
 ifdef::add-copy-button-to-config-props[]
 config_property_copy_button:+++quarkus.temporal.worker.max-heartbeat-throttle-interval+++[]
 endif::add-copy-button-to-config-props[]
 
 
-`quarkus.temporal.worker."worker-name".max-heartbeat-throttle-interval`
+`+++quarkus.temporal.worker."worker-name".max-heartbeat-throttle-interval+++`
 ifdef::add-copy-button-to-config-props[]
 config_property_copy_button:+++quarkus.temporal.worker."worker-name".max-heartbeat-throttle-interval+++[]
 endif::add-copy-button-to-config-props[]
@@ -602,13 +602,13 @@ endif::add-copy-button-to-env-var[]
 |link:https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/time/Duration.html[Duration] link:#duration-note-anchor-quarkus-temporal_quarkus-temporal[icon:question-circle[title=More information about the Duration format]]
 |`+++60S+++`
 
-a| [[quarkus-temporal_quarkus-temporal-worker-default-heartbeat-throttle-interval]] [.property-path]##link:#quarkus-temporal_quarkus-temporal-worker-default-heartbeat-throttle-interval[`quarkus.temporal.worker.default-heartbeat-throttle-interval`]##
+a| [[quarkus-temporal_quarkus-temporal-worker-default-heartbeat-throttle-interval]] [.property-path]##link:#quarkus-temporal_quarkus-temporal-worker-default-heartbeat-throttle-interval[`+++quarkus.temporal.worker.default-heartbeat-throttle-interval+++`]##
 ifdef::add-copy-button-to-config-props[]
 config_property_copy_button:+++quarkus.temporal.worker.default-heartbeat-throttle-interval+++[]
 endif::add-copy-button-to-config-props[]
 
 
-`quarkus.temporal.worker."worker-name".default-heartbeat-throttle-interval`
+`+++quarkus.temporal.worker."worker-name".default-heartbeat-throttle-interval+++`
 ifdef::add-copy-button-to-config-props[]
 config_property_copy_button:+++quarkus.temporal.worker."worker-name".default-heartbeat-throttle-interval+++[]
 endif::add-copy-button-to-config-props[]
@@ -628,13 +628,13 @@ endif::add-copy-button-to-env-var[]
 |link:https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/time/Duration.html[Duration] link:#duration-note-anchor-quarkus-temporal_quarkus-temporal[icon:question-circle[title=More information about the Duration format]]
 |`+++30S+++`
 
-a| [[quarkus-temporal_quarkus-temporal-worker-sticky-queue-schedule-to-start-timeout]] [.property-path]##link:#quarkus-temporal_quarkus-temporal-worker-sticky-queue-schedule-to-start-timeout[`quarkus.temporal.worker.sticky-queue-schedule-to-start-timeout`]##
+a| [[quarkus-temporal_quarkus-temporal-worker-sticky-queue-schedule-to-start-timeout]] [.property-path]##link:#quarkus-temporal_quarkus-temporal-worker-sticky-queue-schedule-to-start-timeout[`+++quarkus.temporal.worker.sticky-queue-schedule-to-start-timeout+++`]##
 ifdef::add-copy-button-to-config-props[]
 config_property_copy_button:+++quarkus.temporal.worker.sticky-queue-schedule-to-start-timeout+++[]
 endif::add-copy-button-to-config-props[]
 
 
-`quarkus.temporal.worker."worker-name".sticky-queue-schedule-to-start-timeout`
+`+++quarkus.temporal.worker."worker-name".sticky-queue-schedule-to-start-timeout+++`
 ifdef::add-copy-button-to-config-props[]
 config_property_copy_button:+++quarkus.temporal.worker."worker-name".sticky-queue-schedule-to-start-timeout+++[]
 endif::add-copy-button-to-config-props[]
@@ -654,13 +654,13 @@ endif::add-copy-button-to-env-var[]
 |link:https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/time/Duration.html[Duration] link:#duration-note-anchor-quarkus-temporal_quarkus-temporal[icon:question-circle[title=More information about the Duration format]]
 |`+++5S+++`
 
-a| [[quarkus-temporal_quarkus-temporal-worker-disable-eager-execution]] [.property-path]##link:#quarkus-temporal_quarkus-temporal-worker-disable-eager-execution[`quarkus.temporal.worker.disable-eager-execution`]##
+a| [[quarkus-temporal_quarkus-temporal-worker-disable-eager-execution]] [.property-path]##link:#quarkus-temporal_quarkus-temporal-worker-disable-eager-execution[`+++quarkus.temporal.worker.disable-eager-execution+++`]##
 ifdef::add-copy-button-to-config-props[]
 config_property_copy_button:+++quarkus.temporal.worker.disable-eager-execution+++[]
 endif::add-copy-button-to-config-props[]
 
 
-`quarkus.temporal.worker."worker-name".disable-eager-execution`
+`+++quarkus.temporal.worker."worker-name".disable-eager-execution+++`
 ifdef::add-copy-button-to-config-props[]
 config_property_copy_button:+++quarkus.temporal.worker."worker-name".disable-eager-execution+++[]
 endif::add-copy-button-to-config-props[]
@@ -680,13 +680,13 @@ endif::add-copy-button-to-env-var[]
 |boolean
 |`+++false+++`
 
-a| [[quarkus-temporal_quarkus-temporal-worker-use-build-id-for-versioning]] [.property-path]##link:#quarkus-temporal_quarkus-temporal-worker-use-build-id-for-versioning[`quarkus.temporal.worker.use-build-id-for-versioning`]##
+a| [[quarkus-temporal_quarkus-temporal-worker-use-build-id-for-versioning]] [.property-path]##link:#quarkus-temporal_quarkus-temporal-worker-use-build-id-for-versioning[`+++quarkus.temporal.worker.use-build-id-for-versioning+++`]##
 ifdef::add-copy-button-to-config-props[]
 config_property_copy_button:+++quarkus.temporal.worker.use-build-id-for-versioning+++[]
 endif::add-copy-button-to-config-props[]
 
 
-`quarkus.temporal.worker."worker-name".use-build-id-for-versioning`
+`+++quarkus.temporal.worker."worker-name".use-build-id-for-versioning+++`
 ifdef::add-copy-button-to-config-props[]
 config_property_copy_button:+++quarkus.temporal.worker."worker-name".use-build-id-for-versioning+++[]
 endif::add-copy-button-to-config-props[]
@@ -706,13 +706,13 @@ endif::add-copy-button-to-env-var[]
 |boolean
 |`+++false+++`
 
-a| [[quarkus-temporal_quarkus-temporal-worker-sticky-task-queue-drain-timeout]] [.property-path]##link:#quarkus-temporal_quarkus-temporal-worker-sticky-task-queue-drain-timeout[`quarkus.temporal.worker.sticky-task-queue-drain-timeout`]##
+a| [[quarkus-temporal_quarkus-temporal-worker-sticky-task-queue-drain-timeout]] [.property-path]##link:#quarkus-temporal_quarkus-temporal-worker-sticky-task-queue-drain-timeout[`+++quarkus.temporal.worker.sticky-task-queue-drain-timeout+++`]##
 ifdef::add-copy-button-to-config-props[]
 config_property_copy_button:+++quarkus.temporal.worker.sticky-task-queue-drain-timeout+++[]
 endif::add-copy-button-to-config-props[]
 
 
-`quarkus.temporal.worker."worker-name".sticky-task-queue-drain-timeout`
+`+++quarkus.temporal.worker."worker-name".sticky-task-queue-drain-timeout+++`
 ifdef::add-copy-button-to-config-props[]
 config_property_copy_button:+++quarkus.temporal.worker."worker-name".sticky-task-queue-drain-timeout+++[]
 endif::add-copy-button-to-config-props[]
@@ -732,13 +732,13 @@ endif::add-copy-button-to-env-var[]
 |link:https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/time/Duration.html[Duration] link:#duration-note-anchor-quarkus-temporal_quarkus-temporal[icon:question-circle[title=More information about the Duration format]]
 |`+++0S+++`
 
-a| [[quarkus-temporal_quarkus-temporal-worker-identity]] [.property-path]##link:#quarkus-temporal_quarkus-temporal-worker-identity[`quarkus.temporal.worker.identity`]##
+a| [[quarkus-temporal_quarkus-temporal-worker-identity]] [.property-path]##link:#quarkus-temporal_quarkus-temporal-worker-identity[`+++quarkus.temporal.worker.identity+++`]##
 ifdef::add-copy-button-to-config-props[]
 config_property_copy_button:+++quarkus.temporal.worker.identity+++[]
 endif::add-copy-button-to-config-props[]
 
 
-`quarkus.temporal.worker."worker-name".identity`
+`+++quarkus.temporal.worker."worker-name".identity+++`
 ifdef::add-copy-button-to-config-props[]
 config_property_copy_button:+++quarkus.temporal.worker."worker-name".identity+++[]
 endif::add-copy-button-to-config-props[]
@@ -758,13 +758,13 @@ endif::add-copy-button-to-env-var[]
 |string
 |
 
-a| [[quarkus-temporal_quarkus-temporal-workflow-workflow-id-reuse-policy]] [.property-path]##link:#quarkus-temporal_quarkus-temporal-workflow-workflow-id-reuse-policy[`quarkus.temporal.workflow.workflow-id-reuse-policy`]##
+a| [[quarkus-temporal_quarkus-temporal-workflow-workflow-id-reuse-policy]] [.property-path]##link:#quarkus-temporal_quarkus-temporal-workflow-workflow-id-reuse-policy[`+++quarkus.temporal.workflow.workflow-id-reuse-policy+++`]##
 ifdef::add-copy-button-to-config-props[]
 config_property_copy_button:+++quarkus.temporal.workflow.workflow-id-reuse-policy+++[]
 endif::add-copy-button-to-config-props[]
 
 
-`quarkus.temporal.workflow."group-name".workflow-id-reuse-policy`
+`+++quarkus.temporal.workflow."group-name".workflow-id-reuse-policy+++`
 ifdef::add-copy-button-to-config-props[]
 config_property_copy_button:+++quarkus.temporal.workflow."group-name".workflow-id-reuse-policy+++[]
 endif::add-copy-button-to-config-props[]
@@ -784,13 +784,13 @@ endif::add-copy-button-to-env-var[]
 a|`unspecified`, `allow-duplicate`, `allow-duplicate-failed-only`, `reject-duplicate`, `terminate-if-running`
 |`+++allow-duplicate+++`
 
-a| [[quarkus-temporal_quarkus-temporal-workflow-workflow-id-conflict-policy]] [.property-path]##link:#quarkus-temporal_quarkus-temporal-workflow-workflow-id-conflict-policy[`quarkus.temporal.workflow.workflow-id-conflict-policy`]##
+a| [[quarkus-temporal_quarkus-temporal-workflow-workflow-id-conflict-policy]] [.property-path]##link:#quarkus-temporal_quarkus-temporal-workflow-workflow-id-conflict-policy[`+++quarkus.temporal.workflow.workflow-id-conflict-policy+++`]##
 ifdef::add-copy-button-to-config-props[]
 config_property_copy_button:+++quarkus.temporal.workflow.workflow-id-conflict-policy+++[]
 endif::add-copy-button-to-config-props[]
 
 
-`quarkus.temporal.workflow."group-name".workflow-id-conflict-policy`
+`+++quarkus.temporal.workflow."group-name".workflow-id-conflict-policy+++`
 ifdef::add-copy-button-to-config-props[]
 config_property_copy_button:+++quarkus.temporal.workflow."group-name".workflow-id-conflict-policy+++[]
 endif::add-copy-button-to-config-props[]
@@ -810,13 +810,13 @@ endif::add-copy-button-to-env-var[]
 a|`unspecified`, `fail`, `use-existing`, `terminate-existing`
 |`+++fail+++`
 
-a| [[quarkus-temporal_quarkus-temporal-workflow-workflow-run-timeout]] [.property-path]##link:#quarkus-temporal_quarkus-temporal-workflow-workflow-run-timeout[`quarkus.temporal.workflow.workflow-run-timeout`]##
+a| [[quarkus-temporal_quarkus-temporal-workflow-workflow-run-timeout]] [.property-path]##link:#quarkus-temporal_quarkus-temporal-workflow-workflow-run-timeout[`+++quarkus.temporal.workflow.workflow-run-timeout+++`]##
 ifdef::add-copy-button-to-config-props[]
 config_property_copy_button:+++quarkus.temporal.workflow.workflow-run-timeout+++[]
 endif::add-copy-button-to-config-props[]
 
 
-`quarkus.temporal.workflow."group-name".workflow-run-timeout`
+`+++quarkus.temporal.workflow."group-name".workflow-run-timeout+++`
 ifdef::add-copy-button-to-config-props[]
 config_property_copy_button:+++quarkus.temporal.workflow."group-name".workflow-run-timeout+++[]
 endif::add-copy-button-to-config-props[]
@@ -836,13 +836,13 @@ endif::add-copy-button-to-env-var[]
 |link:https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/time/Duration.html[Duration] link:#duration-note-anchor-quarkus-temporal_quarkus-temporal[icon:question-circle[title=More information about the Duration format]]
 |
 
-a| [[quarkus-temporal_quarkus-temporal-workflow-workflow-execution-timeout]] [.property-path]##link:#quarkus-temporal_quarkus-temporal-workflow-workflow-execution-timeout[`quarkus.temporal.workflow.workflow-execution-timeout`]##
+a| [[quarkus-temporal_quarkus-temporal-workflow-workflow-execution-timeout]] [.property-path]##link:#quarkus-temporal_quarkus-temporal-workflow-workflow-execution-timeout[`+++quarkus.temporal.workflow.workflow-execution-timeout+++`]##
 ifdef::add-copy-button-to-config-props[]
 config_property_copy_button:+++quarkus.temporal.workflow.workflow-execution-timeout+++[]
 endif::add-copy-button-to-config-props[]
 
 
-`quarkus.temporal.workflow."group-name".workflow-execution-timeout`
+`+++quarkus.temporal.workflow."group-name".workflow-execution-timeout+++`
 ifdef::add-copy-button-to-config-props[]
 config_property_copy_button:+++quarkus.temporal.workflow."group-name".workflow-execution-timeout+++[]
 endif::add-copy-button-to-config-props[]
@@ -862,13 +862,13 @@ endif::add-copy-button-to-env-var[]
 |link:https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/time/Duration.html[Duration] link:#duration-note-anchor-quarkus-temporal_quarkus-temporal[icon:question-circle[title=More information about the Duration format]]
 |
 
-a| [[quarkus-temporal_quarkus-temporal-workflow-workflow-task-timeout]] [.property-path]##link:#quarkus-temporal_quarkus-temporal-workflow-workflow-task-timeout[`quarkus.temporal.workflow.workflow-task-timeout`]##
+a| [[quarkus-temporal_quarkus-temporal-workflow-workflow-task-timeout]] [.property-path]##link:#quarkus-temporal_quarkus-temporal-workflow-workflow-task-timeout[`+++quarkus.temporal.workflow.workflow-task-timeout+++`]##
 ifdef::add-copy-button-to-config-props[]
 config_property_copy_button:+++quarkus.temporal.workflow.workflow-task-timeout+++[]
 endif::add-copy-button-to-config-props[]
 
 
-`quarkus.temporal.workflow."group-name".workflow-task-timeout`
+`+++quarkus.temporal.workflow."group-name".workflow-task-timeout+++`
 ifdef::add-copy-button-to-config-props[]
 config_property_copy_button:+++quarkus.temporal.workflow."group-name".workflow-task-timeout+++[]
 endif::add-copy-button-to-config-props[]
@@ -888,13 +888,13 @@ endif::add-copy-button-to-env-var[]
 |link:https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/time/Duration.html[Duration] link:#duration-note-anchor-quarkus-temporal_quarkus-temporal[icon:question-circle[title=More information about the Duration format]]
 |`+++10S+++`
 
-a| [[quarkus-temporal_quarkus-temporal-workflow-cron-schedule]] [.property-path]##link:#quarkus-temporal_quarkus-temporal-workflow-cron-schedule[`quarkus.temporal.workflow.cron-schedule`]##
+a| [[quarkus-temporal_quarkus-temporal-workflow-cron-schedule]] [.property-path]##link:#quarkus-temporal_quarkus-temporal-workflow-cron-schedule[`+++quarkus.temporal.workflow.cron-schedule+++`]##
 ifdef::add-copy-button-to-config-props[]
 config_property_copy_button:+++quarkus.temporal.workflow.cron-schedule+++[]
 endif::add-copy-button-to-config-props[]
 
 
-`quarkus.temporal.workflow."group-name".cron-schedule`
+`+++quarkus.temporal.workflow."group-name".cron-schedule+++`
 ifdef::add-copy-button-to-config-props[]
 config_property_copy_button:+++quarkus.temporal.workflow."group-name".cron-schedule+++[]
 endif::add-copy-button-to-config-props[]
@@ -914,13 +914,13 @@ endif::add-copy-button-to-env-var[]
 |string
 |
 
-a| [[quarkus-temporal_quarkus-temporal-workflow-disable-eager-execution]] [.property-path]##link:#quarkus-temporal_quarkus-temporal-workflow-disable-eager-execution[`quarkus.temporal.workflow.disable-eager-execution`]##
+a| [[quarkus-temporal_quarkus-temporal-workflow-disable-eager-execution]] [.property-path]##link:#quarkus-temporal_quarkus-temporal-workflow-disable-eager-execution[`+++quarkus.temporal.workflow.disable-eager-execution+++`]##
 ifdef::add-copy-button-to-config-props[]
 config_property_copy_button:+++quarkus.temporal.workflow.disable-eager-execution+++[]
 endif::add-copy-button-to-config-props[]
 
 
-`quarkus.temporal.workflow."group-name".disable-eager-execution`
+`+++quarkus.temporal.workflow."group-name".disable-eager-execution+++`
 ifdef::add-copy-button-to-config-props[]
 config_property_copy_button:+++quarkus.temporal.workflow."group-name".disable-eager-execution+++[]
 endif::add-copy-button-to-config-props[]
@@ -940,13 +940,13 @@ endif::add-copy-button-to-env-var[]
 |boolean
 |`+++true+++`
 
-a| [[quarkus-temporal_quarkus-temporal-workflow-start-delay]] [.property-path]##link:#quarkus-temporal_quarkus-temporal-workflow-start-delay[`quarkus.temporal.workflow.start-delay`]##
+a| [[quarkus-temporal_quarkus-temporal-workflow-start-delay]] [.property-path]##link:#quarkus-temporal_quarkus-temporal-workflow-start-delay[`+++quarkus.temporal.workflow.start-delay+++`]##
 ifdef::add-copy-button-to-config-props[]
 config_property_copy_button:+++quarkus.temporal.workflow.start-delay+++[]
 endif::add-copy-button-to-config-props[]
 
 
-`quarkus.temporal.workflow."group-name".start-delay`
+`+++quarkus.temporal.workflow."group-name".start-delay+++`
 ifdef::add-copy-button-to-config-props[]
 config_property_copy_button:+++quarkus.temporal.workflow."group-name".start-delay+++[]
 endif::add-copy-button-to-config-props[]
@@ -970,7 +970,7 @@ h|[[quarkus-temporal_section_quarkus-temporal-connection]] [.section-name.sectio
 h|Type
 h|Default
 
-a| [[quarkus-temporal_quarkus-temporal-connection-target]] [.property-path]##link:#quarkus-temporal_quarkus-temporal-connection-target[`quarkus.temporal.connection.target`]##
+a| [[quarkus-temporal_quarkus-temporal-connection-target]] [.property-path]##link:#quarkus-temporal_quarkus-temporal-connection-target[`+++quarkus.temporal.connection.target+++`]##
 ifdef::add-copy-button-to-config-props[]
 config_property_copy_button:+++quarkus.temporal.connection.target+++[]
 endif::add-copy-button-to-config-props[]
@@ -991,7 +991,7 @@ endif::add-copy-button-to-env-var[]
 |string
 |`+++127.0.0.1:7233+++`
 
-a| [[quarkus-temporal_quarkus-temporal-connection-enable-https]] [.property-path]##link:#quarkus-temporal_quarkus-temporal-connection-enable-https[`quarkus.temporal.connection.enable-https`]##
+a| [[quarkus-temporal_quarkus-temporal-connection-enable-https]] [.property-path]##link:#quarkus-temporal_quarkus-temporal-connection-enable-https[`+++quarkus.temporal.connection.enable-https+++`]##
 ifdef::add-copy-button-to-config-props[]
 config_property_copy_button:+++quarkus.temporal.connection.enable-https+++[]
 endif::add-copy-button-to-config-props[]
@@ -1012,7 +1012,7 @@ endif::add-copy-button-to-env-var[]
 |boolean
 |`+++false+++`
 
-a| [[quarkus-temporal_quarkus-temporal-connection-api-key]] [.property-path]##link:#quarkus-temporal_quarkus-temporal-connection-api-key[`quarkus.temporal.connection.api-key`]##
+a| [[quarkus-temporal_quarkus-temporal-connection-api-key]] [.property-path]##link:#quarkus-temporal_quarkus-temporal-connection-api-key[`+++quarkus.temporal.connection.api-key+++`]##
 ifdef::add-copy-button-to-config-props[]
 config_property_copy_button:+++quarkus.temporal.connection.api-key+++[]
 endif::add-copy-button-to-config-props[]
@@ -1033,7 +1033,7 @@ endif::add-copy-button-to-env-var[]
 |string
 |
 
-a| [[quarkus-temporal_quarkus-temporal-connection-rpc-retry-initial-interval]] [.property-path]##link:#quarkus-temporal_quarkus-temporal-connection-rpc-retry-initial-interval[`quarkus.temporal.connection.rpc-retry.initial-interval`]##
+a| [[quarkus-temporal_quarkus-temporal-connection-rpc-retry-initial-interval]] [.property-path]##link:#quarkus-temporal_quarkus-temporal-connection-rpc-retry-initial-interval[`+++quarkus.temporal.connection.rpc-retry.initial-interval+++`]##
 ifdef::add-copy-button-to-config-props[]
 config_property_copy_button:+++quarkus.temporal.connection.rpc-retry.initial-interval+++[]
 endif::add-copy-button-to-config-props[]
@@ -1054,7 +1054,7 @@ endif::add-copy-button-to-env-var[]
 |link:https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/time/Duration.html[Duration] link:#duration-note-anchor-quarkus-temporal_quarkus-temporal[icon:question-circle[title=More information about the Duration format]]
 |`+++100MS+++`
 
-a| [[quarkus-temporal_quarkus-temporal-connection-rpc-retry-congestion-initial-interval]] [.property-path]##link:#quarkus-temporal_quarkus-temporal-connection-rpc-retry-congestion-initial-interval[`quarkus.temporal.connection.rpc-retry.congestion-initial-interval`]##
+a| [[quarkus-temporal_quarkus-temporal-connection-rpc-retry-congestion-initial-interval]] [.property-path]##link:#quarkus-temporal_quarkus-temporal-connection-rpc-retry-congestion-initial-interval[`+++quarkus.temporal.connection.rpc-retry.congestion-initial-interval+++`]##
 ifdef::add-copy-button-to-config-props[]
 config_property_copy_button:+++quarkus.temporal.connection.rpc-retry.congestion-initial-interval+++[]
 endif::add-copy-button-to-config-props[]
@@ -1075,7 +1075,7 @@ endif::add-copy-button-to-env-var[]
 |link:https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/time/Duration.html[Duration] link:#duration-note-anchor-quarkus-temporal_quarkus-temporal[icon:question-circle[title=More information about the Duration format]]
 |`+++1000MS+++`
 
-a| [[quarkus-temporal_quarkus-temporal-connection-rpc-retry-expiration]] [.property-path]##link:#quarkus-temporal_quarkus-temporal-connection-rpc-retry-expiration[`quarkus.temporal.connection.rpc-retry.expiration`]##
+a| [[quarkus-temporal_quarkus-temporal-connection-rpc-retry-expiration]] [.property-path]##link:#quarkus-temporal_quarkus-temporal-connection-rpc-retry-expiration[`+++quarkus.temporal.connection.rpc-retry.expiration+++`]##
 ifdef::add-copy-button-to-config-props[]
 config_property_copy_button:+++quarkus.temporal.connection.rpc-retry.expiration+++[]
 endif::add-copy-button-to-config-props[]
@@ -1096,7 +1096,7 @@ endif::add-copy-button-to-env-var[]
 |link:https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/time/Duration.html[Duration] link:#duration-note-anchor-quarkus-temporal_quarkus-temporal[icon:question-circle[title=More information about the Duration format]]
 |`+++1M+++`
 
-a| [[quarkus-temporal_quarkus-temporal-connection-rpc-retry-backoff-coefficient]] [.property-path]##link:#quarkus-temporal_quarkus-temporal-connection-rpc-retry-backoff-coefficient[`quarkus.temporal.connection.rpc-retry.backoff-coefficient`]##
+a| [[quarkus-temporal_quarkus-temporal-connection-rpc-retry-backoff-coefficient]] [.property-path]##link:#quarkus-temporal_quarkus-temporal-connection-rpc-retry-backoff-coefficient[`+++quarkus.temporal.connection.rpc-retry.backoff-coefficient+++`]##
 ifdef::add-copy-button-to-config-props[]
 config_property_copy_button:+++quarkus.temporal.connection.rpc-retry.backoff-coefficient+++[]
 endif::add-copy-button-to-config-props[]
@@ -1117,7 +1117,7 @@ endif::add-copy-button-to-env-var[]
 |double
 |`+++1.5+++`
 
-a| [[quarkus-temporal_quarkus-temporal-connection-rpc-retry-maximum-attempts]] [.property-path]##link:#quarkus-temporal_quarkus-temporal-connection-rpc-retry-maximum-attempts[`quarkus.temporal.connection.rpc-retry.maximum-attempts`]##
+a| [[quarkus-temporal_quarkus-temporal-connection-rpc-retry-maximum-attempts]] [.property-path]##link:#quarkus-temporal_quarkus-temporal-connection-rpc-retry-maximum-attempts[`+++quarkus.temporal.connection.rpc-retry.maximum-attempts+++`]##
 ifdef::add-copy-button-to-config-props[]
 config_property_copy_button:+++quarkus.temporal.connection.rpc-retry.maximum-attempts+++[]
 endif::add-copy-button-to-config-props[]
@@ -1138,7 +1138,7 @@ endif::add-copy-button-to-env-var[]
 |int
 |`+++0+++`
 
-a| [[quarkus-temporal_quarkus-temporal-connection-rpc-retry-maximum-interval]] [.property-path]##link:#quarkus-temporal_quarkus-temporal-connection-rpc-retry-maximum-interval[`quarkus.temporal.connection.rpc-retry.maximum-interval`]##
+a| [[quarkus-temporal_quarkus-temporal-connection-rpc-retry-maximum-interval]] [.property-path]##link:#quarkus-temporal_quarkus-temporal-connection-rpc-retry-maximum-interval[`+++quarkus.temporal.connection.rpc-retry.maximum-interval+++`]##
 ifdef::add-copy-button-to-config-props[]
 config_property_copy_button:+++quarkus.temporal.connection.rpc-retry.maximum-interval+++[]
 endif::add-copy-button-to-config-props[]
@@ -1159,7 +1159,7 @@ endif::add-copy-button-to-env-var[]
 |link:https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/time/Duration.html[Duration] link:#duration-note-anchor-quarkus-temporal_quarkus-temporal[icon:question-circle[title=More information about the Duration format]]
 |
 
-a| [[quarkus-temporal_quarkus-temporal-connection-rpc-retry-maximum-jitter-coefficient]] [.property-path]##link:#quarkus-temporal_quarkus-temporal-connection-rpc-retry-maximum-jitter-coefficient[`quarkus.temporal.connection.rpc-retry.maximum-jitter-coefficient`]##
+a| [[quarkus-temporal_quarkus-temporal-connection-rpc-retry-maximum-jitter-coefficient]] [.property-path]##link:#quarkus-temporal_quarkus-temporal-connection-rpc-retry-maximum-jitter-coefficient[`+++quarkus.temporal.connection.rpc-retry.maximum-jitter-coefficient+++`]##
 ifdef::add-copy-button-to-config-props[]
 config_property_copy_button:+++quarkus.temporal.connection.rpc-retry.maximum-jitter-coefficient+++[]
 endif::add-copy-button-to-config-props[]
@@ -1180,7 +1180,7 @@ endif::add-copy-button-to-env-var[]
 |double
 |`+++0.2+++`
 
-a| [[quarkus-temporal_quarkus-temporal-connection-rpc-retry-do-not-retry]] [.property-path]##link:#quarkus-temporal_quarkus-temporal-connection-rpc-retry-do-not-retry[`quarkus.temporal.connection.rpc-retry.do-not-retry`]##
+a| [[quarkus-temporal_quarkus-temporal-connection-rpc-retry-do-not-retry]] [.property-path]##link:#quarkus-temporal_quarkus-temporal-connection-rpc-retry-do-not-retry[`+++quarkus.temporal.connection.rpc-retry.do-not-retry+++`]##
 ifdef::add-copy-button-to-config-props[]
 config_property_copy_button:+++quarkus.temporal.connection.rpc-retry.do-not-retry+++[]
 endif::add-copy-button-to-config-props[]
@@ -1201,7 +1201,7 @@ endif::add-copy-button-to-env-var[]
 a|list of `ok`, `cancelled`, `unknown`, `invalid-argument`, `deadline-exceeded`, `not-found`, `already-exists`, `permission-denied`, `resource-exhausted`, `failed-precondition`, `aborted`, `out-of-range`, `unimplemented`, `internal`, `unavailable`, `data-loss`, `unauthenticated`
 |
 
-a| [[quarkus-temporal_quarkus-temporal-connection-mtls-client-cert-path]] [.property-path]##link:#quarkus-temporal_quarkus-temporal-connection-mtls-client-cert-path[`quarkus.temporal.connection.mtls.client-cert-path`]##
+a| [[quarkus-temporal_quarkus-temporal-connection-mtls-client-cert-path]] [.property-path]##link:#quarkus-temporal_quarkus-temporal-connection-mtls-client-cert-path[`+++quarkus.temporal.connection.mtls.client-cert-path+++`]##
 ifdef::add-copy-button-to-config-props[]
 config_property_copy_button:+++quarkus.temporal.connection.mtls.client-cert-path+++[]
 endif::add-copy-button-to-config-props[]
@@ -1222,7 +1222,7 @@ endif::add-copy-button-to-env-var[]
 |path
 |
 
-a| [[quarkus-temporal_quarkus-temporal-connection-mtls-client-key-path]] [.property-path]##link:#quarkus-temporal_quarkus-temporal-connection-mtls-client-key-path[`quarkus.temporal.connection.mtls.client-key-path`]##
+a| [[quarkus-temporal_quarkus-temporal-connection-mtls-client-key-path]] [.property-path]##link:#quarkus-temporal_quarkus-temporal-connection-mtls-client-key-path[`+++quarkus.temporal.connection.mtls.client-key-path+++`]##
 ifdef::add-copy-button-to-config-props[]
 config_property_copy_button:+++quarkus.temporal.connection.mtls.client-key-path+++[]
 endif::add-copy-button-to-config-props[]
@@ -1243,7 +1243,7 @@ endif::add-copy-button-to-env-var[]
 |path
 |
 
-a| [[quarkus-temporal_quarkus-temporal-connection-mtls-password]] [.property-path]##link:#quarkus-temporal_quarkus-temporal-connection-mtls-password[`quarkus.temporal.connection.mtls.password`]##
+a| [[quarkus-temporal_quarkus-temporal-connection-mtls-password]] [.property-path]##link:#quarkus-temporal_quarkus-temporal-connection-mtls-password[`+++quarkus.temporal.connection.mtls.password+++`]##
 ifdef::add-copy-button-to-config-props[]
 config_property_copy_button:+++quarkus.temporal.connection.mtls.password+++[]
 endif::add-copy-button-to-config-props[]
@@ -1264,7 +1264,7 @@ endif::add-copy-button-to-env-var[]
 |string
 |
 
-a| [[quarkus-temporal_quarkus-temporal-connection-rpc-long-poll-timeout]] [.property-path]##link:#quarkus-temporal_quarkus-temporal-connection-rpc-long-poll-timeout[`quarkus.temporal.connection.rpc-long-poll-timeout`]##
+a| [[quarkus-temporal_quarkus-temporal-connection-rpc-long-poll-timeout]] [.property-path]##link:#quarkus-temporal_quarkus-temporal-connection-rpc-long-poll-timeout[`+++quarkus.temporal.connection.rpc-long-poll-timeout+++`]##
 ifdef::add-copy-button-to-config-props[]
 config_property_copy_button:+++quarkus.temporal.connection.rpc-long-poll-timeout+++[]
 endif::add-copy-button-to-config-props[]
@@ -1290,13 +1290,13 @@ h|[[quarkus-temporal_section_quarkus-temporal-workflow-retries]] [.section-name.
 h|Type
 h|Default
 
-a| [[quarkus-temporal_quarkus-temporal-workflow-retries-do-not-retry]] [.property-path]##link:#quarkus-temporal_quarkus-temporal-workflow-retries-do-not-retry[`quarkus.temporal.workflow.retries.do-not-retry`]##
+a| [[quarkus-temporal_quarkus-temporal-workflow-retries-do-not-retry]] [.property-path]##link:#quarkus-temporal_quarkus-temporal-workflow-retries-do-not-retry[`+++quarkus.temporal.workflow.retries.do-not-retry+++`]##
 ifdef::add-copy-button-to-config-props[]
 config_property_copy_button:+++quarkus.temporal.workflow.retries.do-not-retry+++[]
 endif::add-copy-button-to-config-props[]
 
 
-`quarkus.temporal.workflow."group-name".retries.do-not-retry`
+`+++quarkus.temporal.workflow."group-name".retries.do-not-retry+++`
 ifdef::add-copy-button-to-config-props[]
 config_property_copy_button:+++quarkus.temporal.workflow."group-name".retries.do-not-retry+++[]
 endif::add-copy-button-to-config-props[]
@@ -1316,13 +1316,13 @@ endif::add-copy-button-to-env-var[]
 |list of string
 |`+++[]+++`
 
-a| [[quarkus-temporal_quarkus-temporal-workflow-retries-initial-interval]] [.property-path]##link:#quarkus-temporal_quarkus-temporal-workflow-retries-initial-interval[`quarkus.temporal.workflow.retries.initial-interval`]##
+a| [[quarkus-temporal_quarkus-temporal-workflow-retries-initial-interval]] [.property-path]##link:#quarkus-temporal_quarkus-temporal-workflow-retries-initial-interval[`+++quarkus.temporal.workflow.retries.initial-interval+++`]##
 ifdef::add-copy-button-to-config-props[]
 config_property_copy_button:+++quarkus.temporal.workflow.retries.initial-interval+++[]
 endif::add-copy-button-to-config-props[]
 
 
-`quarkus.temporal.workflow."group-name".retries.initial-interval`
+`+++quarkus.temporal.workflow."group-name".retries.initial-interval+++`
 ifdef::add-copy-button-to-config-props[]
 config_property_copy_button:+++quarkus.temporal.workflow."group-name".retries.initial-interval+++[]
 endif::add-copy-button-to-config-props[]
@@ -1342,13 +1342,13 @@ endif::add-copy-button-to-env-var[]
 |link:https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/time/Duration.html[Duration] link:#duration-note-anchor-quarkus-temporal_quarkus-temporal[icon:question-circle[title=More information about the Duration format]]
 |`+++1S+++`
 
-a| [[quarkus-temporal_quarkus-temporal-workflow-retries-backoff-coefficient]] [.property-path]##link:#quarkus-temporal_quarkus-temporal-workflow-retries-backoff-coefficient[`quarkus.temporal.workflow.retries.backoff-coefficient`]##
+a| [[quarkus-temporal_quarkus-temporal-workflow-retries-backoff-coefficient]] [.property-path]##link:#quarkus-temporal_quarkus-temporal-workflow-retries-backoff-coefficient[`+++quarkus.temporal.workflow.retries.backoff-coefficient+++`]##
 ifdef::add-copy-button-to-config-props[]
 config_property_copy_button:+++quarkus.temporal.workflow.retries.backoff-coefficient+++[]
 endif::add-copy-button-to-config-props[]
 
 
-`quarkus.temporal.workflow."group-name".retries.backoff-coefficient`
+`+++quarkus.temporal.workflow."group-name".retries.backoff-coefficient+++`
 ifdef::add-copy-button-to-config-props[]
 config_property_copy_button:+++quarkus.temporal.workflow."group-name".retries.backoff-coefficient+++[]
 endif::add-copy-button-to-config-props[]
@@ -1368,13 +1368,13 @@ endif::add-copy-button-to-env-var[]
 |double
 |`+++2.0+++`
 
-a| [[quarkus-temporal_quarkus-temporal-workflow-retries-set-maximum-attempts]] [.property-path]##link:#quarkus-temporal_quarkus-temporal-workflow-retries-set-maximum-attempts[`quarkus.temporal.workflow.retries.set-maximum-attempts`]##
+a| [[quarkus-temporal_quarkus-temporal-workflow-retries-set-maximum-attempts]] [.property-path]##link:#quarkus-temporal_quarkus-temporal-workflow-retries-set-maximum-attempts[`+++quarkus.temporal.workflow.retries.set-maximum-attempts+++`]##
 ifdef::add-copy-button-to-config-props[]
 config_property_copy_button:+++quarkus.temporal.workflow.retries.set-maximum-attempts+++[]
 endif::add-copy-button-to-config-props[]
 
 
-`quarkus.temporal.workflow."group-name".retries.set-maximum-attempts`
+`+++quarkus.temporal.workflow."group-name".retries.set-maximum-attempts+++`
 ifdef::add-copy-button-to-config-props[]
 config_property_copy_button:+++quarkus.temporal.workflow."group-name".retries.set-maximum-attempts+++[]
 endif::add-copy-button-to-config-props[]
@@ -1394,13 +1394,13 @@ endif::add-copy-button-to-env-var[]
 |int
 |`+++0+++`
 
-a| [[quarkus-temporal_quarkus-temporal-workflow-retries-maximum-interval]] [.property-path]##link:#quarkus-temporal_quarkus-temporal-workflow-retries-maximum-interval[`quarkus.temporal.workflow.retries.maximum-interval`]##
+a| [[quarkus-temporal_quarkus-temporal-workflow-retries-maximum-interval]] [.property-path]##link:#quarkus-temporal_quarkus-temporal-workflow-retries-maximum-interval[`+++quarkus.temporal.workflow.retries.maximum-interval+++`]##
 ifdef::add-copy-button-to-config-props[]
 config_property_copy_button:+++quarkus.temporal.workflow.retries.maximum-interval+++[]
 endif::add-copy-button-to-config-props[]
 
 
-`quarkus.temporal.workflow."group-name".retries.maximum-interval`
+`+++quarkus.temporal.workflow."group-name".retries.maximum-interval+++`
 ifdef::add-copy-button-to-config-props[]
 config_property_copy_button:+++quarkus.temporal.workflow."group-name".retries.maximum-interval+++[]
 endif::add-copy-button-to-config-props[]
@@ -1425,7 +1425,7 @@ h|[[quarkus-temporal_section_quarkus-temporal-worker-factory]] [.section-name.se
 h|Type
 h|Default
 
-a| [[quarkus-temporal_quarkus-temporal-worker-factory-using-virtual-workflow-threads]] [.property-path]##link:#quarkus-temporal_quarkus-temporal-worker-factory-using-virtual-workflow-threads[`quarkus.temporal.worker-factory.using-virtual-workflow-threads`]##
+a| [[quarkus-temporal_quarkus-temporal-worker-factory-using-virtual-workflow-threads]] [.property-path]##link:#quarkus-temporal_quarkus-temporal-worker-factory-using-virtual-workflow-threads[`+++quarkus.temporal.worker-factory.using-virtual-workflow-threads+++`]##
 ifdef::add-copy-button-to-config-props[]
 config_property_copy_button:+++quarkus.temporal.worker-factory.using-virtual-workflow-threads+++[]
 endif::add-copy-button-to-config-props[]
@@ -1446,7 +1446,7 @@ endif::add-copy-button-to-env-var[]
 |boolean
 |`+++false+++`
 
-a| [[quarkus-temporal_quarkus-temporal-worker-factory-max-workflow-thread-count]] [.property-path]##link:#quarkus-temporal_quarkus-temporal-worker-factory-max-workflow-thread-count[`quarkus.temporal.worker-factory.max-workflow-thread-count`]##
+a| [[quarkus-temporal_quarkus-temporal-worker-factory-max-workflow-thread-count]] [.property-path]##link:#quarkus-temporal_quarkus-temporal-worker-factory-max-workflow-thread-count[`+++quarkus.temporal.worker-factory.max-workflow-thread-count+++`]##
 ifdef::add-copy-button-to-config-props[]
 config_property_copy_button:+++quarkus.temporal.worker-factory.max-workflow-thread-count+++[]
 endif::add-copy-button-to-config-props[]
@@ -1467,7 +1467,7 @@ endif::add-copy-button-to-env-var[]
 |int
 |`+++600+++`
 
-a| [[quarkus-temporal_quarkus-temporal-worker-factory-workflow-cache-size]] [.property-path]##link:#quarkus-temporal_quarkus-temporal-worker-factory-workflow-cache-size[`quarkus.temporal.worker-factory.workflow-cache-size`]##
+a| [[quarkus-temporal_quarkus-temporal-worker-factory-workflow-cache-size]] [.property-path]##link:#quarkus-temporal_quarkus-temporal-worker-factory-workflow-cache-size[`+++quarkus.temporal.worker-factory.workflow-cache-size+++`]##
 ifdef::add-copy-button-to-config-props[]
 config_property_copy_button:+++quarkus.temporal.worker-factory.workflow-cache-size+++[]
 endif::add-copy-button-to-config-props[]
@@ -1488,7 +1488,7 @@ endif::add-copy-button-to-env-var[]
 |int
 |`+++600+++`
 
-a| [[quarkus-temporal_quarkus-temporal-worker-factory-fail-on-startup-error]] [.property-path]##link:#quarkus-temporal_quarkus-temporal-worker-factory-fail-on-startup-error[`quarkus.temporal.worker-factory.fail-on-startup-error`]##
+a| [[quarkus-temporal_quarkus-temporal-worker-factory-fail-on-startup-error]] [.property-path]##link:#quarkus-temporal_quarkus-temporal-worker-factory-fail-on-startup-error[`+++quarkus.temporal.worker-factory.fail-on-startup-error+++`]##
 ifdef::add-copy-button-to-config-props[]
 config_property_copy_button:+++quarkus.temporal.worker-factory.fail-on-startup-error+++[]
 endif::add-copy-button-to-config-props[]
@@ -1509,7 +1509,7 @@ endif::add-copy-button-to-env-var[]
 |boolean
 |`+++true+++`
 
-a| [[quarkus-temporal_quarkus-temporal-worker-factory-startup-max-attempts]] [.property-path]##link:#quarkus-temporal_quarkus-temporal-worker-factory-startup-max-attempts[`quarkus.temporal.worker-factory.startup-max-attempts`]##
+a| [[quarkus-temporal_quarkus-temporal-worker-factory-startup-max-attempts]] [.property-path]##link:#quarkus-temporal_quarkus-temporal-worker-factory-startup-max-attempts[`+++quarkus.temporal.worker-factory.startup-max-attempts+++`]##
 ifdef::add-copy-button-to-config-props[]
 config_property_copy_button:+++quarkus.temporal.worker-factory.startup-max-attempts+++[]
 endif::add-copy-button-to-config-props[]
@@ -1530,7 +1530,7 @@ endif::add-copy-button-to-env-var[]
 |int
 |`+++1+++`
 
-a| [[quarkus-temporal_quarkus-temporal-worker-factory-startup-retry-delay]] [.property-path]##link:#quarkus-temporal_quarkus-temporal-worker-factory-startup-retry-delay[`quarkus.temporal.worker-factory.startup-retry-delay`]##
+a| [[quarkus-temporal_quarkus-temporal-worker-factory-startup-retry-delay]] [.property-path]##link:#quarkus-temporal_quarkus-temporal-worker-factory-startup-retry-delay[`+++quarkus.temporal.worker-factory.startup-retry-delay+++`]##
 ifdef::add-copy-button-to-config-props[]
 config_property_copy_button:+++quarkus.temporal.worker-factory.startup-retry-delay+++[]
 endif::add-copy-button-to-config-props[]
@@ -1551,7 +1551,7 @@ endif::add-copy-button-to-env-var[]
 |link:https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/time/Duration.html[Duration] link:#duration-note-anchor-quarkus-temporal_quarkus-temporal[icon:question-circle[title=More information about the Duration format]]
 |`+++2S+++`
 
-a| [[quarkus-temporal_quarkus-temporal-worker-factory-startup-background-retry-enabled]] [.property-path]##link:#quarkus-temporal_quarkus-temporal-worker-factory-startup-background-retry-enabled[`quarkus.temporal.worker-factory.startup-background-retry-enabled`]##
+a| [[quarkus-temporal_quarkus-temporal-worker-factory-startup-background-retry-enabled]] [.property-path]##link:#quarkus-temporal_quarkus-temporal-worker-factory-startup-background-retry-enabled[`+++quarkus.temporal.worker-factory.startup-background-retry-enabled+++`]##
 ifdef::add-copy-button-to-config-props[]
 config_property_copy_button:+++quarkus.temporal.worker-factory.startup-background-retry-enabled+++[]
 endif::add-copy-button-to-config-props[]
