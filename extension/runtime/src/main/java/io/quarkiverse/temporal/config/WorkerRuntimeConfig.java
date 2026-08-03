@@ -3,6 +3,7 @@ package io.quarkiverse.temporal.config;
 import java.time.Duration;
 import java.util.Optional;
 
+import io.quarkus.runtime.annotations.ConfigDocSection;
 import io.quarkus.runtime.annotations.ConfigGroup;
 import io.quarkus.runtime.configuration.DurationConverter;
 import io.smallrye.config.WithConverter;
@@ -125,8 +126,13 @@ public interface WorkerRuntimeConfig {
      * Opts the worker in to the Build-ID-based versioning feature. This ensures that the worker will only receive tasks which
      * it is compatible with. For more information see: TODO: Doc link
      * Defaults to false
+     *
+     * @deprecated Use {@code quarkus.temporal.worker.deployment-options.use-versioning} to activate
+     *             <a href="https://docs.temporal.io/worker-deployments">Worker Deployment API</a>.
+     *             If {@code quarkus.temporal.worker.deployment-options} is configured, this property is ignored.
      */
     @WithDefault("false")
+    @Deprecated
     Boolean useBuildIdForVersioning();
 
     /**
@@ -145,4 +151,10 @@ public interface WorkerRuntimeConfig {
      * Override identity of the worker primary specified in a WorkflowClient options.
      */
     Optional<String> identity();
+
+    /**
+     * Configuration of Worker Deployment Versioning.
+     */
+    @ConfigDocSection
+    Optional<WorkerDeploymentOptionsRuntimeConfig> deploymentOptions();
 }

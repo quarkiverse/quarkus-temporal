@@ -16,7 +16,12 @@ public interface WorkerBuildtimeConfig {
      * Build ID</a>.
      * A Build ID is required if `useBuildIdForVersioning` is set to true.
      * By default, the latest Git commit ID is used.
+     *
+     * @deprecated Use {@code quarkus.temporal.worker.deployment-options.build-id} of
+     *             <a href="https://docs.temporal.io/worker-deployments">Worker Deployment API</a> to configure the buildId.
+     *             If {@code quarkus.temporal.worker.deployment-options} is configured, this property is ignored.
      */
+    @Deprecated
     Optional<String> buildId();
 
     /**
