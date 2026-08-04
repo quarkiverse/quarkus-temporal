@@ -45,7 +45,9 @@ public class WorkerNamedConfigTest {
                                     "quarkus.temporal.worker.namedWorker.use-build-id-for-versioning: true\n" +
                                     "quarkus.temporal.worker.namedWorker.build-id: buildId\n" +
                                     "quarkus.temporal.worker.namedWorker.sticky-task-queue-drain-timeout: 47s\n" +
-                                    "quarkus.temporal.worker.namedWorker.task-queue: customQueueName"),
+                                    "quarkus.temporal.worker.namedWorker.task-queue: customQueueName\n" +
+                                    "quarkus.temporal.worker.namedWorker.deployment-options.use-versioning: true\n" +
+                                    "quarkus.temporal.worker.namedWorker.deployment-options.version: test.1234"),
                             "application.properties"));
 
     @Inject
@@ -70,8 +72,13 @@ public class WorkerNamedConfigTest {
         Assertions.assertEquals(Duration.of(41, ChronoUnit.SECONDS), options.getDefaultHeartbeatThrottleInterval());
         Assertions.assertEquals(Duration.of(43, ChronoUnit.SECONDS), options.getStickyQueueScheduleToStartTimeout());
         Assertions.assertTrue(options.isEagerExecutionDisabled());
-        Assertions.assertTrue(options.isUsingBuildIdForVersioning());
-        Assertions.assertEquals("buildId", options.getBuildId());
+        // False because Worker Deployment Options were configured, so legacy Build ID versioning is not used
+        Assertions.assertFalse(options.isUsingBuildIdForVersioning());
+        // Null because a WorkerDeploymentOptions was set, so the legacy BuildId field is not populated
+        Assertions.assertNull(options.getBuildId());
         Assertions.assertEquals(Duration.of(47, ChronoUnit.SECONDS), options.getStickyTaskQueueDrainTimeout());
+        Assertions.assertTrue(options.getDeploymentOptions().isUsingVersioning());
+        Assertions.assertEquals("test", options.getDeploymentOptions().getVersion().getDeploymentName());
+        Assertions.assertEquals("1234", options.getDeploymentOptions().getVersion().getBuildId());
     }
 }

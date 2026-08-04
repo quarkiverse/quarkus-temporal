@@ -1,6 +1,7 @@
 package io.quarkiverse.temporal;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -15,21 +16,17 @@ import jakarta.enterprise.util.TypeLiteral;
 
 import org.jboss.logging.Logger;
 
-import io.quarkiverse.temporal.config.TemporalBuildtimeConfig;
-import io.quarkiverse.temporal.config.TemporalRuntimeConfig;
-import io.quarkiverse.temporal.config.WorkerBuildtimeConfig;
-import io.quarkiverse.temporal.config.WorkerRuntimeConfig;
+import io.quarkiverse.temporal.config.*;
 import io.quarkus.arc.SyntheticCreationalContext;
 import io.quarkus.info.GitInfo;
 import io.quarkus.runtime.RuntimeValue;
 import io.quarkus.runtime.ShutdownContext;
 import io.quarkus.runtime.annotations.Recorder;
 import io.temporal.client.WorkflowClient;
+import io.temporal.common.VersioningBehavior;
+import io.temporal.common.WorkerDeploymentVersion;
 import io.temporal.common.interceptors.WorkerInterceptor;
-import io.temporal.worker.Worker;
-import io.temporal.worker.WorkerFactory;
-import io.temporal.worker.WorkerFactoryOptions;
-import io.temporal.worker.WorkerOptions;
+import io.temporal.worker.*;
 
 /**
  * Quarkus recorder responsible for creating and starting Temporal {@link WorkerFactory} instances.
@@ -101,22 +98,6 @@ public class WorkerFactoryRecorder {
             return WorkerOptions.getDefaultInstance();
         }
 
-        // try configured id, then Git commit hash, then last resort UUID
-        String buildId = workerBuildtimeConfig.buildId()
-                .orElseGet(() -> {
-                    Instance<GitInfo> gitInfoInstance = CDI.current().select(GitInfo.class);
-                    if (!gitInfoInstance.isUnsatisfied()) {
-                        final String gitCommitId = gitInfoInstance.get().latestCommitId();
-                        log.infof("Worker Build Id using Git commit hash: %s", gitCommitId);
-                        return gitCommitId;
-                    } else {
-                        final String uuid = UUID.randomUUID().toString();
-                        log.warnf("Worker Build Id using UUID fallback because Git commit not found: %s", uuid);
-                        // Handle the case when GitInfo bean is not available
-                        return uuid; // or another fallback mechanism
-                    }
-                });
-
         WorkerOptions.Builder builder = WorkerOptions.newBuilder()
                 .setMaxWorkerActivitiesPerSecond(workerRuntimeConfig.maxWorkerActivitiesPerSecond())
                 .setMaxConcurrentActivityExecutionSize(workerRuntimeConfig.maxConcurrentActivityExecutionSize())
@@ -131,14 +112,85 @@ public class WorkerFactoryRecorder {
                 .setDefaultHeartbeatThrottleInterval(workerRuntimeConfig.defaultHeartbeatThrottleInterval())
                 .setStickyQueueScheduleToStartTimeout(workerRuntimeConfig.stickyQueueScheduleToStartTimeout())
                 .setDisableEagerExecution(workerRuntimeConfig.disableEagerExecution())
-                .setUseBuildIdForVersioning(workerRuntimeConfig.useBuildIdForVersioning())
-                .setStickyTaskQueueDrainTimeout(workerRuntimeConfig.stickyTaskQueueDrainTimeout())
-                .setBuildId(buildId);
+                .setStickyTaskQueueDrainTimeout(workerRuntimeConfig.stickyTaskQueueDrainTimeout());
+
+        WorkerDeploymentOptions workerDeploymentOptions = this.createWorkerDeploymentOptions(workerRuntimeConfig);
+
+        if (workerDeploymentOptions != null) {
+            builder.setDeploymentOptions(workerDeploymentOptions);
+
+            boolean legacyWorkerVersioningConfigured = workerBuildtimeConfig.buildId().isPresent() ||
+                    workerRuntimeConfig.useBuildIdForVersioning();
+
+            if (legacyWorkerVersioningConfigured) {
+                log.warn(
+                        "Both 'quarkus.temporal.worker.<build-id/use-build-id-for-versioning>' and 'quarkus.temporal.worker.deployment-options' are configured. "
+                                + "The legacy 'build-id/use-build-id-for-versioning' property is deprecated and will be ignored in favor of "
+                                + "'deployment-options', which uses the new Worker Deployment Version API.");
+            }
+        } else {
+            builder.setUseBuildIdForVersioning(workerRuntimeConfig.useBuildIdForVersioning());
+            // try configured id, then Git commit hash, then last resort UUID
+            String buildId = workerBuildtimeConfig.buildId()
+                    .orElseGet(() -> {
+                        Instance<GitInfo> gitInfoInstance = CDI.current().select(GitInfo.class);
+                        if (!gitInfoInstance.isUnsatisfied()) {
+                            final String gitCommitId = gitInfoInstance.get().latestCommitId();
+                            log.infof("Worker Build Id using Git commit hash: %s", gitCommitId);
+                            return gitCommitId;
+                        } else {
+                            final String uuid = UUID.randomUUID().toString();
+                            log.warnf("Worker Build Id using UUID fallback because Git commit not found: %s", uuid);
+                            // Handle the case when GitInfo bean is not available
+                            return uuid; // or another fallback mechanism
+                        }
+                    });
+            builder.setBuildId(buildId);
+        }
 
         workerRuntimeConfig.identity().ifPresent(builder::setIdentity);
 
         return builder.build();
 
+    }
+
+    private WorkerDeploymentOptions createWorkerDeploymentOptions(WorkerRuntimeConfig workerRuntimeConfig) {
+        Optional<WorkerDeploymentOptionsRuntimeConfig> workerDeploymentOptionsRuntimeConfig = workerRuntimeConfig
+                .deploymentOptions();
+
+        if (workerDeploymentOptionsRuntimeConfig.isEmpty()) {
+            return null;
+        }
+
+        WorkerDeploymentOptions.Builder workerDeploymentOptionsBuilder = WorkerDeploymentOptions.newBuilder();
+        workerDeploymentOptionsBuilder
+                .setUseVersioning(workerDeploymentOptionsRuntimeConfig.get().useVersioning().orElse(false));
+        workerDeploymentOptionsBuilder
+                .setDefaultVersioningBehavior(workerDeploymentOptionsRuntimeConfig.get().defaultVersioningBehavior()
+                        .orElse(VersioningBehavior.UNSPECIFIED));
+
+        Optional<String> deploymentName = workerDeploymentOptionsRuntimeConfig.get().name();
+        Optional<String> buildId = workerDeploymentOptionsRuntimeConfig.get().buildId();
+        Optional<String> deploymentVersion = workerDeploymentOptionsRuntimeConfig.get().version();
+
+        boolean hasNameOrBuildId = deploymentName.isPresent() || buildId.isPresent();
+
+        if (hasNameOrBuildId) {
+            if (deploymentName.isEmpty() || buildId.isEmpty()) {
+                throw new IllegalArgumentException(
+                        "name and buildId must both be set when either is specified");
+            }
+            if (deploymentVersion.isPresent()) {
+                throw new IllegalArgumentException(
+                        "version is exclusive with deploymentName and buildId");
+            }
+            workerDeploymentOptionsBuilder.setVersion(new WorkerDeploymentVersion(deploymentName.get(), buildId.get()));
+        } else {
+            deploymentVersion.ifPresent(
+                    version -> workerDeploymentOptionsBuilder.setVersion(WorkerDeploymentVersion.fromCanonicalString(version)));
+        }
+
+        return workerDeploymentOptionsBuilder.build();
     }
 
     public void createWorker(String name, List<Class<?>> workflows,

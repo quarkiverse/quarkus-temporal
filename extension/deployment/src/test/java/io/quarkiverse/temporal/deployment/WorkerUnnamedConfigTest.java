@@ -73,5 +73,6 @@ public class WorkerUnnamedConfigTest {
         Assertions.assertTrue(options.isUsingBuildIdForVersioning());
         Assertions.assertEquals("buildId", options.getBuildId());
         Assertions.assertEquals(Duration.of(47, ChronoUnit.SECONDS), options.getStickyTaskQueueDrainTimeout());
+        Assertions.assertNull(options.getDeploymentOptions());
     }
 }

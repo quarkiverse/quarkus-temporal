@@ -238,32 +238,6 @@ endif::add-copy-button-to-env-var[]
 |link:https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/time/Duration.html[Duration] link:#duration-note-anchor-quarkus-temporal_quarkus-temporal[icon:question-circle[title=More information about the Duration format]]
 |
 
-a|icon:lock[title=Fixed at build time] [[quarkus-temporal_quarkus-temporal-worker-build-id]] [.property-path]##link:#quarkus-temporal_quarkus-temporal-worker-build-id[`+++quarkus.temporal.worker.build-id+++`]##
-ifdef::add-copy-button-to-config-props[]
-config_property_copy_button:+++quarkus.temporal.worker.build-id+++[]
-endif::add-copy-button-to-config-props[]
-
-
-`+++quarkus.temporal.worker."worker-name".build-id+++`
-ifdef::add-copy-button-to-config-props[]
-config_property_copy_button:+++quarkus.temporal.worker."worker-name".build-id+++[]
-endif::add-copy-button-to-config-props[]
-
-[.description]
---
-Assigns a unique identifier to this worker. The identifier must remain consistent with the code the worker utilizes for workflows, activities, and interceptors. For further details, refer to: link:https://docs.temporal.io/develop/java/versioning#assign-a-build-id-to-your-worker-and-opt-in-to-worker-versioning[Temporal Build ID]. A Build ID is required if `useBuildIdForVersioning` is set to true. By default, the latest Git commit ID is used.
-
-
-ifdef::add-copy-button-to-env-var[]
-Environment variable: env_var_with_copy_button:+++QUARKUS_TEMPORAL_WORKER_BUILD_ID+++[]
-endif::add-copy-button-to-env-var[]
-ifndef::add-copy-button-to-env-var[]
-Environment variable: `+++QUARKUS_TEMPORAL_WORKER_BUILD_ID+++`
-endif::add-copy-button-to-env-var[]
---
-|string
-|
-
 a|icon:lock[title=Fixed at build time] [[quarkus-temporal_quarkus-temporal-worker-workflow-classes]] [.property-path]##link:#quarkus-temporal_quarkus-temporal-worker-workflow-classes[`+++quarkus.temporal.worker.workflow-classes+++`]##
 ifdef::add-copy-button-to-config-props[]
 config_property_copy_button:+++quarkus.temporal.worker.workflow-classes+++[]
@@ -680,32 +654,6 @@ endif::add-copy-button-to-env-var[]
 |boolean
 |`+++false+++`
 
-a| [[quarkus-temporal_quarkus-temporal-worker-use-build-id-for-versioning]] [.property-path]##link:#quarkus-temporal_quarkus-temporal-worker-use-build-id-for-versioning[`+++quarkus.temporal.worker.use-build-id-for-versioning+++`]##
-ifdef::add-copy-button-to-config-props[]
-config_property_copy_button:+++quarkus.temporal.worker.use-build-id-for-versioning+++[]
-endif::add-copy-button-to-config-props[]
-
-
-`+++quarkus.temporal.worker."worker-name".use-build-id-for-versioning+++`
-ifdef::add-copy-button-to-config-props[]
-config_property_copy_button:+++quarkus.temporal.worker."worker-name".use-build-id-for-versioning+++[]
-endif::add-copy-button-to-config-props[]
-
-[.description]
---
-Opts the worker in to the Build-ID-based versioning feature. This ensures that the worker will only receive tasks which it is compatible with. For more information see: TODO: Doc link Defaults to false
-
-
-ifdef::add-copy-button-to-env-var[]
-Environment variable: env_var_with_copy_button:+++QUARKUS_TEMPORAL_WORKER_USE_BUILD_ID_FOR_VERSIONING+++[]
-endif::add-copy-button-to-env-var[]
-ifndef::add-copy-button-to-env-var[]
-Environment variable: `+++QUARKUS_TEMPORAL_WORKER_USE_BUILD_ID_FOR_VERSIONING+++`
-endif::add-copy-button-to-env-var[]
---
-|boolean
-|`+++false+++`
-
 a| [[quarkus-temporal_quarkus-temporal-worker-sticky-task-queue-drain-timeout]] [.property-path]##link:#quarkus-temporal_quarkus-temporal-worker-sticky-task-queue-drain-timeout[`+++quarkus.temporal.worker.sticky-task-queue-drain-timeout+++`]##
 ifdef::add-copy-button-to-config-props[]
 config_property_copy_button:+++quarkus.temporal.worker.sticky-task-queue-drain-timeout+++[]
@@ -965,6 +913,62 @@ endif::add-copy-button-to-env-var[]
 --
 |link:https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/time/Duration.html[Duration] link:#duration-note-anchor-quarkus-temporal_quarkus-temporal[icon:question-circle[title=More information about the Duration format]]
 |
+
+a|icon:lock[title=Fixed at build time] [[quarkus-temporal_quarkus-temporal-worker-build-id]] [.property-path]##link:#quarkus-temporal_quarkus-temporal-worker-build-id[[.line-through]#`+++quarkus.temporal.worker.build-id+++`#]##
+ifdef::add-copy-button-to-config-props[]
+config_property_copy_button:+++quarkus.temporal.worker.build-id+++[]
+endif::add-copy-button-to-config-props[]
+
+
+[.line-through]#`+++quarkus.temporal.worker."worker-name".build-id+++`#
+ifdef::add-copy-button-to-config-props[]
+config_property_copy_button:+++quarkus.temporal.worker."worker-name".build-id+++[]
+endif::add-copy-button-to-config-props[]
+
+[.description]
+--
+_This property is deprecated: Use `quarkus.temporal.worker.deployment-options.build-id` of link:https://docs.temporal.io/worker-deployments[Worker Deployment API] to configure the buildId. If `quarkus.temporal.worker.deployment-options` is configured, this property is ignored._
+
+Assigns a unique identifier to this worker. The identifier must remain consistent with the code the worker utilizes for workflows, activities, and interceptors. For further details, refer to: link:https://docs.temporal.io/develop/java/versioning#assign-a-build-id-to-your-worker-and-opt-in-to-worker-versioning[Temporal Build ID]. A Build ID is required if `useBuildIdForVersioning` is set to true. By default, the latest Git commit ID is used.
+
+
+ifdef::add-copy-button-to-env-var[]
+Environment variable: env_var_with_copy_button:+++QUARKUS_TEMPORAL_WORKER_BUILD_ID+++[]
+endif::add-copy-button-to-env-var[]
+ifndef::add-copy-button-to-env-var[]
+Environment variable: `+++QUARKUS_TEMPORAL_WORKER_BUILD_ID+++`
+endif::add-copy-button-to-env-var[]
+--
+|string
+|
+
+a| [[quarkus-temporal_quarkus-temporal-worker-use-build-id-for-versioning]] [.property-path]##link:#quarkus-temporal_quarkus-temporal-worker-use-build-id-for-versioning[[.line-through]#`+++quarkus.temporal.worker.use-build-id-for-versioning+++`#]##
+ifdef::add-copy-button-to-config-props[]
+config_property_copy_button:+++quarkus.temporal.worker.use-build-id-for-versioning+++[]
+endif::add-copy-button-to-config-props[]
+
+
+[.line-through]#`+++quarkus.temporal.worker."worker-name".use-build-id-for-versioning+++`#
+ifdef::add-copy-button-to-config-props[]
+config_property_copy_button:+++quarkus.temporal.worker."worker-name".use-build-id-for-versioning+++[]
+endif::add-copy-button-to-config-props[]
+
+[.description]
+--
+_This property is deprecated: Use `quarkus.temporal.worker.deployment-options.use-versioning` to activate link:https://docs.temporal.io/worker-deployments[Worker Deployment API]. If `quarkus.temporal.worker.deployment-options` is configured, this property is ignored._
+
+Opts the worker in to the Build-ID-based versioning feature. This ensures that the worker will only receive tasks which it is compatible with. For more information see: TODO: Doc link Defaults to false
+
+
+ifdef::add-copy-button-to-env-var[]
+Environment variable: env_var_with_copy_button:+++QUARKUS_TEMPORAL_WORKER_USE_BUILD_ID_FOR_VERSIONING+++[]
+endif::add-copy-button-to-env-var[]
+ifndef::add-copy-button-to-env-var[]
+Environment variable: `+++QUARKUS_TEMPORAL_WORKER_USE_BUILD_ID_FOR_VERSIONING+++`
+endif::add-copy-button-to-env-var[]
+--
+|boolean
+|`+++false+++`
 
 h|[[quarkus-temporal_section_quarkus-temporal-connection]] [.section-name.section-level0]##link:#quarkus-temporal_section_quarkus-temporal-connection[Connection to the temporal server]##
 h|Type
@@ -1283,6 +1287,141 @@ Environment variable: `+++QUARKUS_TEMPORAL_CONNECTION_RPC_LONG_POLL_TIMEOUT+++`
 endif::add-copy-button-to-env-var[]
 --
 |link:https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/time/Duration.html[Duration] link:#duration-note-anchor-quarkus-temporal_quarkus-temporal[icon:question-circle[title=More information about the Duration format]]
+|
+
+
+h|[[quarkus-temporal_section_quarkus-temporal-worker-deployment-options]] [.section-name.section-level0]##link:#quarkus-temporal_section_quarkus-temporal-worker-deployment-options[Configuration of Worker Deployment Versioning]##
+h|Type
+h|Default
+
+a| [[quarkus-temporal_quarkus-temporal-worker-deployment-options-name]] [.property-path]##link:#quarkus-temporal_quarkus-temporal-worker-deployment-options-name[`+++quarkus.temporal.worker.deployment-options.name+++`]##
+ifdef::add-copy-button-to-config-props[]
+config_property_copy_button:+++quarkus.temporal.worker.deployment-options.name+++[]
+endif::add-copy-button-to-config-props[]
+
+
+`+++quarkus.temporal.worker."worker-name".deployment-options.name+++`
+ifdef::add-copy-button-to-config-props[]
+config_property_copy_button:+++quarkus.temporal.worker."worker-name".deployment-options.name+++[]
+endif::add-copy-button-to-config-props[]
+
+[.description]
+--
+The deployment name, which groups related workers across versions. If set, `buildId` MUST be defined.
+
+
+ifdef::add-copy-button-to-env-var[]
+Environment variable: env_var_with_copy_button:+++QUARKUS_TEMPORAL_WORKER_DEPLOYMENT_OPTIONS_NAME+++[]
+endif::add-copy-button-to-env-var[]
+ifndef::add-copy-button-to-env-var[]
+Environment variable: `+++QUARKUS_TEMPORAL_WORKER_DEPLOYMENT_OPTIONS_NAME+++`
+endif::add-copy-button-to-env-var[]
+--
+|string
+|
+
+a| [[quarkus-temporal_quarkus-temporal-worker-deployment-options-build-id]] [.property-path]##link:#quarkus-temporal_quarkus-temporal-worker-deployment-options-build-id[`+++quarkus.temporal.worker.deployment-options.build-id+++`]##
+ifdef::add-copy-button-to-config-props[]
+config_property_copy_button:+++quarkus.temporal.worker.deployment-options.build-id+++[]
+endif::add-copy-button-to-config-props[]
+
+
+`+++quarkus.temporal.worker."worker-name".deployment-options.build-id+++`
+ifdef::add-copy-button-to-config-props[]
+config_property_copy_button:+++quarkus.temporal.worker."worker-name".deployment-options.build-id+++[]
+endif::add-copy-button-to-config-props[]
+
+[.description]
+--
+The Build ID identifying a specific release of your worker code within a deployment. If set, `name` MUST be defined.
+
+
+ifdef::add-copy-button-to-env-var[]
+Environment variable: env_var_with_copy_button:+++QUARKUS_TEMPORAL_WORKER_DEPLOYMENT_OPTIONS_BUILD_ID+++[]
+endif::add-copy-button-to-env-var[]
+ifndef::add-copy-button-to-env-var[]
+Environment variable: `+++QUARKUS_TEMPORAL_WORKER_DEPLOYMENT_OPTIONS_BUILD_ID+++`
+endif::add-copy-button-to-env-var[]
+--
+|string
+|
+
+a| [[quarkus-temporal_quarkus-temporal-worker-deployment-options-version]] [.property-path]##link:#quarkus-temporal_quarkus-temporal-worker-deployment-options-version[`+++quarkus.temporal.worker.deployment-options.version+++`]##
+ifdef::add-copy-button-to-config-props[]
+config_property_copy_button:+++quarkus.temporal.worker.deployment-options.version+++[]
+endif::add-copy-button-to-config-props[]
+
+
+`+++quarkus.temporal.worker."worker-name".deployment-options.version+++`
+ifdef::add-copy-button-to-config-props[]
+config_property_copy_button:+++quarkus.temporal.worker."worker-name".deployment-options.version+++[]
+endif::add-copy-button-to-config-props[]
+
+[.description]
+--
+The deployment version, combining a deployment name and a Build ID (format: `<name>.<buildId>`). If `buildId` and `name` are defined, this property will be ignored.
+
+
+ifdef::add-copy-button-to-env-var[]
+Environment variable: env_var_with_copy_button:+++QUARKUS_TEMPORAL_WORKER_DEPLOYMENT_OPTIONS_VERSION+++[]
+endif::add-copy-button-to-env-var[]
+ifndef::add-copy-button-to-env-var[]
+Environment variable: `+++QUARKUS_TEMPORAL_WORKER_DEPLOYMENT_OPTIONS_VERSION+++`
+endif::add-copy-button-to-env-var[]
+--
+|string
+|
+
+a| [[quarkus-temporal_quarkus-temporal-worker-deployment-options-use-versioning]] [.property-path]##link:#quarkus-temporal_quarkus-temporal-worker-deployment-options-use-versioning[`+++quarkus.temporal.worker.deployment-options.use-versioning+++`]##
+ifdef::add-copy-button-to-config-props[]
+config_property_copy_button:+++quarkus.temporal.worker.deployment-options.use-versioning+++[]
+endif::add-copy-button-to-config-props[]
+
+
+`+++quarkus.temporal.worker."worker-name".deployment-options.use-versioning+++`
+ifdef::add-copy-button-to-config-props[]
+config_property_copy_button:+++quarkus.temporal.worker."worker-name".deployment-options.use-versioning+++[]
+endif::add-copy-button-to-config-props[]
+
+[.description]
+--
+If true, opts this worker into the Worker Deployment Versioning feature. Requires `version` to be set.
+
+
+ifdef::add-copy-button-to-env-var[]
+Environment variable: env_var_with_copy_button:+++QUARKUS_TEMPORAL_WORKER_DEPLOYMENT_OPTIONS_USE_VERSIONING+++[]
+endif::add-copy-button-to-env-var[]
+ifndef::add-copy-button-to-env-var[]
+Environment variable: `+++QUARKUS_TEMPORAL_WORKER_DEPLOYMENT_OPTIONS_USE_VERSIONING+++`
+endif::add-copy-button-to-env-var[]
+--
+|boolean
+|
+
+a| [[quarkus-temporal_quarkus-temporal-worker-deployment-options-default-versioning-behavior]] [.property-path]##link:#quarkus-temporal_quarkus-temporal-worker-deployment-options-default-versioning-behavior[`+++quarkus.temporal.worker.deployment-options.default-versioning-behavior+++`]##
+ifdef::add-copy-button-to-config-props[]
+config_property_copy_button:+++quarkus.temporal.worker.deployment-options.default-versioning-behavior+++[]
+endif::add-copy-button-to-config-props[]
+
+
+`+++quarkus.temporal.worker."worker-name".deployment-options.default-versioning-behavior+++`
+ifdef::add-copy-button-to-config-props[]
+config_property_copy_button:+++quarkus.temporal.worker."worker-name".deployment-options.default-versioning-behavior+++[]
+endif::add-copy-button-to-config-props[]
+
+[.description]
+--
+Configuration of default versioning behavior for workflows registered on the worker.
+
+
+ifdef::add-copy-button-to-env-var[]
+Environment variable: env_var_with_copy_button:+++QUARKUS_TEMPORAL_WORKER_DEPLOYMENT_OPTIONS_DEFAULT_VERSIONING_BEHAVIOR+++[]
+endif::add-copy-button-to-env-var[]
+ifndef::add-copy-button-to-env-var[]
+Environment variable: `+++QUARKUS_TEMPORAL_WORKER_DEPLOYMENT_OPTIONS_DEFAULT_VERSIONING_BEHAVIOR+++`
+endif::add-copy-button-to-env-var[]
+--
+a|`unspecified`, `pinned`, `auto-upgrade`
 |
 
 
