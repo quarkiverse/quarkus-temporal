@@ -98,6 +98,9 @@ Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/d
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/scott-maass-rp"><img src="https://avatars.githubusercontent.com/u/201841607?v=4?s=100" width="100px;" alt="scott-maass-rp"/><br /><sub><b>scott-maass-rp</b></sub></a><br /><a href="https://github.com/quarkiverse/quarkus-temporal/commits?author=scott-maass-rp" title="Code">💻</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/nzuguem"><img src="https://avatars.githubusercontent.com/u/32323481?v=4?s=100" width="100px;" alt="Kevin NZUGUEM"/><br /><sub><b>Kevin NZUGUEM</b></sub></a><br /><a href="https://github.com/quarkiverse/quarkus-temporal/commits?author=nzuguem" title="Code">💻</a></td>
     </tr>
+    <tr>
+      <td align="center" valign="top" width="14.28%"><a href="https://www.linkedin.com/in/michael-read-45a0262"><img src="https://avatars.githubusercontent.com/u/17915675?v=4?s=100" width="100px;" alt="Michael Read / Distributed Systems Expert / Consultant / Architect / Developer"/><br /><sub><b>Michael Read / Distributed Systems Expert / Consultant / Architect / Developer</b></sub></a><br /><a href="#ideas-michael-read" title="Ideas, Planning, & Feedback">🤔</a></td>
+    </tr>
   </tbody>
 </table>
 
