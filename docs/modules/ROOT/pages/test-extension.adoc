@@ -91,7 +91,7 @@ public class QuarkusBasedOrderEntityWorkflowTest {
     @Inject
     WorkerFactory workerFactory;
 
-    // <1> Create a mock for each activity interface you want to control.
+    // Create a mock for each activity interface you want to control.<1>
     LocalConfigActivities mockLocalConfigActivities = mock(LocalConfigActivities.class, withSettings().withoutAnnotations());
     OrderValidationActivities mockOrderValidationActivities = mock(OrderValidationActivities.class, withSettings().withoutAnnotations());
 
@@ -102,7 +102,7 @@ public class QuarkusBasedOrderEntityWorkflowTest {
         OrderInit orderInit = createOrderInit();
         OrderInput orderInput = createValidOrder();
 
-        // <2> Stub the behavior each activity should exhibit for this test.
+        // Stub the behavior each activity should exhibit for this test.<2>
         OrderEntityConfig config = new OrderEntityConfig(
                 Duration.ofSeconds(5),
                 Duration.ofMillis(100)
@@ -112,14 +112,14 @@ public class QuarkusBasedOrderEntityWorkflowTest {
         when(mockOrderValidationActivities.validateOrder(orderInput))
                 .thenReturn(new OrderValidationResponse(true));
 
-        // <3> Register the mocks with the worker that owns each activity.
+        // Register the mocks with the worker that owns each activity.<3>
         workerFactory.getWorker(taskQueue)
                 .registerActivitiesImplementations(
                         mockLocalConfigActivities,
                         mockOrderValidationActivities
                 );
 
-        // <4> Create a typed workflow stub backed by the in-memory test server.
+        // Create a typed workflow stub backed by the in-memory test server.<4>
         OrderEntityWorkflow workflow = workflowClient
                 .newWorkflowStub(OrderEntityWorkflow.class, WorkflowOptions.newBuilder()
                         .setWorkflowId("%s-%s".formatted(workflowNamespace, UUID.randomUUID().toString()))
@@ -127,17 +127,17 @@ public class QuarkusBasedOrderEntityWorkflowTest {
                         .build()
                 );
 
-        // <5> Start the workers only AFTER the activities have been registered.
+        // Start the workers only AFTER the activities have been registered.<5>
         workerFactory.start();
 
         try {
-            // <6> Start the workflow asynchronously.
+            // Start the workflow asynchronously.<6>
             WorkflowClient.start(workflow::create, orderInit);
 
-            // <7> Send signals through the typed stub.
+            // Send signals through the typed stub.<7>
             workflow.orderInput(orderInput);
 
-            // <8> Block on the workflow result and assert.
+            // Block on the workflow result and assert.<8>
             String result = WorkflowStub.fromTyped(workflow).getResult(String.class);
 
             assertNotNull(result, "Workflow result should not be null");
@@ -146,9 +146,9 @@ public class QuarkusBasedOrderEntityWorkflowTest {
             assertTrue(result.contains(orderInit.orderId()), "Result should contain order ID");
             assertTrue(result.contains("order canceled false"), "Order should not be canceled");
             assertTrue(result.contains("order expired false"), "Order should not be expired");
-            assertTrue(result.contains("order status FULLFILLMENT"), "Order status should be FULLFILLMENT");
+            assertTrue(result.contains("order status FULFILLMENT"), "Order status should be FULFILLMENT");
         } finally {
-            // <9> Clean up.
+            // Clean up.<9>
             workerFactory.shutdown();
         }
     }
