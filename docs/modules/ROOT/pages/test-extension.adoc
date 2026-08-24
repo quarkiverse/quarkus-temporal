@@ -20,14 +20,203 @@ For instance, with Maven, add the following dependency to your POM file:
 </dependency>
 ----
 
-[#getting-started]
+== How It Works
+
+Enabling the mock environment swaps the real Temporal connection for Temporal's in-memory `TestWorkflowEnvironment` (the same one used by the standalone `temporal-testing` suite). Concretely:
+
+* The `WorkflowClient` CDI bean is backed by the test environment, so workflow stubs (created with `WorkflowClient.newWorkflowStub` or injected with `@TemporalWorkflowStub`) talk to the in-memory server instead of a real Temporal cluster.
+* The `WorkerFactory` CDI bean is backed by the test environment. A worker is still created for every worker configured with `quarkus.temporal.worker.*`, and workflow implementations are registered with those workers automatically.
+* Activity implementations are *not* registered automatically. The test is responsible for registering every activity the workflow invokes, either as a mock or as the real CDI bean.
+[NOTE]
+====
+`quarkus.temporal.enable-mock` is a build-time property. If it is enabled while the test extension is not on the classpath, the build fails with `Please add the 'quarkus-temporal-test' extension to enable mocking.`
+====
+
 == Getting Started
 
-After the extension is added to the project, the mock environment can be enabled using the enable-mock property.
+Enable the mock environment for the test profile. When you register mock activities in the test, also disable automatic worker startup so the test controls when the worker factory starts (it must happen after the mocks are registered):
 
 [source,properties]
 ----
-%test.quarkus.temporal.enable-mock: true
+%test.quarkus.temporal.enable-mock=true       # <1>
+%test.quarkus.temporal.start-workers=false    # <2>
 ----
 
-You can find additional info about temporal workflow testing in https://docs.temporal.io/develop/java/testing-suite[Temporal Documentation]
+<1> Switches the extension to the in-memory test environment.
+<2> Defers `WorkerFactory.start()` to the test, which runs it after registering the mock activities.
+
+A `@QuarkusTest` can then inject the `org.jboss.logging.Logger`, `WorkflowClient`, and `WorkerFactory` beans, both of which are backed by the test environment:
+
+[source,java]
+----
+@QuarkusTest
+public class OrderEntityWorkflowTest {
+
+    @Inject
+    Logger log;
+
+    @Inject
+    WorkflowClient workflowClient;
+
+    @Inject
+    WorkerFactory workerFactory;
+}
+----
+
+=== Writing a Workflow Test
+
+The pattern is: create a mock for each activity interface, stub its behavior, register the mocks with the worker that owns them, create a typed workflow stub, start the worker factory (after registering the activities), drive the workflow (start + signals), block on the result, and assert.
+
+The following is a complete `@QuarkusTest` that exercises a signal-driven workflow end to end against the in-memory test environment:
+
+[source,java]
+----
+@QuarkusTest
+public class QuarkusBasedOrderEntityWorkflowTest {
+
+    static final String customerId = "Mike";
+
+    @ConfigProperty(name = "quarkus.temporal.worker.task-queue")
+    String taskQueue;
+
+    @ConfigProperty(name = "quarkus.temporal.worker.\"cas-rate-limited\".task-queue")
+    String rateLimitedTaskQueue;
+
+    @ConfigProperty(name = "quarkus.temporal.namespace")
+    String workflowNamespace;
+
+    @Inject
+    WorkflowClient workflowClient;
+
+    @Inject
+    WorkerFactory workerFactory;
+
+    // <1> Create a mock for each activity interface you want to control.
+    LocalConfigActivities mockLocalConfigActivities = mock(LocalConfigActivities.class, withSettings().withoutAnnotations());
+    OrderValidationActivities mockOrderValidationActivities = mock(OrderValidationActivities.class, withSettings().withoutAnnotations());
+
+    @Test
+    public void testHappyPathOrderProcessing() {
+
+        // Create test data
+        OrderInit orderInit = createOrderInit();
+        OrderInput orderInput = createValidOrder();
+
+        // <2> Stub the behavior each activity should exhibit for this test.
+        OrderEntityConfig config = new OrderEntityConfig(
+                Duration.ofSeconds(5),
+                Duration.ofMillis(100)
+        );
+        when(mockLocalConfigActivities.getEntityConfig()).thenReturn(config);
+
+        when(mockOrderValidationActivities.validateOrder(orderInput))
+                .thenReturn(new OrderValidationResponse(true));
+
+        // <3> Register the mocks with the worker that owns each activity.
+        workerFactory.getWorker(taskQueue)
+                .registerActivitiesImplementations(
+                        mockLocalConfigActivities,
+                        mockOrderValidationActivities
+                );
+
+        // <4> Create a typed workflow stub backed by the in-memory test server.
+        OrderEntityWorkflow workflow = workflowClient
+                .newWorkflowStub(OrderEntityWorkflow.class, WorkflowOptions.newBuilder()
+                        .setWorkflowId("%s-%s".formatted(workflowNamespace, UUID.randomUUID().toString()))
+                        .setTaskQueue(taskQueue)
+                        .build()
+                );
+
+        // <5> Start the workers only AFTER the activities have been registered.
+        workerFactory.start();
+
+        try {
+            // <6> Start the workflow asynchronously.
+            WorkflowClient.start(workflow::create, orderInit);
+
+            // <7> Send signals through the typed stub.
+            workflow.orderInput(orderInput);
+
+            // <8> Block on the workflow result and assert.
+            String result = WorkflowStub.fromTyped(workflow).getResult(String.class);
+
+            assertNotNull(result, "Workflow result should not be null");
+            assertTrue(result.contains("completed"), "Result should indicate completion");
+            assertTrue(result.contains(customerId), "Result should contain customer ID");
+            assertTrue(result.contains(orderInit.orderId()), "Result should contain order ID");
+            assertTrue(result.contains("order canceled false"), "Order should not be canceled");
+            assertTrue(result.contains("order expired false"), "Order should not be expired");
+            assertTrue(result.contains("order status FULLFILLMENT"), "Order status should be FULLFILLMENT");
+        } finally {
+            // <9> Clean up.
+            workerFactory.shutdown();
+        }
+    }
+
+    private OrderInit createOrderInit() {
+        return new OrderInit(
+                UUID.randomUUID().toString(),
+                customerId,
+                "xyzzy"
+        );
+    }
+
+    private OrderInput createValidOrder() {
+        OrderInputItem item = new OrderInputItem("baseball", 1);
+        ArrayList<OrderInputItem> items = new ArrayList<>();
+        items.add(item);
+
+        return new OrderInput(
+                UUID.randomUUID().toString(),
+                customerId,
+                new OrderInputOrder(
+                        "xyzzy",
+                        items
+                )
+        );
+    }
+}
+----
+
+<1> Create a mock for each activity interface you want to control.
+<2> Stub the behavior each activity should exhibit for this test.
+<3> Register the mocks with the worker that owns each activity. Every activity the workflow invokes must be registered (mock or real) because none are registered automatically when mocking is enabled.
+<4> Create a typed workflow stub backed by the in-memory test server. Use a unique workflow id per run.
+<5> Start the workers only after the activities have been registered.
+<6> Start the workflow asynchronously.
+<7> Send signals through the typed stub.
+<8> Block on the workflow result and assert.
+<9> Shut the worker factory down when the test is done.
+
+[TIP]
+====
+To keep the real implementation of an activity instead of mocking it, register the CDI bean directly:
+
+[source,java]
+----
+workerFactory.getWorker(taskQueue)
+        .registerActivitiesImplementations(CDI.current().select(OrderValidationActivities.class).get());
+----
+====
+
+=== Time Skipping
+
+The `TestWorkflowEnvironment` bean is injectable, so the time-skipping features of the Temporal testing suite are available in Quarkus tests. This lets time-based workflow logic (such as `Workflow.await` with a timeout) elapse instantly:
+
+[source,java]
+----
+@Inject
+TestWorkflowEnvironment testWorkflowEnvironment;
+
+@Test
+public void testOrderExpiry() {
+    // ... start the workflow ...
+
+    // Fast-forward time so the expiry await resolves immediately
+    testWorkflowEnvironment.skipForward(Duration.ofMinutes(10));
+}
+----
+
+== Additional Resources
+
+* https://docs.temporal.io/develop/java/testing-suite[Temporal Java Testing Suite Documentation]
