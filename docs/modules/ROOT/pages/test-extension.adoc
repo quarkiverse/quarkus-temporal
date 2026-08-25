@@ -45,7 +45,7 @@ Enable the mock environment for the test profile. When you register mock activit
 <1> Switches the extension to the in-memory test environment.
 <2> Defers `WorkerFactory.start()` to the test, which runs it after registering the mock activities.
 
-A `@QuarkusTest` can then inject the `org.jboss.logging.Logger`, `WorkflowClient`, and `WorkerFactory` beans, both of which are backed by the test environment:
+A `@QuarkusTest` can then inject the `org.jboss.logging.Logger`, `WorkflowClient`, and `WorkerFactory` beans, which are backed by the test environment:
 
 [source,java]
 ----
@@ -78,9 +78,6 @@ public class QuarkusBasedOrderEntityWorkflowTest {
 
     @ConfigProperty(name = "quarkus.temporal.worker.task-queue")
     String taskQueue;
-
-    @ConfigProperty(name = "quarkus.temporal.worker.\"cas-rate-limited\".task-queue")
-    String rateLimitedTaskQueue;
 
     @ConfigProperty(name = "quarkus.temporal.namespace")
     String workflowNamespace;
