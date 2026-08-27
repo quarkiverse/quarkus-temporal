@@ -40,10 +40,12 @@ Enable the mock environment for the test profile. When you register mock activit
 ----
 %test.quarkus.temporal.enable-mock=true       # <1>
 %test.quarkus.temporal.start-workers=false    # <2>
+%test.quarkus.devservices.enabled=false       # <3>
 ----
 
 <1> Switches the extension to the in-memory test environment.
 <2> Defers `WorkerFactory.start()` to the test, which runs it after registering the mock activities.
+<3> Disables Quarkus Dev Services (test containers) when you don't need them.
 
 A `@QuarkusTest` can then inject the `org.jboss.logging.Logger`, `WorkflowClient`, and `WorkerFactory` beans, which are backed by the test environment:
 
