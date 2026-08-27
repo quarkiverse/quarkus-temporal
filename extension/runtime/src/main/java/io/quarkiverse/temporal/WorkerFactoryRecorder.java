@@ -206,8 +206,10 @@ public class WorkerFactoryRecorder {
         for (var workflow : workflows) {
             worker.registerWorkflowImplementationTypes(workflow);
         }
-        for (var activity : activities) {
-            worker.registerActivitiesImplementations(CDI.current().select(activity).get());
+        if (buildtimeConfig.startWorkers()) {
+            for (var activity : activities) {
+                worker.registerActivitiesImplementations(CDI.current().select(activity).get());
+            }
         }
     }
 
