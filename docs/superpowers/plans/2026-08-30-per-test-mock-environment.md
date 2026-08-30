@@ -32,7 +32,7 @@
 
 This task has no externally-observable behavior change yet (worker creation logic is identical, just also recorded for later replay) — it's verified by confirming the existing test suite still passes.
 
-- [ ] **Step 1: Create the registry**
+- [x] **Step 1: Create the registry**
 
 ```java
 package io.quarkiverse.temporal;
@@ -66,7 +66,7 @@ public final class WorkerRegistrationRegistry {
 }
 ```
 
-- [ ] **Step 2: Extract `createWorker`'s body into `doCreateWorker`, and record a replay closure**
+- [x] **Step 2: Extract `createWorker`'s body into `doCreateWorker`, and record a replay closure**
 
 In `WorkerFactoryRecorder.java`, replace the existing `createWorker` method (lines 196-214):
 
@@ -123,12 +123,12 @@ with:
     }
 ```
 
-- [ ] **Step 3: Build and run the existing extension test suite to confirm no regression**
+- [x] **Step 3: Build and run the existing extension test suite to confirm no regression**
 
 Run: `mvn -q -pl extension/runtime,extension/deployment -am test`
 Expected: BUILD SUCCESS, all existing tests pass (no behavior change yet).
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add extension/runtime/src/main/java/io/quarkiverse/temporal/WorkerRegistrationRegistry.java extension/runtime/src/main/java/io/quarkiverse/temporal/WorkerFactoryRecorder.java
@@ -146,7 +146,7 @@ git commit -m "feat: capture worker registration for replay in mock/test mode"
 - Produces: `WorkflowClientOptionsSupport.buildFromCurrentCdi(String namespace, Optional<String> identity)` — same result as `buildFromContext`, but resolvable outside of synthetic-bean creation (needed by Task 5's JUnit callback, which isn't inside a `SyntheticCreationalContext`).
 - Consumes: nothing new.
 
-- [ ] **Step 1: Refactor to share logic between `buildFromContext` and a new `buildFromCurrentCdi`**
+- [x] **Step 1: Refactor to share logic between `buildFromContext` and a new `buildFromCurrentCdi`**
 
 Replace the full contents of `WorkflowClientOptionsSupport.java` with:
 
@@ -241,12 +241,12 @@ public final class WorkflowClientOptionsSupport {
 }
 ```
 
-- [ ] **Step 2: Build and run the existing extension + test-extension suite to confirm no regression**
+- [x] **Step 2: Build and run the existing extension + test-extension suite to confirm no regression**
 
 Run: `mvn -q -pl extension/runtime,extension/deployment,test-extension/runtime,test-extension/deployment -am test`
 Expected: BUILD SUCCESS, all existing tests pass.
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add extension/runtime/src/main/java/io/quarkiverse/temporal/WorkflowClientOptionsSupport.java
@@ -265,7 +265,7 @@ git commit -m "refactor: extract CDI.current()-based variant of WorkflowClientOp
 - Produces: `MockTestEnvironmentHolder.current()` (returns `TestWorkflowEnvironment`, may be `null` before boot seeding) and `MockTestEnvironmentHolder.set(TestWorkflowEnvironment)` — consumed by Task 4's `WorkerFactory` synthetic bean producer and Task 5's callback.
 - Consumes: nothing new.
 
-- [ ] **Step 1: Create the holder**
+- [x] **Step 1: Create the holder**
 
 ```java
 package io.quarkiverse.temporal.test;
@@ -296,7 +296,7 @@ public final class MockTestEnvironmentHolder {
 }
 ```
 
-- [ ] **Step 2: Wire `TestWorkflowRecorder` to seed and read the holder**
+- [x] **Step 2: Wire `TestWorkflowRecorder` to seed and read the holder**
 
 Replace the full contents of `TestWorkflowRecorder.java` with:
 
@@ -363,12 +363,12 @@ public class TestWorkflowRecorder {
 }
 ```
 
-- [ ] **Step 3: Compile to confirm no errors (behavior not yet exercised until Task 4 changes the bean scopes)**
+- [x] **Step 3: Compile to confirm no errors (behavior not yet exercised until Task 4 changes the bean scopes)**
 
 Run: `mvn -q -pl test-extension/runtime -am compile`
 Expected: BUILD SUCCESS.
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add test-extension/runtime/src/main/java/io/quarkiverse/temporal/test/MockTestEnvironmentHolder.java test-extension/runtime/src/main/java/io/quarkiverse/temporal/test/TestWorkflowRecorder.java
@@ -386,7 +386,7 @@ git commit -m "feat: add prepare-ahead holder for the mock TestWorkflowEnvironme
 - Consumes: `TestWorkflowRecorder.createTestWorkflowEnvironment()`, `.createTestWorkflowClient()`, `.createTestWorkerFactory()` (Task 3, unchanged signatures).
 - Produces: the `TestWorkflowEnvironment`, `WorkflowClient`, `WorkerFactory` synthetic beans that Task 5's callback and Task 6's IT tests inject.
 
-- [ ] **Step 1: Change `TestWorkflowEnvironment`'s scope to `ApplicationScoped` and `WorkerFactory`'s scope to `Dependent`**
+- [x] **Step 1: Change `TestWorkflowEnvironment`'s scope to `ApplicationScoped` and `WorkerFactory`'s scope to `Dependent`**
 
 Replace the full contents of `TemporalTestProcessor.java` with:
 
@@ -499,12 +499,12 @@ Note what changed from the original: `Singleton` import removed (no longer used)
 
 **Discovered while implementing this task:** removing the `TestWorkflowEnvironment` injection point entirely broke boot - `WorkerFactoryRecorder.startWorkerFactory` resolves `WorkerFactory` before anything else forces `TestWorkflowEnvironment` to be created (e.g. in a test with no declared workers, nothing else ever touches it), so `MockTestEnvironmentHolder.current()` was `null`. Declaring the injection point isn't enough by itself either - `TestWorkflowEnvironment` is a normal-scoped (proxied) bean now, so merely obtaining the injected reference doesn't trigger creation, only invoking a method on it does (this is why `createTestWorkflowClient()` already worked unchanged - it calls `.getWorkflowClient()`). The fix, reflected in Task 3's final `createTestWorkerFactory()` above: keep the injection point, resolve it, and call `.getWorkerFactory()` on it (discarding the result) purely to force creation/holder-seeding, then read the actual return value from the holder.
 
-- [ ] **Step 2: Build and run the existing test-extension suite to confirm no regression**
+- [x] **Step 2: Build and run the existing test-extension suite to confirm no regression**
 
 Run: `mvn -q -pl test-extension/runtime,test-extension/deployment -am test`
 Expected: BUILD SUCCESS, all existing tests (`MockEnabledTest`, etc.) pass. (`StartWorkersEnabledTest`/`StartWorkersDisabledTest` are pre-existing `@Disabled` tests, unaffected either way — see Task 7.)
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add test-extension/deployment/src/main/java/io/quarkiverse/temporal/test/deployment/TemporalTestProcessor.java
@@ -525,7 +525,7 @@ git commit -m "fix: scope TestWorkflowEnvironment as ApplicationScoped, WorkerFa
 - Consumes: `MockTestEnvironmentHolder.current()`/`.set(...)` (Task 3), `WorkerRegistrationRegistry.replayAll()` (Task 1), `WorkflowClientOptionsSupport.buildFromCurrentCdi(...)` (Task 2).
 - Produces: nothing new consumed by later tasks — this is the last piece of the production fix. Tasks 6/7 exercise it end-to-end.
 
-- [ ] **Step 1: Add the `quarkus-junit` dependency**
+- [x] **Step 1: Add the `quarkus-junit` dependency**
 
 In `test-extension/runtime/pom.xml`, add inside `<dependencies>`:
 
@@ -543,7 +543,7 @@ First, `quarkus-junit5` (the artifact one might expect from older Quarkus docs) 
 
 Second, `<scope>provided</scope>` is required, not optional: `quarkus-junit` (like `quarkus-junit5`) legitimately depends on `-deployment` artifacts (needed for `@QuarkusTest`'s own re-augmentation support), and the `quarkus-extension-maven-plugin`'s dependency verification step correctly rejects any `-deployment` artifact appearing on an extension runtime module's default (compile-scope) classpath - real consumers must never see build-time artifacts on their production classpath. `provided` scope makes the classes available for compiling this module without tripping that check. This doesn't leave consumers missing anything at runtime: anyone using `@QuarkusTest` (which is what's needed for this callback to ever run at all) already has `quarkus-junit` on their own test classpath directly, regardless of what `quarkus-temporal-test` declares.
 
-- [ ] **Step 2: Write the callback**
+- [x] **Step 2: Write the callback**
 
 ```java
 package io.quarkiverse.temporal.test;
@@ -652,7 +652,7 @@ public class MockTestWorkflowResetCallback implements QuarkusTestBeforeEachCallb
 }
 ```
 
-- [ ] **Step 3: Register the callback for auto-discovery**
+- [x] **Step 3: Register the callback for auto-discovery**
 
 Create `test-extension/runtime/src/main/resources/META-INF/services/io.quarkus.test.junit.callback.QuarkusTestBeforeEachCallback` containing exactly:
 
@@ -666,12 +666,12 @@ Create `test-extension/runtime/src/main/resources/META-INF/services/io.quarkus.t
 io.quarkiverse.temporal.test.MockTestWorkflowResetCallback
 ```
 
-- [ ] **Step 4: Build and run the existing test-extension suite to confirm no regression**
+- [x] **Step 4: Build and run the existing test-extension suite to confirm no regression**
 
 Run: `mvn -q -pl test-extension/runtime,test-extension/deployment -am test`
 Expected: BUILD SUCCESS. (Still no new *behavioral* proof yet - `test-extension/deployment`'s tests use `QuarkusUnitTest`, which doesn't invoke this callback at all. Task 6 is where this gets actually exercised.)
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add test-extension/runtime/pom.xml test-extension/runtime/src/main/java/io/quarkiverse/temporal/test/MockTestWorkflowResetCallback.java test-extension/runtime/src/main/resources/META-INF/services/io.quarkus.test.junit.callback.QuarkusTestBeforeEachCallback test-extension/runtime/src/main/resources/META-INF/services/io.quarkus.test.junit.callback.QuarkusTestAfterEachCallback
@@ -693,7 +693,7 @@ git commit -m "feat: reset the mock TestWorkflowEnvironment before/after every t
 
 This module already depends on `quarkus-temporal-test` (test scope) and already has real `@QuarkusTest`/`*IT` classes (`CDIActivityIT`, `MoneyTransferIT`) using the module's default `application.properties` (`%test.quarkus.temporal.enable-mock=true`, `start-workers` defaulting to `true`). The new fixture is placed under a `defaultWorker` sub-package, mirroring the existing `it.cdi.defaultWorker`/`it.moneyTransfer.defaultWorker` convention that binds a workflow implementation to the extension's default worker - no new worker/task-queue config needed, and `start-workers=true` means the workflow gets auto-registered per test with no manual mock-activity setup required (this fixture needs no activities at all).
 
-- [ ] **Step 1: Add the trivial fixture workflow**
+- [x] **Step 1: Add the trivial fixture workflow**
 
 ```java
 package io.quarkiverse.temporal.it.freshness.defaultWorker;
@@ -721,7 +721,7 @@ public class FreshnessWorkflowImpl implements FreshnessWorkflow {
 }
 ```
 
-- [ ] **Step 2: Add the application-code CDI bean that proves the fix isn't limited to the test class's own fields**
+- [x] **Step 2: Add the application-code CDI bean that proves the fix isn't limited to the test class's own fields**
 
 ```java
 package io.quarkiverse.temporal.it.freshness;
@@ -748,7 +748,7 @@ public class FreshnessClientHolder {
 }
 ```
 
-- [ ] **Step 3: Write the regression test**
+- [x] **Step 3: Write the regression test**
 
 ```java
 package io.quarkiverse.temporal.it;
@@ -815,12 +815,12 @@ public class TestWorkflowEnvironmentFreshnessIT {
 
 **Discovered while implementing this task:** the original `assertSame(testEnv.getWorkflowClient(), applicationBean.get())` was a broken assertion, not a real check - `applicationBean.get()` returns a CDI client proxy (a stable, synthetic wrapper object), while `testEnv.getWorkflowClient()` returns the real underlying SDK object directly; the two are never reference-equal by design, regardless of whether the fix works. Removed it - the workflow call succeeding through `applicationBean.get()` is itself the meaningful proof (a stale client would be wired to a different, or already-closed, in-memory environment and the call would fail or hang).
 
-- [ ] **Step 4: Run the integration test suite**
+- [x] **Step 4: Run the integration test suite**
 
 Run: `mvn -q verify -pl integration-tests -am`
 Expected: BUILD SUCCESS, both `testWorkflowEnvironmentFreshnessIT` methods pass. If this plan were executed against the *old* (pre-fix) code, `secondTestGetsAFreshEnvironment` would fail with an error indicating the worker factory/environment was already shut down - that's the regression this proves.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add integration-tests/src/main/java/io/quarkiverse/temporal/it/freshness integration-tests/src/test/java/io/quarkiverse/temporal/it/TestWorkflowEnvironmentFreshnessIT.java
@@ -836,12 +836,12 @@ git commit -m "test: prove TestWorkflowEnvironment/WorkflowClient are fresh per 
 
 **Interfaces:** none - this task is verification, not new code.
 
-- [ ] **Step 1: Run the full reactor test suite**
+- [x] **Step 1: Run the full reactor test suite**
 
 Run: `mvn -q verify`
 Expected: BUILD SUCCESS across `extension`, `test-extension`, and `integration-tests` - including the pre-existing `CDIActivityIT`, `MoneyTransferIT`, `ContextPropagatorCdiIT`, `DataConverterCdiIT` (none of which explicitly close their environment, so they must keep working unchanged under the new fresh-per-test behavior).
 
-- [ ] **Step 2: Look at why `StartWorkersEnabledTest`/`StartWorkersDisabledTest` are `@Disabled`**
+- [x] **Step 2: Look at why `StartWorkersEnabledTest`/`StartWorkersDisabledTest` are `@Disabled`**
 
 These two tests (in `test-extension/deployment`) are `QuarkusUnitTest`-based and were disabled in commit `700eeff` ("custom client") with no explanation. Read them, try removing `@Disabled` locally, and run:
 
@@ -849,7 +849,7 @@ Run: `mvn -q -pl test-extension/deployment -am test -Dtest=StartWorkersEnabledTe
 
 If they pass cleanly after this change, remove the `@Disabled` annotations and commit that as a small separate cleanup. If they still fail for a reason unrelated to this fix, leave them disabled - this is a nice-to-have, not a requirement of this plan.
 
-- [ ] **Step 3: Final commit (only if Step 2 produced a change)**
+- [x] **Step 3: Final commit (only if Step 2 produced a change)**
 
 ```bash
 git add test-extension/deployment/src/test/java/io/quarkiverse/temporal/test/deployment/StartWorkersEnabledTest.java test-extension/deployment/src/test/java/io/quarkiverse/temporal/test/deployment/StartWorkersDisabledTest.java
