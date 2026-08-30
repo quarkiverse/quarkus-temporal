@@ -755,7 +755,6 @@ package io.quarkiverse.temporal.it;
 
 import static io.quarkiverse.temporal.Constants.DEFAULT_WORKER_NAME;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertSame;
 
 import jakarta.inject.Inject;
 
@@ -779,9 +778,6 @@ public class TestWorkflowEnvironmentFreshnessIT {
     TestWorkflowEnvironment testEnv;
 
     @Inject
-    WorkflowClient client;
-
-    @Inject
     FreshnessClientHolder applicationBean;
 
     @Test
@@ -800,9 +796,10 @@ public class TestWorkflowEnvironmentFreshnessIT {
     }
 
     private void runAndClose(String input) {
-        // Proves application code (not just the test class) sees the current test's client.
-        assertSame(testEnv.getWorkflowClient(), applicationBean.get());
-
+        // Uses the client injected into an application-code-style CDI bean (not the test
+        // class's own field) to prove the fix isn't limited to the test class's fields.
+        // If this client were stale, newWorkflowStub/ping below would fail or hang against
+        // a different (or already-closed) in-memory environment.
         WorkflowClient current = applicationBean.get();
         FreshnessWorkflow workflow = current.newWorkflowStub(FreshnessWorkflow.class,
                 WorkflowOptions.newBuilder().setTaskQueue(DEFAULT_WORKER_NAME).build());
@@ -815,6 +812,8 @@ public class TestWorkflowEnvironmentFreshnessIT {
     }
 }
 ```
+
+**Discovered while implementing this task:** the original `assertSame(testEnv.getWorkflowClient(), applicationBean.get())` was a broken assertion, not a real check - `applicationBean.get()` returns a CDI client proxy (a stable, synthetic wrapper object), while `testEnv.getWorkflowClient()` returns the real underlying SDK object directly; the two are never reference-equal by design, regardless of whether the fix works. Removed it - the workflow call succeeding through `applicationBean.get()` is itself the meaningful proof (a stale client would be wired to a different, or already-closed, in-memory environment and the call would fail or hang).
 
 - [ ] **Step 4: Run the integration test suite**
 
