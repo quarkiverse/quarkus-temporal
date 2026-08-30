@@ -3,9 +3,9 @@ package io.quarkiverse.temporal.test.deployment;
 import static io.quarkiverse.temporal.Constants.TEMPORAL_TESTING_CAPABILITY;
 
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.context.Dependent;
 import jakarta.enterprise.inject.Any;
 import jakarta.enterprise.inject.Instance;
-import jakarta.inject.Singleton;
 
 import org.jboss.jandex.AnnotationInstance;
 import org.jboss.jandex.ClassType;
@@ -46,7 +46,7 @@ public class TemporalTestProcessor {
     SyntheticBeanBuildItem recordTestEnvironment(TestWorkflowRecorder recorder) {
         return SyntheticBeanBuildItem
                 .configure(TestWorkflowEnvironment.class)
-                .scope(Singleton.class)
+                .scope(ApplicationScoped.class)
                 .unremovable()
                 .addInjectionPoint(
                         ParameterizedType.create(Instance.class, ClassType.create(WorkflowClientInterceptor.class)),
@@ -80,13 +80,21 @@ public class TemporalTestProcessor {
     @BuildStep(onlyIf = TemporalProcessor.EnableMock.class)
     @Record(ExecutionTime.RUNTIME_INIT)
     SyntheticBeanBuildItem produceWorkerFactorySyntheticBean(TestWorkflowRecorder recorder) {
+        // @Dependent (not a normal scope): io.temporal.worker.WorkerFactory is a final class
+        // with only a private constructor and cannot be CDI-proxied. A fresh instance is
+        // instead resolved from MockTestEnvironmentHolder at every injection point - see
+        // MockTestEnvironmentHolder / MockTestWorkflowResetCallback for how freshness is
+        // still achieved per test.
+        // The TestWorkflowEnvironment injection point below is not read directly by
+        // createTestWorkerFactory() any more, but it must stay: declaring it is what forces
+        // ArC to create the TestWorkflowEnvironment bean (and so seed the holder) before this
+        // bean is ever created.
         return SyntheticBeanBuildItem
                 .configure(WorkerFactory.class)
-                .scope(Singleton.class)
+                .scope(Dependent.class)
                 .unremovable()
                 .defaultBean()
                 .addInjectionPoint(ClassType.create(TestWorkflowEnvironment.class))
-                .addInjectionPoint(ClassType.create(WorkflowClient.class))
                 .createWith(recorder.createTestWorkerFactory())
                 .setRuntimeInit()
                 .done();

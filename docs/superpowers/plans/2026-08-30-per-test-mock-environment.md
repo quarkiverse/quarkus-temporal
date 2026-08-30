@@ -349,7 +349,16 @@ public class TestWorkflowRecorder {
     }
 
     public Function<SyntheticCreationalContext<WorkerFactory>, WorkerFactory> createTestWorkerFactory() {
-        return context -> MockTestEnvironmentHolder.current().getWorkerFactory();
+        return context -> {
+            // TestWorkflowEnvironment is ApplicationScoped (proxied): merely obtaining the
+            // injected reference does not trigger its creation, only invoking a method on it
+            // does. That first creation is what seeds MockTestEnvironmentHolder, which is
+            // then read below (not the value returned here) so later tests - which swap the
+            // holder directly - are picked up too.
+            TestWorkflowEnvironment testWorkflowEnvironment = context.getInjectedReference(TestWorkflowEnvironment.class);
+            testWorkflowEnvironment.getWorkerFactory();
+            return MockTestEnvironmentHolder.current().getWorkerFactory();
+        };
     }
 }
 ```
@@ -469,11 +478,16 @@ public class TemporalTestProcessor {
         // instead resolved from MockTestEnvironmentHolder at every injection point - see
         // MockTestEnvironmentHolder / MockTestWorkflowResetCallback for how freshness is
         // still achieved per test.
+        // The TestWorkflowEnvironment injection point below is not read directly by
+        // createTestWorkerFactory() any more, but it must stay: declaring (and resolving) it
+        // is what forces ArC to create the TestWorkflowEnvironment bean - and so seed the
+        // holder - before this bean is ever created.
         return SyntheticBeanBuildItem
                 .configure(WorkerFactory.class)
                 .scope(Dependent.class)
                 .unremovable()
                 .defaultBean()
+                .addInjectionPoint(ClassType.create(TestWorkflowEnvironment.class))
                 .createWith(recorder.createTestWorkerFactory())
                 .setRuntimeInit()
                 .done();
@@ -481,7 +495,9 @@ public class TemporalTestProcessor {
 }
 ```
 
-Note what changed from the original: `Singleton` import removed (no longer used), `Dependent` import added; `recordTestEnvironment`'s scope is now `ApplicationScoped`; `produceWorkerFactorySyntheticBean`'s scope is now `Dependent` and its now-unused `.addInjectionPoint(ClassType.create(TestWorkflowEnvironment.class))` is removed (the `createWith` function no longer reads it via `context.getInjectedReference(...)` — it reads `MockTestEnvironmentHolder` directly instead, per Task 3).
+Note what changed from the original: `Singleton` import removed (no longer used), `Dependent` import added; `recordTestEnvironment`'s scope is now `ApplicationScoped`; `produceWorkerFactorySyntheticBean`'s scope is now `Dependent` (its `WorkflowClient` injection point, unused for the same reason, is removed - but its `TestWorkflowEnvironment` injection point must stay, see below).
+
+**Discovered while implementing this task:** removing the `TestWorkflowEnvironment` injection point entirely broke boot - `WorkerFactoryRecorder.startWorkerFactory` resolves `WorkerFactory` before anything else forces `TestWorkflowEnvironment` to be created (e.g. in a test with no declared workers, nothing else ever touches it), so `MockTestEnvironmentHolder.current()` was `null`. Declaring the injection point isn't enough by itself either - `TestWorkflowEnvironment` is a normal-scoped (proxied) bean now, so merely obtaining the injected reference doesn't trigger creation, only invoking a method on it does (this is why `createTestWorkflowClient()` already worked unchanged - it calls `.getWorkflowClient()`). The fix, reflected in Task 3's final `createTestWorkerFactory()` above: keep the injection point, resolve it, and call `.getWorkerFactory()` on it (discarding the result) purely to force creation/holder-seeding, then read the actual return value from the holder.
 
 - [ ] **Step 2: Build and run the existing test-extension suite to confirm no regression**
 

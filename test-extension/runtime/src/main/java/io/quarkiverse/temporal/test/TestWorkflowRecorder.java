@@ -46,6 +46,15 @@ public class TestWorkflowRecorder {
     }
 
     public Function<SyntheticCreationalContext<WorkerFactory>, WorkerFactory> createTestWorkerFactory() {
-        return context -> MockTestEnvironmentHolder.current().getWorkerFactory();
+        return context -> {
+            // TestWorkflowEnvironment is ApplicationScoped (proxied): merely obtaining the
+            // injected reference does not trigger its creation, only invoking a method on it
+            // does. That first creation is what seeds MockTestEnvironmentHolder, which is
+            // then read below (not the value returned here) so later tests - which swap the
+            // holder directly - are picked up too.
+            TestWorkflowEnvironment testWorkflowEnvironment = context.getInjectedReference(TestWorkflowEnvironment.class);
+            testWorkflowEnvironment.getWorkerFactory();
+            return MockTestEnvironmentHolder.current().getWorkerFactory();
+        };
     }
 }
