@@ -26,6 +26,11 @@
             <groupId>io.temporal</groupId>
             <artifactId>temporal-testing</artifactId>
         </dependency>
+        <dependency>
+            <groupId>io.quarkus</groupId>
+            <artifactId>quarkus-junit</artifactId>
+            <scope>provided</scope>
+        </dependency>
     </dependencies>
     <build>
         <plugins>

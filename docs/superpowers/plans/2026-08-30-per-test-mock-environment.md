@@ -6,7 +6,7 @@
 
 **Architecture:** `TestWorkflowEnvironment` becomes `ApplicationScoped` and `WorkflowClient` stays `ApplicationScoped` (already was); both get swapped per test via `QuarkusMock.installMockForType(...)` in a new `QuarkusTestBeforeEachCallback`. `WorkerFactory` is a `final` SDK class with only a `private` constructor and can't be CDI-proxied, so it becomes `@Dependent`-scoped instead, reading "whatever is currently prepared" from a plain static holder; a "prepare-ahead" `QuarkusTestAfterEachCallback` builds test N+1's environment during test N's teardown so it's already in the holder by the time test N+1 is constructed (CDI resolves `@Dependent` fields at construction time, before any callback can run). Worker/workflow-type registration (normally a one-time boot step) is captured as replayable closures and re-run against every fresh environment.
 
-**Tech Stack:** Quarkus 3.33.1 (Java, Maven multi-module), Temporal Java SDK (`temporal-sdk`, `temporal-testing`), JUnit 5, `quarkus-junit5` test-lifecycle callback SPI, Mockito (test-only, for the fixture regression coverage).
+**Tech Stack:** Quarkus 3.33.1 (Java, Maven multi-module), Temporal Java SDK (`temporal-sdk`, `temporal-testing`), JUnit 5, `quarkus-junit`'s test-lifecycle callback SPI (`io.quarkus.test.junit.callback.*`), Mockito (test-only, for the fixture regression coverage).
 
 **Spec:** `docs/superpowers/specs/2026-08-30-per-test-mock-environment-design.md`
 
@@ -14,7 +14,7 @@
 
 - No changes to production (non-mock) code paths in `extension`. All new/changed behavior is gated behind `quarkus.temporal.enable-mock=true` (build-time) or is otherwise inert unless the `quarkus-temporal-test` extension is present.
 - No bytecode transforms (`BytecodeTransformerBuildItem`) anywhere in this design — that approach was tried and rejected (see spec, "Constraints discovered during investigation" #5, and "Approaches considered").
-- Every new dependency version comes from the existing `quarkus-bom` import (no explicit `<version>` needed for `quarkus-junit5` or `mockito-core`).
+- Every new dependency version comes from the existing `quarkus-bom` import (no explicit `<version>` needed for `quarkus-junit` or `mockito-core`).
 - Regression/behavioral tests for the actual per-test-freshness fix MUST live in `integration-tests` (real `@QuarkusTest`, goes through the full `QuarkusTestExtension` lifecycle). `test-extension/deployment`'s `QuarkusUnitTest`-based tests do **not** invoke the `QuarkusTestBeforeEachCallback`/`QuarkusTestAfterEachCallback` SPI this fix relies on (verified by reading `QuarkusUnitTest`'s source) — a test written there would prove nothing about this fix.
 - Follow existing code style: 4-space indent, no javadoc beyond what's shown below, package-private where the existing code is package-private.
 
@@ -525,16 +525,23 @@ git commit -m "fix: scope TestWorkflowEnvironment as ApplicationScoped, WorkerFa
 - Consumes: `MockTestEnvironmentHolder.current()`/`.set(...)` (Task 3), `WorkerRegistrationRegistry.replayAll()` (Task 1), `WorkflowClientOptionsSupport.buildFromCurrentCdi(...)` (Task 2).
 - Produces: nothing new consumed by later tasks — this is the last piece of the production fix. Tasks 6/7 exercise it end-to-end.
 
-- [ ] **Step 1: Add the `quarkus-junit5` dependency**
+- [ ] **Step 1: Add the `quarkus-junit` dependency**
 
-In `test-extension/runtime/pom.xml`, add inside `<dependencies>` (alongside the existing `quarkus-arc`, `quarkus-temporal`, `temporal-sdk`, `temporal-testing` entries — no `<scope>` needed, this module is already test-classpath-only by design, same as its existing `temporal-testing` dependency):
+In `test-extension/runtime/pom.xml`, add inside `<dependencies>`:
 
 ```xml
         <dependency>
             <groupId>io.quarkus</groupId>
-            <artifactId>quarkus-junit5</artifactId>
+            <artifactId>quarkus-junit</artifactId>
+            <scope>provided</scope>
         </dependency>
 ```
+
+**Discovered while implementing this task:** two corrections from what's written above.
+
+First, `quarkus-junit5` (the artifact one might expect from older Quarkus docs) is not what provides `QuarkusMock`/the callback SPI in this Quarkus version (3.33.1) - `quarkus-junit` is, and it's also the artifact `integration-tests` already uses for its own `@QuarkusTest` classes, so this keeps the whole repo on one convention.
+
+Second, `<scope>provided</scope>` is required, not optional: `quarkus-junit` (like `quarkus-junit5`) legitimately depends on `-deployment` artifacts (needed for `@QuarkusTest`'s own re-augmentation support), and the `quarkus-extension-maven-plugin`'s dependency verification step correctly rejects any `-deployment` artifact appearing on an extension runtime module's default (compile-scope) classpath - real consumers must never see build-time artifacts on their production classpath. `provided` scope makes the classes available for compiling this module without tripping that check. This doesn't leave consumers missing anything at runtime: anyone using `@QuarkusTest` (which is what's needed for this callback to ever run at all) already has `quarkus-junit` on their own test classpath directly, regardless of what `quarkus-temporal-test` declares.
 
 - [ ] **Step 2: Write the callback**
 
