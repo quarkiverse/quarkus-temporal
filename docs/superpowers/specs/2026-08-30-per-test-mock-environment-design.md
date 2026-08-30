@@ -31,7 +31,7 @@ Goal: make the extension-provided `TestWorkflowEnvironment`/`WorkflowClient`/`Wo
 
 | Component | Module | Change |
 |---|---|---|
-| `TestWorkflowEnvironment`, `WorkflowClient` synthetic beans | `test-extension/deployment` | Scope `Singleton` → `ApplicationScoped`. |
+| `TestWorkflowEnvironment` synthetic bean | `test-extension/deployment` | Scope `Singleton` → `ApplicationScoped`. (`WorkflowClient`'s bean is already `ApplicationScoped` today — no scope change needed there, just the new `QuarkusMock` install.) |
 | `WorkerFactory` synthetic bean | `test-extension/deployment` | Scope `Singleton` → `Dependent`. `createWith` reads `MockTestEnvironmentHolder.current().getWorkerFactory()` instead of building anything itself. |
 | `MockTestEnvironmentHolder` (new) | `test-extension/runtime` | Plain static holder (not a CDI bean) storing the "currently prepared" `TestWorkflowEnvironment` for the in-progress or upcoming test. |
 | `WorkerRegistrationRegistry` (new) | `extension/runtime` | Static registry of replay closures: `(name, workflows, activities) -> WorkerFactoryRecorder.doCreateWorker(...)`. Populated unconditionally (cheap — a handful of class references), read only by `test-extension`. |
@@ -72,12 +72,12 @@ One bounded loose end: after the *last* test in a run, this still prepares one m
 
 ## Testing plan
 
-1. **Regression proof**: bring in `OrderEntityWorkflowMultiTestFailure1Test` and `OrderEntityWorkflowMultiTestFailure2Test` from PR #233 (renamed appropriately) and confirm both test methods in each class pass when run together — the direct proof this fixes the reported bug.
-2. **`test-extension/deployment` unit tests** (`QuarkusUnitTest`-based, matching existing module style):
-   - Multiple `@Test` methods directly injecting `TestWorkflowEnvironment`/`WorkflowClient`/`WorkerFactory`, asserting the instances differ across methods and that one test's workflow history is invisible to the next.
-   - `start-workers=true`: assert the fresh factory is auto-started each test. Investigate why the existing `StartWorkersEnabledTest`/`StartWorkersDisabledTest` are currently `@Disabled` (no explanation in history) and re-enable if this fix resolves whatever was blocking them — not a hard requirement of this change, but worth checking.
-   - A case proving the *application-code* path: a plain `@ApplicationScoped` CDI bean (not the test class) injects `WorkflowClient`, and two test methods confirm it resolves the current per-test client each time.
-3. Full existing `extension` + `test-extension` suite must stay green — this change must not alter production (non-mock) behavior.
+**Important mechanism note discovered during implementation planning:** `test-extension/deployment`'s existing test suite (`MockEnabledTest`, `StartWorkersEnabledTest`, etc.) uses `io.quarkus.test.QuarkusUnitTest`, a lighter-weight harness for testing build steps in-process. Its `beforeEach`/`afterEach` do **not** invoke the `QuarkusTestBeforeEachCallback`/`QuarkusTestAfterEachCallback` SPI at all (confirmed by reading its source) — so this fix's callback would never fire in a `QuarkusUnitTest`-based test, and such a test would prove nothing about it. The regression/behavioral tests for this fix must instead live in the `integration-tests` module, which already depends on `quarkus-temporal-test` and already has real `@QuarkusTest` classes (`CDIActivityIT`, `MoneyTransferIT`) that go through the full `QuarkusTestExtension` lifecycle, including our callback.
+
+1. **Regression proof** (new, in `integration-tests`): a `@QuarkusTest` IT class with two `@Order`ed test methods against a small new trivial workflow (no activities needed — `integration-tests`' default `start-workers=true` auto-registers it). Each method runs the workflow, then explicitly closes it (`workerFactory.shutdown()` + `testEnv.close()`) in a `finally` block — reproducing PR #233's exact `Failure2Test` pattern. Before the fix, the second method would fail immediately (stale, already-closed environment); after the fix, it gets a working fresh one.
+2. **Application-code freshness**, folded into the same IT class: a small `@ApplicationScoped` CDI bean (not the test class) injects `WorkflowClient`; each test method asserts it resolves to the *current* test's client (`== testEnv.getWorkflowClient()`), proving the fix isn't limited to the test class's own fields.
+3. Investigate why the existing `test-extension/deployment` `StartWorkersEnabledTest`/`StartWorkersDisabledTest` are currently `@Disabled` (no explanation in history) — separate from this fix, worth a quick look, not a hard requirement.
+4. Full existing `extension` + `test-extension` + `integration-tests` suite must stay green — this change must not alter production (non-mock) behavior, and existing IT classes (which don't explicitly close the environment) must keep working with a fresh-per-test environment.
 
 ## Open questions / risks
 
