@@ -379,7 +379,7 @@ public class TemporalProcessor {
 
     }
 
-    @BuildStep
+    @BuildStep(onlyIfNot = EnableMock.class)
     @Record(ExecutionTime.RUNTIME_INIT)
     void produceWorkflowStubSyntheticBeans(
             BuildProducer<SyntheticBeanBuildItem> producer,

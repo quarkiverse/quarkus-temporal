@@ -195,7 +195,14 @@ public class WorkerFactoryRecorder {
 
     public void createWorker(String name, List<Class<?>> workflows,
             List<Class<?>> activities) {
-        // Workers are created during runtime init and registered with workflow/activity implementations.
+        WorkerRegistrationRegistry.record(() -> doCreateWorker(name, workflows, activities));
+        doCreateWorker(name, workflows, activities);
+    }
+
+    private void doCreateWorker(String name, List<Class<?>> workflows,
+            List<Class<?>> activities) {
+        // Workers are created during runtime init (or replayed per test in mock mode) and
+        // registered with workflow/activity implementations.
         // Starting polling threads is intentionally deferred to startWorkerFactory(...).
         WorkerFactory workerFactory = CDI.current().select(WorkerFactory.class).get();
         WorkerRuntimeConfig workerRuntimeConfig = runtimeConfig.getValue().worker().get(name);
