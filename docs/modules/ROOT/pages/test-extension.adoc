@@ -26,7 +26,8 @@ Enabling the mock environment swaps the real Temporal connection for Temporal's 
 
 * The `WorkflowClient` CDI bean is backed by the test environment, so workflow stubs (created with `WorkflowClient.newWorkflowStub` or injected with `@TemporalWorkflowStub`) talk to the in-memory server instead of a real Temporal cluster.
 * The `WorkerFactory` CDI bean is backed by the test environment. A worker is still created for every worker configured with `quarkus.temporal.worker.*`, and workflow implementations are registered with those workers automatically.
-* Activity implementations are *not* registered automatically. The test is responsible for registering every activity the workflow invokes, either as a mock or as the real CDI bean.
+* The `TestWorkflowEnvironment` CDI bean is backed by the test environment.
+* When `quarkus.temporal.start-workers=false`, Activity implementations are *not* registered automatically. The test is responsible for registering every activity the workflow invokes, either as a mock or as the real CDI bean.
 [NOTE]
 ====
 `quarkus.temporal.enable-mock` is a build-time property. If it is enabled while the test extension is not on the classpath, the build fails with `Please add the 'quarkus-temporal-test' extension to enable mocking.`
