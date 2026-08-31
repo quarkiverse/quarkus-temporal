@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import io.quarkiverse.temporal.deployment.TemporalDevServicesProcessor;
 import io.quarkiverse.temporal.deployment.WorkerBuildItem;
 import io.quarkiverse.temporal.deployment.WorkflowBuildItem;
 import io.quarkus.deployment.IsDevelopment;
@@ -31,6 +32,13 @@ public class TemporalDevUIProcessor {
         String temporalSdkVersion = Optional.ofNullable(WorkflowClient.class.getPackage().getImplementationVersion())
                 .orElse("unknown");
         card.addLibraryVersion("Temporal Java SDK", temporalSdkVersion, "temporal-sdk", "https://temporal.io");
+
+        card.addPage(Page.externalPageBuilder("Temporal Web UI")
+                .icon("font-awesome-solid:arrow-up-right-from-square")
+                .dynamicUrlJsonRPCMethodName("devui-dev-services:devServicesConfig",
+                        java.util.Map.of("name", TemporalDevServicesProcessor.FEATURE,
+                                "configKey", TemporalDevServicesProcessor.WEB_UI_URL))
+                .doNotEmbed());
 
         final PageBuilder<TableDataPageBuilder> workflowsPage = Page.tableDataPageBuilder("Workflows")
                 .icon("font-awesome-solid:arrow-right")

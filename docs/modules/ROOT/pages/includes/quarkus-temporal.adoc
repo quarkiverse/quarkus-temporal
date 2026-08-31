@@ -28,6 +28,174 @@ endif::add-copy-button-to-env-var[]
 |int
 |
 
+a|icon:lock[title=Fixed at build time] [[quarkus-temporal_quarkus-temporal-devservices-enabled]] [.property-path]##link:#quarkus-temporal_quarkus-temporal-devservices-enabled[`+++quarkus.temporal.devservices.enabled+++`]##
+ifdef::add-copy-button-to-config-props[]
+config_property_copy_button:+++quarkus.temporal.devservices.enabled+++[]
+endif::add-copy-button-to-config-props[]
+
+
+[.description]
+--
+Whether to start a Temporal development server when no Temporal connection target is configured.
+
+
+ifdef::add-copy-button-to-env-var[]
+Environment variable: env_var_with_copy_button:+++QUARKUS_TEMPORAL_DEVSERVICES_ENABLED+++[]
+endif::add-copy-button-to-env-var[]
+ifndef::add-copy-button-to-env-var[]
+Environment variable: `+++QUARKUS_TEMPORAL_DEVSERVICES_ENABLED+++`
+endif::add-copy-button-to-env-var[]
+--
+|boolean
+|`+++true+++`
+
+a|icon:lock[title=Fixed at build time] [[quarkus-temporal_quarkus-temporal-devservices-image-name]] [.property-path]##link:#quarkus-temporal_quarkus-temporal-devservices-image-name[`+++quarkus.temporal.devservices.image-name+++`]##
+ifdef::add-copy-button-to-config-props[]
+config_property_copy_button:+++quarkus.temporal.devservices.image-name+++[]
+endif::add-copy-button-to-config-props[]
+
+
+[.description]
+--
+The container image used to start the Temporal development server.
+
+
+ifdef::add-copy-button-to-env-var[]
+Environment variable: env_var_with_copy_button:+++QUARKUS_TEMPORAL_DEVSERVICES_IMAGE_NAME+++[]
+endif::add-copy-button-to-env-var[]
+ifndef::add-copy-button-to-env-var[]
+Environment variable: `+++QUARKUS_TEMPORAL_DEVSERVICES_IMAGE_NAME+++`
+endif::add-copy-button-to-env-var[]
+--
+|string
+|`+++temporalio/temporal:latest+++`
+
+a|icon:lock[title=Fixed at build time] [[quarkus-temporal_quarkus-temporal-devservices-port]] [.property-path]##link:#quarkus-temporal_quarkus-temporal-devservices-port[`+++quarkus.temporal.devservices.port+++`]##
+ifdef::add-copy-button-to-config-props[]
+config_property_copy_button:+++quarkus.temporal.devservices.port+++[]
+endif::add-copy-button-to-config-props[]
+
+
+[.description]
+--
+Optional fixed host port for Temporal's gRPC endpoint. By default a random available port is used.
+
+
+ifdef::add-copy-button-to-env-var[]
+Environment variable: env_var_with_copy_button:+++QUARKUS_TEMPORAL_DEVSERVICES_PORT+++[]
+endif::add-copy-button-to-env-var[]
+ifndef::add-copy-button-to-env-var[]
+Environment variable: `+++QUARKUS_TEMPORAL_DEVSERVICES_PORT+++`
+endif::add-copy-button-to-env-var[]
+--
+|int
+|
+
+a|icon:lock[title=Fixed at build time] [[quarkus-temporal_quarkus-temporal-devservices-service-name]] [.property-path]##link:#quarkus-temporal_quarkus-temporal-devservices-service-name[`+++quarkus.temporal.devservices.service-name+++`]##
+ifdef::add-copy-button-to-config-props[]
+config_property_copy_button:+++quarkus.temporal.devservices.service-name+++[]
+endif::add-copy-button-to-config-props[]
+
+
+[.description]
+--
+The label value used to identify a shared Temporal Dev Service container.
+
+
+ifdef::add-copy-button-to-env-var[]
+Environment variable: env_var_with_copy_button:+++QUARKUS_TEMPORAL_DEVSERVICES_SERVICE_NAME+++[]
+endif::add-copy-button-to-env-var[]
+ifndef::add-copy-button-to-env-var[]
+Environment variable: `+++QUARKUS_TEMPORAL_DEVSERVICES_SERVICE_NAME+++`
+endif::add-copy-button-to-env-var[]
+--
+|string
+|`+++temporal+++`
+
+a|icon:lock[title=Fixed at build time] [[quarkus-temporal_quarkus-temporal-devservices-shared]] [.property-path]##link:#quarkus-temporal_quarkus-temporal-devservices-shared[`+++quarkus.temporal.devservices.shared+++`]##
+ifdef::add-copy-button-to-config-props[]
+config_property_copy_button:+++quarkus.temporal.devservices.shared+++[]
+endif::add-copy-button-to-config-props[]
+
+
+[.description]
+--
+Whether to discover and use a Temporal Dev Service container started by another application in dev mode.
+
+
+ifdef::add-copy-button-to-env-var[]
+Environment variable: env_var_with_copy_button:+++QUARKUS_TEMPORAL_DEVSERVICES_SHARED+++[]
+endif::add-copy-button-to-env-var[]
+ifndef::add-copy-button-to-env-var[]
+Environment variable: `+++QUARKUS_TEMPORAL_DEVSERVICES_SHARED+++`
+endif::add-copy-button-to-env-var[]
+--
+|boolean
+|`+++true+++`
+
+a|icon:lock[title=Fixed at build time] [[quarkus-temporal_quarkus-temporal-devservices-reuse]] [.property-path]##link:#quarkus-temporal_quarkus-temporal-devservices-reuse[`+++quarkus.temporal.devservices.reuse+++`]##
+ifdef::add-copy-button-to-config-props[]
+config_property_copy_button:+++quarkus.temporal.devservices.reuse+++[]
+endif::add-copy-button-to-config-props[]
+
+
+[.description]
+--
+Whether a shared dev-mode container should be reusable after the application that started it exits. Requires Testcontainers reuse to be enabled in `~/.testcontainers.properties`.
+
+
+ifdef::add-copy-button-to-env-var[]
+Environment variable: env_var_with_copy_button:+++QUARKUS_TEMPORAL_DEVSERVICES_REUSE+++[]
+endif::add-copy-button-to-env-var[]
+ifndef::add-copy-button-to-env-var[]
+Environment variable: `+++QUARKUS_TEMPORAL_DEVSERVICES_REUSE+++`
+endif::add-copy-button-to-env-var[]
+--
+|boolean
+|`+++true+++`
+
+a|icon:lock[title=Fixed at build time] [[quarkus-temporal_quarkus-temporal-devservices-namespaces]] [.property-path]##link:#quarkus-temporal_quarkus-temporal-devservices-namespaces[`+++quarkus.temporal.devservices.namespaces+++`]##
+ifdef::add-copy-button-to-config-props[]
+config_property_copy_button:+++quarkus.temporal.devservices.namespaces+++[]
+endif::add-copy-button-to-config-props[]
+
+
+[.description]
+--
+Namespaces to create in the Temporal development server. Existing namespaces are left unchanged.
+
+
+ifdef::add-copy-button-to-env-var[]
+Environment variable: env_var_with_copy_button:+++QUARKUS_TEMPORAL_DEVSERVICES_NAMESPACES+++[]
+endif::add-copy-button-to-env-var[]
+ifndef::add-copy-button-to-env-var[]
+Environment variable: `+++QUARKUS_TEMPORAL_DEVSERVICES_NAMESPACES+++`
+endif::add-copy-button-to-env-var[]
+--
+|list of string
+|
+
+a|icon:lock[title=Fixed at build time] [[quarkus-temporal_quarkus-temporal-devservices-web-ui-url]] [.property-path]##link:#quarkus-temporal_quarkus-temporal-devservices-web-ui-url[`+++quarkus.temporal.devservices.web-ui-url+++`]##
+ifdef::add-copy-button-to-config-props[]
+config_property_copy_button:+++quarkus.temporal.devservices.web-ui-url+++[]
+endif::add-copy-button-to-config-props[]
+
+
+[.description]
+--
+The Web UI URL automatically supplied by the Temporal Dev Service for the Dev UI card.
+
+
+ifdef::add-copy-button-to-env-var[]
+Environment variable: env_var_with_copy_button:+++QUARKUS_TEMPORAL_DEVSERVICES_WEB_UI_URL+++[]
+endif::add-copy-button-to-env-var[]
+ifndef::add-copy-button-to-env-var[]
+Environment variable: `+++QUARKUS_TEMPORAL_DEVSERVICES_WEB_UI_URL+++`
+endif::add-copy-button-to-env-var[]
+--
+|string
+|
+
 a|icon:lock[title=Fixed at build time] [[quarkus-temporal_quarkus-temporal-enable-mock]] [.property-path]##link:#quarkus-temporal_quarkus-temporal-enable-mock[`+++quarkus.temporal.enable-mock+++`]##
 ifdef::add-copy-button-to-config-props[]
 config_property_copy_button:+++quarkus.temporal.enable-mock+++[]
