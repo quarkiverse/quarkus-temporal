@@ -106,6 +106,7 @@ public class TemporalTestProcessor {
                 .setRuntimeInit()
                 .done();
     }
+
     @BuildStep(onlyIf = TemporalProcessor.EnableMock.class)
     @Record(ExecutionTime.RUNTIME_INIT)
     void produceWorkflowStubSyntheticBeans(
