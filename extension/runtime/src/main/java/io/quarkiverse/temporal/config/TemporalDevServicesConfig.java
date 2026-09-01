@@ -25,7 +25,7 @@ public interface TemporalDevServicesConfig {
     /**
      * The container image used to start the Temporal development server.
      */
-    @WithDefault("temporalio/temporal:latest")
+    @WithDefault("temporalio/temporal:1.8.2")
     String imageName();
 
     /**

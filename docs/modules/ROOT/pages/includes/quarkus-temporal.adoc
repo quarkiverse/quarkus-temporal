@@ -68,7 +68,7 @@ Environment variable: `+++QUARKUS_TEMPORAL_DEVSERVICES_IMAGE_NAME+++`
 endif::add-copy-button-to-env-var[]
 --
 |string
-|`+++temporalio/temporal:latest+++`
+|`+++temporalio/temporal:1.8.2+++`
 
 a|icon:lock[title=Fixed at build time] [[quarkus-temporal_quarkus-temporal-devservices-port]] [.property-path]##link:#quarkus-temporal_quarkus-temporal-devservices-port[`+++quarkus.temporal.devservices.port+++`]##
 ifdef::add-copy-button-to-config-props[]
