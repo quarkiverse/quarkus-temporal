@@ -600,6 +600,73 @@ Notes:
 * Background retry requires `fail-on-startup-error=false`.
 * In background retry mode, `startup-max-attempts` is ignored and retries continue until success or shutdown.
 
+== Dev Services
+
+Temporal Dev Services starts a local Temporal development server with Docker or Podman when no `quarkus.temporal.connection.target` is configured. It is enabled by default in dev and test modes and automatically supplies the dynamically mapped gRPC address to the Temporal client.
+
+No configuration is required for the usual local-development case:
+
+[source,bash]
+----
+./mvnw quarkus:dev
+----
+
+The first application starts `temporalio/temporal:latest`; later applications in dev mode reuse it by default. The Temporal card in the Quarkus Dev UI includes a link to the Temporal Web UI.
+
+=== Configure the server
+
+Use the following properties in `application.properties` to control the Dev Service:
+
+[source,properties]
+----
+# Disable automatic Temporal startup.
+quarkus.temporal.devservices.enabled=false
+
+# Use a different Temporal image or a fixed host port for gRPC.
+quarkus.temporal.devservices.image-name=temporalio/temporal:latest
+quarkus.temporal.devservices.port=7233
+
+# Ensure these namespaces exist in the Dev Service.
+quarkus.temporal.devservices.namespaces=payments-dev,reporting-dev
+
+# Reuse a dev-mode container started by another local application.
+quarkus.temporal.devservices.shared=true
+quarkus.temporal.devservices.service-name=temporal
+quarkus.temporal.devservices.reuse=true
+----
+
+Set `quarkus.temporal.connection.target` to use an existing Temporal server instead. Doing so takes precedence over Dev Services. Dev Services is also disabled when `quarkus.temporal.enable-mock=true`.
+
+=== Share across applications
+
+In dev mode, `shared` defaults to `true`. Applications with the same `service-name` reuse one running Temporal container. Change the name when a group of applications needs its own isolated server:
+
+[source,properties]
+----
+quarkus.temporal.devservices.service-name=payments
+----
+
+Set `quarkus.temporal.devservices.shared=false` to always start a separate container. Sharing is intentionally disabled in test mode, so tests start an isolated Temporal container.
+
+Shared dev-mode containers can be retained when an application stops so that other local applications can continue using them. This requires enabling Testcontainers reuse in `~/.testcontainers.properties`:
+
+[source,properties]
+----
+testcontainers.reuse.enable=true
+----
+
+`quarkus.temporal.devservices.reuse` defaults to `true` and can disable this behavior for Temporal only. Stop reusable containers manually when they are no longer needed.
+
+=== Provision development namespaces
+
+`quarkus.temporal.devservices.namespaces` creates any listed namespaces after the Dev Service starts. Existing namespaces and the built-in `default` namespace are left unchanged. Namespace provisioning is limited to Dev Services; it never runs against a server selected with `quarkus.temporal.connection.target`.
+
+Namespace provisioning also runs when an application discovers a shared container. This lets each application declare the namespaces it needs while using the same local Temporal server.
+
+=== Configuration reference
+
+The generated configuration reference below includes all Dev Service properties and their defaults, including environment-variable forms.
+
 [[extension-configuration-reference]]
 == Extension Configuration Reference
 
