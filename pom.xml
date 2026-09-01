@@ -17,16 +17,16 @@
         <module>test-extension</module>
     </modules>
     <scm>
-        <connection>scm:git:git@github.com:quarkiverse/quarkus-bucket4j.git</connection>
-        <developerConnection>scm:git:git@github.com:quarkiverse/quarkus-bucket4j.git</developerConnection>
-        <url>https://github.com/quarkiverse/quarkus-bucket4j</url>
+        <connection>scm:git:git@github.com:quarkiverse/quarkus-temporal.git</connection>
+        <developerConnection>scm:git:git@github.com:quarkiverse/quarkus-temporal.git</developerConnection>
+        <url>https://github.com/quarkiverse/quarkus-temporal</url>
         <tag>HEAD</tag>
     </scm>
     <properties>
         <maven.compiler.release>17</maven.compiler.release>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <quarkus.version>3.33.1</quarkus.version>
+        <quarkus.version>3.33.3.1</quarkus.version>
         <temporal.version>1.38.0</temporal.version>
     </properties>
     <dependencyManagement>
