@@ -5,7 +5,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import org.slf4j.LoggerFactory;
 import org.testcontainers.containers.GenericContainer;
+import org.testcontainers.containers.output.Slf4jLogConsumer;
 import org.testcontainers.containers.wait.strategy.Wait;
 import org.testcontainers.utility.DockerImageName;
 
@@ -82,7 +84,7 @@ public class TemporalDevServicesProcessor {
                 .serviceName(devServicesConfig.serviceName())
                 .serviceConfig(devServicesConfig)
                 .startable(() -> new TemporalContainer(launchMode.getLaunchMode(), devServicesConfig.shared(),
-                        devServicesConfig.reuse(),
+                        devServicesConfig.reuse(), devServicesConfig.showLogs(),
                         devServicesConfig.serviceName(), devServicesConfig.imageName(), devServicesConfig.port(),
                         devServicesConfig.namespaces().orElse(List.of())))
                 .configProvider(Map.of(
@@ -96,7 +98,8 @@ public class TemporalDevServicesProcessor {
         private final List<String> namespaces;
         private final boolean keepRunning;
 
-        TemporalContainer(LaunchMode launchMode, boolean shared, boolean reuse, String serviceName, String imageName,
+        TemporalContainer(LaunchMode launchMode, boolean shared, boolean reuse, boolean showLogs, String serviceName,
+                String imageName,
                 java.util.OptionalInt fixedPort, List<String> namespaces) {
             super(DockerImageName.parse(imageName));
             this.namespaces = normalizeNamespaces(namespaces);
@@ -104,6 +107,9 @@ public class TemporalDevServicesProcessor {
             withCommand("server", "start-dev", "--ip", "0.0.0.0");
             ConfigureUtil.configureSharedServiceLabel(this, launchMode, FEATURE, serviceName);
             withReuse(keepRunning && reuse);
+            if (showLogs) {
+                withLogConsumer(new Slf4jLogConsumer(LoggerFactory.getLogger(TemporalContainer.class)));
+            }
             withExposedPorts(GRPC_PORT, UI_PORT);
             fixedPort.ifPresent(port -> addFixedExposedPort(port, GRPC_PORT));
             waitingFor(Wait.forListeningPort());
