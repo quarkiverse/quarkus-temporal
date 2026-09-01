@@ -54,7 +54,7 @@ public class WorkflowStubRecorder {
         return builder.build();
     }
 
-    <T> WorkflowOptions createWorkflowOptions(SyntheticCreationalContext<T> context, String worker, String workflowId) {
+    public <T> WorkflowOptions createWorkflowOptions(SyntheticCreationalContext<T> context, String worker, String workflowId) {
 
         InjectionPoint injectionPoint = context.getInjectedReference(InjectionPoint.class);
         TemporalWorkflowStub annotation = extractAnnotationFromInjectionPoint(injectionPoint);

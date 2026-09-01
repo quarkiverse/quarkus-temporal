@@ -20,7 +20,11 @@ public class TestWorkflowRecorder {
                     .setWorkflowClientOptions(createTestWorkflowClientOptions(context))
                     .build();
 
-            return TestWorkflowEnvironment.newInstance(options);
+            TestWorkflowEnvironment environment = TestWorkflowEnvironment.newInstance(options);
+            // Seed the holder immediately: the @Dependent WorkerFactory bean (and the
+            // first test's MockTestWorkflowResetCallback) both read from it.
+            MockTestEnvironmentHolder.set(environment);
+            return environment;
         };
     }
 
@@ -43,8 +47,14 @@ public class TestWorkflowRecorder {
 
     public Function<SyntheticCreationalContext<WorkerFactory>, WorkerFactory> createTestWorkerFactory() {
         return context -> {
+            // TestWorkflowEnvironment is ApplicationScoped (proxied): merely obtaining the
+            // injected reference does not trigger its creation, only invoking a method on it
+            // does. That first creation is what seeds MockTestEnvironmentHolder, which is
+            // then read below (not the value returned here) so later tests - which swap the
+            // holder directly - are picked up too.
             TestWorkflowEnvironment testWorkflowEnvironment = context.getInjectedReference(TestWorkflowEnvironment.class);
-            return testWorkflowEnvironment.getWorkerFactory();
+            testWorkflowEnvironment.getWorkerFactory();
+            return MockTestEnvironmentHolder.current().getWorkerFactory();
         };
     }
 }
