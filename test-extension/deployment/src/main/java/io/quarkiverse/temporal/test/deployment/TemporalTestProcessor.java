@@ -1,6 +1,5 @@
 package io.quarkiverse.temporal.test.deployment;
 
-import static io.quarkiverse.temporal.Constants.TEMPORAL_TESTING_CAPABILITY;
 import static io.quarkiverse.temporal.deployment.TemporalProcessor.TEMPORAL_INSTANCE;
 
 import java.util.List;
@@ -25,7 +24,6 @@ import io.quarkus.deployment.annotations.BuildProducer;
 import io.quarkus.deployment.annotations.BuildStep;
 import io.quarkus.deployment.annotations.ExecutionTime;
 import io.quarkus.deployment.annotations.Record;
-import io.quarkus.deployment.builditem.CapabilityBuildItem;
 import io.quarkus.deployment.builditem.FeatureBuildItem;
 import io.temporal.client.WorkflowClient;
 import io.temporal.common.context.ContextPropagator;
@@ -41,11 +39,6 @@ public class TemporalTestProcessor {
     @BuildStep
     FeatureBuildItem feature() {
         return new FeatureBuildItem(FEATURE);
-    }
-
-    @BuildStep
-    void capabilities(BuildProducer<CapabilityBuildItem> capabilityProducer) {
-        capabilityProducer.produce(new CapabilityBuildItem(TEMPORAL_TESTING_CAPABILITY, "temporal"));
     }
 
     @Record(ExecutionTime.RUNTIME_INIT)

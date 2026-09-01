@@ -17,9 +17,9 @@
         <module>test-extension</module>
     </modules>
     <scm>
-        <connection>scm:git:git@github.com:quarkiverse/quarkus-bucket4j.git</connection>
-        <developerConnection>scm:git:git@github.com:quarkiverse/quarkus-bucket4j.git</developerConnection>
-        <url>https://github.com/quarkiverse/quarkus-bucket4j</url>
+        <connection>scm:git:git@github.com:quarkiverse/quarkus-temporal.git</connection>
+        <developerConnection>scm:git:git@github.com:quarkiverse/quarkus-temporal.git</developerConnection>
+        <url>https://github.com/quarkiverse/quarkus-temporal</url>
         <tag>HEAD</tag>
     </scm>
     <properties>
