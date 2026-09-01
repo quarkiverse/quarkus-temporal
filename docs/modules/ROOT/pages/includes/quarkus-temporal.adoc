@@ -154,6 +154,27 @@ endif::add-copy-button-to-env-var[]
 |boolean
 |`+++true+++`
 
+a|icon:lock[title=Fixed at build time] [[quarkus-temporal_quarkus-temporal-devservices-show-logs]] [.property-path]##link:#quarkus-temporal_quarkus-temporal-devservices-show-logs[`+++quarkus.temporal.devservices.show-logs+++`]##
+ifdef::add-copy-button-to-config-props[]
+config_property_copy_button:+++quarkus.temporal.devservices.show-logs+++[]
+endif::add-copy-button-to-config-props[]
+
+
+[.description]
+--
+Whether to forward Temporal development server container logs to the application log.
+
+
+ifdef::add-copy-button-to-env-var[]
+Environment variable: env_var_with_copy_button:+++QUARKUS_TEMPORAL_DEVSERVICES_SHOW_LOGS+++[]
+endif::add-copy-button-to-env-var[]
+ifndef::add-copy-button-to-env-var[]
+Environment variable: `+++QUARKUS_TEMPORAL_DEVSERVICES_SHOW_LOGS+++`
+endif::add-copy-button-to-env-var[]
+--
+|boolean
+|`+++false+++`
+
 a|icon:lock[title=Fixed at build time] [[quarkus-temporal_quarkus-temporal-devservices-namespaces]] [.property-path]##link:#quarkus-temporal_quarkus-temporal-devservices-namespaces[`+++quarkus.temporal.devservices.namespaces+++`]##
 ifdef::add-copy-button-to-config-props[]
 config_property_copy_button:+++quarkus.temporal.devservices.namespaces+++[]
