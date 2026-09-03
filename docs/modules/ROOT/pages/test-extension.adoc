@@ -199,29 +199,12 @@ workerFactory.getWorker(taskQueue)
 ----
 ====
 
-=== Time Skipping
+=== Injecting TestWorkflowEnvironment Directly
+Inject `TestWorkflowEnvironment` directly when you need access to features that are not available through `WorkflowClient` or `WorkerFactory`, such as creating separate workers for testing other workflows or activities.
 
-The `TestWorkflowEnvironment` bean is injectable, so the time-skipping features of the Temporal testing suite are available in Quarkus tests. This lets time-based workflow logic (such as `Workflow.await` with a timeout) elapse instantly:
+In this mode, the test environment already provides access to both `WorkflowClient` and `WorkerFactory`, so you do not need to inject them as separate CDI beans. Explicit injection is still supported if you prefer a more explicit setup.
 
-[source,java]
-----
-@Inject
-TestWorkflowEnvironment testEnv;
-
-@Test
-public void testOrderExpiry() {
-    // start the test TestWorkflowEnvironment, that also starts workers
-    testEnv.start();
-
-    // ... start the workflow ...
-
-    // Fast-forward time so the expiry await resolves immediately
-    testEnv.skipForward(Duration.ofMinutes(10));
-}
-----
-When working directly with `TestWorkflowEnvironment`, you do not need to inject `WorkflowClient` or `WorkerFactory` as separate CDI beans, since the environment provides access to both. Injecting them explicitly is still supported if you prefer a more explicit setup.
-
-In this mode, start workers by calling `testEnv.start()` rather than `workerFactory.start()`. This ensures the test environment coordinates the worker lifecycle correctly. Unlike the `WorkerFactory`-based pattern shown earlier, an explicit `shutdown()` call is not required; the `TestWorkflowEnvironment` cleans up automatically when the test completes.
+Start workers by calling `testEnv.start()` rather than `workerFactory.start()` so that the test environment coordinates the worker lifecycle correctly. Unlike the `WorkerFactory`-based pattern shown earlier, you do not need to call `shutdown()` explicitly; the `TestWorkflowEnvironment` cleans up automatically when the test completes.
 
 
 == Additional Resources
