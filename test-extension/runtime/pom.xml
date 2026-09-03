@@ -47,6 +47,9 @@
                         <configuration>
                             <deployment>${project.groupId}:${project.artifactId}-deployment:${project.version}
                             </deployment>
+                            <capabilities>
+                                <provides>io.quarkiverse.temporal.test</provides>
+                            </capabilities>
                         </configuration>
                     </execution>
                 </executions>

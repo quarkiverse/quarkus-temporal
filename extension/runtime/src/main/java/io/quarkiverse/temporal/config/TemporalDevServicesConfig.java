@@ -53,6 +53,12 @@ public interface TemporalDevServicesConfig {
     boolean reuse();
 
     /**
+     * Whether to forward Temporal development server container logs to the application log.
+     */
+    @WithDefault("false")
+    boolean showLogs();
+
+    /**
      * Namespaces to create in the Temporal development server. Existing namespaces are left unchanged.
      */
     Optional<List<String>> namespaces();

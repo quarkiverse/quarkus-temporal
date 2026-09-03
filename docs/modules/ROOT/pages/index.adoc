@@ -632,7 +632,10 @@ quarkus.temporal.devservices.namespaces=payments-dev,reporting-dev
 # Reuse a dev-mode container started by another local application.
 quarkus.temporal.devservices.shared=true
 quarkus.temporal.devservices.service-name=temporal
+# Retain the container after dev mode exits when Testcontainers reuse is enabled.
 quarkus.temporal.devservices.reuse=true
+# Forward Temporal container logs to the application log.
+quarkus.temporal.devservices.show-logs=true
 ----
 
 Set `quarkus.temporal.connection.target` to use an existing Temporal server instead. Doing so takes precedence over Dev Services. Dev Services is also disabled when `quarkus.temporal.enable-mock=true`.
@@ -648,6 +651,8 @@ quarkus.temporal.devservices.service-name=payments
 
 Set `quarkus.temporal.devservices.shared=false` to always start a separate container. Sharing is intentionally disabled in test mode, so tests start an isolated Temporal container.
 
+As with other Quarkus shared Dev Services, discovery happens at application startup. When no shared container exists yet, start one application first before starting several applications concurrently; otherwise, simultaneous first starts can each create a container.
+
 Shared dev-mode containers can be retained when an application stops so that other local applications can continue using them. This requires enabling Testcontainers reuse in `~/.testcontainers.properties`:
 
 [source,properties]
@@ -655,7 +660,7 @@ Shared dev-mode containers can be retained when an application stops so that oth
 testcontainers.reuse.enable=true
 ----
 
-`quarkus.temporal.devservices.reuse` defaults to `true` and can disable this behavior for Temporal only. Stop reusable containers manually when they are no longer needed.
+`quarkus.temporal.devservices.reuse` defaults to `true`, matching Quarkus datasource Dev Services. Testcontainers reuse is disabled by default, so containers are stopped when dev mode ends unless it is explicitly enabled. Set this property to `false` to disable reuse for Temporal only. Stop reusable containers manually when they are no longer needed.
 
 === Provision development namespaces
 
