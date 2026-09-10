@@ -602,7 +602,7 @@ Notes:
 
 == Dev Services
 
-Temporal Dev Services starts a local Temporal development server with Docker or Podman when no `quarkus.temporal.connection.target` is configured. It is enabled by default in dev and test modes and automatically supplies the dynamically mapped gRPC address to the Temporal client.
+Temporal Dev Services starts a local Temporal development server with Docker or Podman when no `quarkus.temporal.connection.target` is configured. It is enabled by default in dev and test modes and automatically supplies the dynamically mapped gRPC address to the Temporal client. The same container also serves the <<temporal-web-ui,Temporal Web UI>>.
 
 No configuration is required for the usual local-development case:
 
@@ -611,7 +611,34 @@ No configuration is required for the usual local-development case:
 ./mvnw quarkus:dev
 ----
 
-The first application starts `temporalio/temporal:latest`; later applications in dev mode reuse it by default. The Temporal card in the Quarkus Dev UI includes a link to the Temporal Web UI.
+The first application starts the `temporalio/temporal` container image; later applications in dev mode reuse it by default.
+
+[[temporal-web-ui]]
+=== Temporal Web UI
+
+The Dev Service runs `temporal server start-dev`, which serves the Temporal Web UI from the *same container* as the gRPC endpoint. Nothing else has to be started: no second container, no `docker-compose.yaml`, and no manual Docker network.
+
+The quickest way to open it is from the Quarkus Dev UI:
+
+. Start the application with `./mvnw quarkus:dev`.
+. Browse to the Quarkus Dev UI at `http://localhost:8080/q/dev-ui`.
+. On the *Temporal* card, click *Temporal Web UI*.
+
+The card also lists the discovered workflows and workers of the application.
+
+Dev Services publishes the resolved address as the `quarkus.temporal.devservices.web-ui-url` configuration property, which is what the Dev UI card links to. The Web UI listens on port `8233` inside the container and is mapped to a random free host port, so the address changes between runs and is not worth bookmarking. To look it up from the command line:
+
+[source,bash]
+----
+# Look for the mapping of container port 8233, for example
+# 0.0.0.0:32768->7233/tcp, 0.0.0.0:32769->8233/tcp
+# means the Web UI is available at http://localhost:32769
+docker ps
+----
+
+`quarkus.temporal.devservices.port` fixes the host port of the gRPC endpoint only; the Web UI port is always assigned dynamically.
+
+When several applications share one Temporal container, they also share its Web UI, so workflows started by any of them are visible there.
 
 === Configure the server
 
