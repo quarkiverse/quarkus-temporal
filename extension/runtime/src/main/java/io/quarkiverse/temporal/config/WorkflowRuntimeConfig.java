@@ -29,19 +29,35 @@ public interface WorkflowRuntimeConfig {
 
     /**
      * Specifies server behavior if a completed workflow with the same id exists. Note that under no conditions Temporal allows
-     * two workflows with the same namespace and workflow id run simultaneously. See @line setWorkflowIdConflictPolicy for
+     * two workflows with the same namespace and workflow id run simultaneously. See {@code workflow-id-conflict-policy} for
      * handling a workflow id duplication with a Running workflow.
-     * Default value if not set: AllowDuplicate
+     * <ul>
+     * <li>{@code ALLOW_DUPLICATE} allows a new run regardless of the previous run's final status. The previous run still must
+     * be closed or the new run will be rejected.</li>
+     * <li>{@code ALLOW_DUPLICATE_FAILED_ONLY} allows a new run if the previous run failed, was canceled, or terminated.</li>
+     * <li>{@code REJECT_DUPLICATE} never allows a new run, regardless of the previous run's final status.</li>
+     * <li>{@code TERMINATE_IF_RUNNING} is the same as {@code ALLOW_DUPLICATE}, but if there exists a not-closed run in
+     * progress, it will be terminated. It cannot be combined with an explicit {@code workflow-id-conflict-policy}.</li>
+     * </ul>
+     * Default value if not set: ALLOW_DUPLICATE
      */
     @WithDefault("ALLOW_DUPLICATE")
     TemporalWorkflowIdReusePolicy workflowIdReusePolicy();
 
     /**
-     * Specifies server behavior if a Running workflow with the same id exists. See setWorkflowIdReusePolicy for handling a
-     * workflow id duplication with a Closed workflow. Cannot be set when workflow-id-reuse-policy is WorkflowIdReusePolicy.
-     * Default value if not set: Fail
+     * Specifies server behavior if a Running workflow with the same id exists. See {@code workflow-id-reuse-policy} for
+     * handling a workflow id duplication with a Closed workflow.
+     * <ul>
+     * <li>{@code FAIL} does not start a new workflow, the start fails with WorkflowExecutionAlreadyStarted instead.</li>
+     * <li>{@code USE_EXISTING} does not start a new workflow, the handle of the running workflow is returned instead.</li>
+     * <li>{@code TERMINATE_EXISTING} terminates the running workflow before starting a new one.</li>
+     * </ul>
+     * Cannot be set when {@code workflow-id-reuse-policy} is {@code TERMINATE_IF_RUNNING}, and {@code TERMINATE_EXISTING}
+     * cannot be combined with {@code workflow-id-reuse-policy=REJECT_DUPLICATE}. When left unset ({@code UNSPECIFIED}) the
+     * policy is not sent to the server, which then applies its own default of {@code FAIL}.
+     * Default value if not set: UNSPECIFIED
      */
-    @WithDefault("FAIL")
+    @WithDefault("UNSPECIFIED")
     TemporalWorkflowIdConflictPolicy workflowIdConflictPolicy();
 
     /**
