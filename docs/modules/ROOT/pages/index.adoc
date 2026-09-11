@@ -228,7 +228,7 @@ public class MyService {
 
     @Inject
     @TemporalWorkflowStub
-    TemporalInstance<SimpleWorkflow> instance;
+    TemporalInstance<SendEmailWorkflow> instance;
 
     public void startSubscription(WorkflowData data) {
         SendEmailWorkflow workflow = instance.workflowId("the-workflow-id");
@@ -237,6 +237,94 @@ public class MyService {
 
 }
 ----
+
+=== Workflow options and configuration
+
+The `quarkus.temporal.workflow.*` properties (workflow id reuse policy, conflict policy, timeouts, retries, cron schedule, ...)
+are applied by the extension when it builds the `WorkflowOptions` for a stub it creates itself, that is a stub obtained through
+`@TemporalWorkflowStub` injection.
+
+They are *not* applied to stubs you build yourself through `WorkflowClient`:
+
+[source,java]
+----
+// the extension never sees these options, quarkus.temporal.workflow.* does not apply
+WorkflowOptions options = WorkflowOptions.newBuilder()
+        .setWorkflowId(workflowId)
+        .setTaskQueue("<default>")
+        .build();
+SendEmailWorkflow workflow = client.newWorkflowStub(SendEmailWorkflow.class, options);
+----
+
+When you create the options by hand, every option you do not set falls back to the Temporal SDK and server defaults. Inject the
+stub instead if you want the configuration to be honoured.
+
+[NOTE]
+====
+`quarkus.temporal.workflow.workflow-id-conflict-policy` is unset by default, which lets the Temporal server apply its own
+default of `FAIL`. It cannot be combined with `workflow-id-reuse-policy=TERMINATE_IF_RUNNING`, and `TERMINATE_EXISTING` cannot
+be combined with `workflow-id-reuse-policy=REJECT_DUPLICATE`. The extension rejects those combinations with a
+`ConfigurationException` when the stub is created, because the Temporal server refuses them with an `InvalidArgument` error.
+====
+
+=== Signal with start
+
+`signalWithStart` starts a workflow if it is not already running and then delivers a signal to it, which is useful when signals
+can arrive in any order. It is not available on a typed stub, but you do not need to build an unmanaged untyped stub through
+`WorkflowClient` to use it: unwrap an injected stub with `WorkflowStub.fromTyped(...)`, which preserves the `WorkflowOptions`
+the extension built for it.
+
+Given a workflow that also declares a signal method:
+
+[source,java]
+----
+@WorkflowInterface
+public interface SendEmailWorkflow {
+
+    @WorkflowMethod
+    public void run(WorkflowData data);
+
+    @SignalMethod
+    public void addRecipient(String email);
+}
+----
+
+[source,java]
+----
+public class MyService {
+
+    @Inject
+    @TemporalWorkflowStub
+    TemporalInstance<SendEmailWorkflow> instance; // <1>
+
+    public void addRecipient(WorkflowData data, String email) {
+        SendEmailWorkflow workflow = instance.workflowId(data.getEmail());
+
+        WorkflowExecution execution = WorkflowStub.fromTyped(workflow) // <2>
+                .signalWithStart("addRecipient", new Object[] { email }, new Object[] { data }); // <3>
+    }
+
+}
+----
+
+<1> A `TemporalInstance` is used so that the workflow id can be computed at runtime, a plain `@TemporalWorkflowStub` injection works too when the workflow id is static
+<2> The unwrapped stub carries the task queue, reuse policy, conflict policy, retry options and timeouts configured under `quarkus.temporal.workflow.*`
+<3> The first array holds the signal arguments, the second one the arguments of the `@WorkflowMethod` used if the workflow has to be started
+
+If you would rather not refer to the signal by name, the same can be expressed with a `BatchRequest`:
+
+[source,java]
+----
+SendEmailWorkflow workflow = instance.workflowId(data.getEmail());
+
+BatchRequest request = client.newSignalWithStartRequest();
+request.add(workflow::run, data); // <1>
+request.add(workflow::addRecipient, email); // <2>
+WorkflowExecution execution = client.signalWithStart(request);
+----
+
+<1> the `@WorkflowMethod`
+<2> the `@SignalMethod`
 
 == OpenTelemetry
 

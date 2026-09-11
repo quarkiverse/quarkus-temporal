@@ -908,7 +908,14 @@ endif::add-copy-button-to-config-props[]
 
 [.description]
 --
-Specifies server behavior if a completed workflow with the same id exists. Note that under no conditions Temporal allows two workflows with the same namespace and workflow id run simultaneously. See @line setWorkflowIdConflictPolicy for handling a workflow id duplication with a Running workflow. Default value if not set: AllowDuplicate
+Specifies server behavior if a completed workflow with the same id exists. Note that under no conditions Temporal allows two workflows with the same namespace and workflow id run simultaneously. See `workflow-id-conflict-policy` for handling a workflow id duplication with a Running workflow.
+
+ - `ALLOW_DUPLICATE` allows a new run regardless of the previous run's final status. The previous run still must be closed or the new run will be rejected.
+ - `ALLOW_DUPLICATE_FAILED_ONLY` allows a new run if the previous run failed, was canceled, or terminated.
+ - `REJECT_DUPLICATE` never allows a new run, regardless of the previous run's final status.
+ - `TERMINATE_IF_RUNNING` is the same as `ALLOW_DUPLICATE`, but if there exists a not-closed run in progress, it will be terminated. It cannot be combined with an explicit `workflow-id-conflict-policy`.
+
+Default value if not set: ALLOW_DUPLICATE
 
 
 ifdef::add-copy-button-to-env-var[]
@@ -934,7 +941,13 @@ endif::add-copy-button-to-config-props[]
 
 [.description]
 --
-Specifies server behavior if a Running workflow with the same id exists. See setWorkflowIdReusePolicy for handling a workflow id duplication with a Closed workflow. Cannot be set when workflow-id-reuse-policy is WorkflowIdReusePolicy. Default value if not set: Fail
+Specifies server behavior if a Running workflow with the same id exists. See `workflow-id-reuse-policy` for handling a workflow id duplication with a Closed workflow.
+
+ - `FAIL` does not start a new workflow, the start fails with WorkflowExecutionAlreadyStarted instead.
+ - `USE_EXISTING` does not start a new workflow, the handle of the running workflow is returned instead.
+ - `TERMINATE_EXISTING` terminates the running workflow before starting a new one.
+
+Cannot be set when `workflow-id-reuse-policy` is `TERMINATE_IF_RUNNING`, and `TERMINATE_EXISTING` cannot be combined with `workflow-id-reuse-policy=REJECT_DUPLICATE`. When left unset (`UNSPECIFIED`) the policy is not sent to the server, which then applies its own default of `FAIL`. Default value if not set: UNSPECIFIED
 
 
 ifdef::add-copy-button-to-env-var[]
@@ -945,7 +958,7 @@ Environment variable: `+++QUARKUS_TEMPORAL_WORKFLOW_WORKFLOW_ID_CONFLICT_POLICY+
 endif::add-copy-button-to-env-var[]
 --
 a|`unspecified`, `fail`, `use-existing`, `terminate-existing`
-|`+++fail+++`
+|`+++unspecified+++`
 
 a| [[quarkus-temporal_quarkus-temporal-workflow-workflow-run-timeout]] [.property-path]##link:#quarkus-temporal_quarkus-temporal-workflow-workflow-run-timeout[`+++quarkus.temporal.workflow.workflow-run-timeout+++`]##
 ifdef::add-copy-button-to-config-props[]

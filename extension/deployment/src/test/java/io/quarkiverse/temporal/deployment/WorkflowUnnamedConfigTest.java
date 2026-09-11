@@ -1,7 +1,7 @@
 package io.quarkiverse.temporal.deployment;
 
 import static io.temporal.api.enums.v1.WorkflowIdConflictPolicy.WORKFLOW_ID_CONFLICT_POLICY_TERMINATE_EXISTING;
-import static io.temporal.api.enums.v1.WorkflowIdReusePolicy.WORKFLOW_ID_REUSE_POLICY_TERMINATE_IF_RUNNING;
+import static io.temporal.api.enums.v1.WorkflowIdReusePolicy.WORKFLOW_ID_REUSE_POLICY_ALLOW_DUPLICATE_FAILED_ONLY;
 
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
@@ -31,7 +31,7 @@ public class WorkflowUnnamedConfigTest {
                     .addClass(DefaultSimpleWorkflowImpl.class)
                     .addAsResource(
                             new StringAsset("quarkus.temporal.start-workers: false\n" +
-                                    "quarkus.temporal.workflow.workflow-id-reuse-policy: terminate-if-running\n"
+                                    "quarkus.temporal.workflow.workflow-id-reuse-policy: allow-duplicate-failed-only\n"
                                     +
                                     "quarkus.temporal.workflow.workflow-id-conflict-policy: terminate-existing\n"
                                     +
@@ -49,7 +49,8 @@ public class WorkflowUnnamedConfigTest {
         WorkflowStub workflowStub = WorkflowStub.fromTyped(workflow);
         WorkflowOptions workflowOptions = workflowStub.getOptions().orElse(null);
         Assertions.assertNotNull(workflowOptions);
-        Assertions.assertEquals(WORKFLOW_ID_REUSE_POLICY_TERMINATE_IF_RUNNING, workflowOptions.getWorkflowIdReusePolicy());
+        Assertions.assertEquals(WORKFLOW_ID_REUSE_POLICY_ALLOW_DUPLICATE_FAILED_ONLY,
+                workflowOptions.getWorkflowIdReusePolicy());
         Assertions.assertEquals(WORKFLOW_ID_CONFLICT_POLICY_TERMINATE_EXISTING, workflowOptions.getWorkflowIdConflictPolicy());
         Assertions.assertEquals(Duration.of(7, ChronoUnit.SECONDS), workflowOptions.getWorkflowRunTimeout());
         Assertions.assertEquals(Duration.of(11, ChronoUnit.SECONDS), workflowOptions.getWorkflowExecutionTimeout());
