@@ -28,14 +28,19 @@ import jakarta.enterprise.inject.spi.InjectionPoint;
 import jakarta.inject.Singleton;
 
 import org.jboss.jandex.AnnotationInstance;
+import org.jboss.jandex.AnnotationTarget;
 import org.jboss.jandex.ClassInfo;
 import org.jboss.jandex.ClassType;
 import org.jboss.jandex.DotName;
+import org.jboss.jandex.IndexView;
+import org.jboss.jandex.MethodInfo;
 import org.jboss.jandex.ParameterizedType;
+import org.jboss.jandex.Type;
 
 import io.grpc.Channel;
 import io.quarkiverse.temporal.OtelRecorder;
 import io.quarkiverse.temporal.TemporalActivity;
+import io.quarkiverse.temporal.TemporalActivityStub;
 import io.quarkiverse.temporal.TemporalHealthCheck;
 import io.quarkiverse.temporal.TemporalInstance;
 import io.quarkiverse.temporal.TemporalWorkflow;
@@ -61,6 +66,7 @@ import io.quarkus.deployment.builditem.CombinedIndexBuildItem;
 import io.quarkus.deployment.builditem.FeatureBuildItem;
 import io.quarkus.deployment.builditem.ServiceStartBuildItem;
 import io.quarkus.deployment.builditem.ShutdownContextBuildItem;
+import io.quarkus.deployment.builditem.nativeimage.ReflectiveClassBuildItem;
 import io.quarkus.deployment.metrics.MetricsCapabilityBuildItem;
 import io.quarkus.deployment.pkg.builditem.ArtifactResultBuildItem;
 import io.quarkus.grpc.GrpcClient;
@@ -79,7 +85,9 @@ import io.temporal.opentracing.OpenTracingClientInterceptor;
 import io.temporal.opentracing.OpenTracingWorkerInterceptor;
 import io.temporal.serviceclient.WorkflowServiceStubs;
 import io.temporal.worker.WorkerFactory;
+import io.temporal.workflow.WorkflowInit;
 import io.temporal.workflow.WorkflowInterface;
+import io.temporal.workflow.WorkflowMethod;
 
 public class TemporalProcessor {
 
@@ -89,9 +97,15 @@ public class TemporalProcessor {
 
     public static final DotName TEMPORAL_WORKFLOW = DotName.createSimple(TemporalWorkflow.class);
 
+    public static final DotName TEMPORAL_ACTIVITY_STUB = DotName.createSimple(TemporalActivityStub.class);
+
     public static final DotName WORKFLOW_INTERFACE = DotName.createSimple(WorkflowInterface.class);
 
     public static final DotName ACTIVITY_INTERFACE = DotName.createSimple(ActivityInterface.class);
+
+    public static final DotName WORKFLOW_INIT = DotName.createSimple(WorkflowInit.class);
+
+    public static final DotName WORKFLOW_METHOD = DotName.createSimple(WorkflowMethod.class);
 
     private static final String FEATURE = "temporal";
 
@@ -195,6 +209,96 @@ public class TemporalProcessor {
         }
     }
 
+    /**
+     * Validates {@link TemporalActivityStub} injection points at build time and registers the enclosing workflow
+     * implementations for reflection, since their fields and constructors are accessed reflectively when the
+     * workflow instance is created.
+     */
+    @BuildStep
+    @Produce(ActivityStubInjectionValidatedBuildItem.class)
+    void validateActivityStubInjectionPoints(
+            CombinedIndexBuildItem beanArchiveBuildItem,
+            BuildProducer<ReflectiveClassBuildItem> reflectiveClass) {
+        IndexView index = beanArchiveBuildItem.getIndex();
+        Set<DotName> workflowsWithInjection = new HashSet<>();
+        for (AnnotationInstance instance : index.getAnnotations(TEMPORAL_ACTIVITY_STUB)) {
+            AnnotationTarget target = instance.target();
+            if (target.kind() != AnnotationTarget.Kind.FIELD) {
+                throw new ConfigurationException("@TemporalActivityStub is only supported on fields, found on " + target);
+            }
+            ClassInfo declaringClass = target.asField().declaringClass();
+            Type type = target.asField().type();
+            String member = target.asField().name();
+            if (doesNotImplementAnnotatedInterface(index, declaringClass, WORKFLOW_INTERFACE)) {
+                throw new ConfigurationException("@TemporalActivityStub injection point '" + member + "' is declared in "
+                        + declaringClass.name() + ", which is not a workflow implementation");
+            }
+            ClassInfo activity = type.kind() == Type.Kind.CLASS ? index.getClassByName(type.name()) : null;
+            if (activity == null || !activity.isInterface() || !activity.hasAnnotation(ACTIVITY_INTERFACE)) {
+                throw new ConfigurationException("@TemporalActivityStub injection point '" + member + "' of workflow "
+                        + declaringClass.name() + " must be an @ActivityInterface, but is " + type.name());
+            }
+            workflowsWithInjection.add(declaringClass.name());
+        }
+        for (DotName workflow : workflowsWithInjection) {
+            validateWorkflowInitConstructor(index, index.getClassByName(workflow));
+            reflectiveClass.produce(ReflectiveClassBuildItem.builder(workflow.toString())
+                    .constructors()
+                    .fields()
+                    .reason("@TemporalActivityStub injection")
+                    .build());
+        }
+    }
+
+    /**
+     * Workflows with injection points are registered through a factory, which bypasses the SDK validation of
+     * {@link WorkflowInit} constructors. Apply the same rules here: the constructor must be public and take
+     * exactly the parameters of the workflow method.
+     */
+    void validateWorkflowInitConstructor(IndexView index, ClassInfo implementation) {
+        MethodInfo init = null;
+        for (MethodInfo constructor : implementation.constructors()) {
+            if (constructor.hasAnnotation(WORKFLOW_INIT)) {
+                if (init != null) {
+                    throw new ConfigurationException(
+                            "Workflow " + implementation.name() + " has more than one @WorkflowInit constructor");
+                }
+                init = constructor;
+            }
+        }
+        if (init == null) {
+            return;
+        }
+        if (!java.lang.reflect.Modifier.isPublic(init.flags())) {
+            throw new ConfigurationException(
+                    "@WorkflowInit constructor of workflow " + implementation.name() + " must be public");
+        }
+        MethodInfo workflowMethod = findWorkflowMethod(index, implementation);
+        if (workflowMethod == null || !workflowMethod.parameterTypes().equals(init.parameterTypes())) {
+            throw new ConfigurationException("@WorkflowInit constructor of workflow " + implementation.name()
+                    + " must have the same parameters as the @WorkflowMethod"
+                    + (workflowMethod == null ? "" : " " + workflowMethod.name() + workflowMethod.parameterTypes()));
+        }
+    }
+
+    private MethodInfo findWorkflowMethod(IndexView index, ClassInfo type) {
+        if (type == null) {
+            return null;
+        }
+        for (MethodInfo method : type.methods()) {
+            if (method.hasAnnotation(WORKFLOW_METHOD)) {
+                return method;
+            }
+        }
+        for (DotName interfaceName : type.interfaceNames()) {
+            MethodInfo found = findWorkflowMethod(index, index.getClassByName(interfaceName));
+            if (found != null) {
+                return found;
+            }
+        }
+        return type.superName() == null ? null : findWorkflowMethod(index, index.getClassByName(type.superName()));
+    }
+
     @BuildStep
     void produceActivities(
             TemporalBuildtimeConfig temporalBuildtimeConfig,
@@ -236,12 +340,21 @@ public class TemporalProcessor {
 
     boolean doesNotImplementAnnotatedInterface(CombinedIndexBuildItem beanArchiveBuildItem, ClassInfo classInfo,
             DotName annotation) {
-        return classInfo == null
-                || classInfo.interfaceNames().stream()
-                        .noneMatch(interfaceName -> {
-                            ClassInfo interfaceInfo = beanArchiveBuildItem.getIndex().getClassByName(interfaceName);
-                            return interfaceInfo.hasAnnotation(annotation);
-                        });
+        return doesNotImplementAnnotatedInterface(beanArchiveBuildItem.getIndex(), classInfo, annotation);
+    }
+
+    boolean doesNotImplementAnnotatedInterface(IndexView index, ClassInfo classInfo, DotName annotation) {
+        if (classInfo == null) {
+            return true;
+        }
+        for (DotName interfaceName : classInfo.interfaceNames()) {
+            ClassInfo interfaceInfo = index.getClassByName(interfaceName);
+            if (interfaceInfo != null && interfaceInfo.hasAnnotation(annotation)) {
+                return false;
+            }
+        }
+        ClassInfo superClass = classInfo.superName() == null ? null : index.getClassByName(classInfo.superName());
+        return superClass == null || doesNotImplementAnnotatedInterface(index, superClass, annotation);
     }
 
     String[] extractWorkersFromAnnotationAndSeenWorkers(AnnotationInstance annotation, Set<String> seenWorkers) {
@@ -476,6 +589,7 @@ public class TemporalProcessor {
     @BuildStep
     @Record(ExecutionTime.RUNTIME_INIT)
     @Consume(MockingValidatedBuildItem.class)
+    @Consume(ActivityStubInjectionValidatedBuildItem.class)
     @Consume(SyntheticBeansRuntimeInitBuildItem.class)
     @Produce(WorkerFactoryInitializedBuildItem.class)
     void setupWorkerFactory(

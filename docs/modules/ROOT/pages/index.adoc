@@ -80,6 +80,8 @@ Each worker can have at most one implementation of a given workflow, but a workf
 
 Workflows are not provided as CDI beans because dependency injection into workflow instances is strongly discouraged. Injecting dependencies into workflow instances can lead to changes that are incompatible with persisted histories, resulting in `NonDeterministicException` errors. To provide external configuration to a workflow in a deterministic way, use a Local Activity that returns the configuration to the workflow. Dependency injection into activity instances is allowed, ensuring that the configuration is persisted into the history and remains consistent during replay.
 
+The only exception is activity stubs, which can be injected into workflow implementations with `@TemporalActivityStub`, see <<activity-stub-injection>>.
+
 If your project only contains the workflow interfaces, but does not contain the actual workflow implementations, the plugin will assume that the workflow is bound to the default worker.
 If this is not the case, you can hint quarkus about which workers this workflow is bound to by annotating the interface with @TemporalWorkflow directly.
 
@@ -183,6 +185,65 @@ public class MyService {
 
 <1> The client can be injected as a CDI bean
 <2> The default worker queue is <default>. for named worker, use the name of the worker
+
+[[activity-stub-injection]]
+=== Activity Stub Injection
+
+Activity stubs are usually created inside the workflow implementation with `Workflow.newActivityStub(...)`. Since the stub is
+created inside the workflow context, this is deterministic and safe during replay. The extension can create the stub for you when
+the workflow instance is created, which removes the boilerplate from the workflow implementation:
+
+[source,java]
+----
+public class SendEmailWorkflowImpl implements SendEmailWorkflow {
+
+    @TemporalActivityStub(startToCloseTimeout = "10s") // <1>
+    SendEmailActivities activities;
+
+    @Override
+    public void run(WorkflowData data) {
+        activities.sendEmail(data.details());
+    }
+}
+----
+
+<1> Equivalent to `Workflow.newActivityStub(SendEmailActivities.class, ActivityOptions.newBuilder().setStartToCloseTimeout(Duration.ofSeconds(10)).build())`
+
+The annotated field must be an `@ActivityInterface`, this is validated at build time. The annotation exposes the most
+common `ActivityOptions`: `startToCloseTimeout`, `scheduleToCloseTimeout`, `scheduleToStartTimeout`, `heartbeatTimeout`,
+`taskQueue`, `cancellationType`, the retry options (`retryMaximumAttempts`, `retryInitialInterval`, `retryMaximumInterval`,
+`retryBackoffCoefficient`, `retryDoNotRetry`) and `local = true` to create a local activity stub instead. Durations use the same syntax as Quarkus configuration properties
+(`10s`, `5m`, `PT1H`, or a plain number of seconds). Options that need to be computed at runtime can still be created by hand
+with `Workflow.newActivityStub(...)`, both approaches can be mixed in the same workflow.
+
+Workflows with a `@WorkflowInit` constructor are supported. The constructor receives the workflow input as usual, and the stubs are
+injected right after it returns, so they are available to the workflow method and to signal, query and update handlers, but not
+inside the constructor itself:
+
+[source,java]
+----
+public class SendEmailWorkflowImpl implements SendEmailWorkflow {
+
+    private final String recipient;
+
+    @TemporalActivityStub(startToCloseTimeout = "10s")
+    SendEmailActivities activities;
+
+    @WorkflowInit
+    public SendEmailWorkflowImpl(WorkflowData data) { // <1>
+        this.recipient = data.recipient();
+    }
+
+    @Override
+    public void run(WorkflowData data) {
+        activities.sendEmail(recipient, data.details());
+    }
+}
+----
+
+<1> Must be public and take exactly the parameters of the `@WorkflowMethod`, this is validated at build time.
+
+NOTE: A workflow implementation using `@TemporalActivityStub` is registered with the worker through a factory, and must implement a single `@WorkflowInterface`.
 
 === Stub Injection
 
