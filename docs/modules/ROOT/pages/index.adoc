@@ -231,12 +231,58 @@ public class MyService {
     TemporalInstance<SendEmailWorkflow> instance;
 
     public void startSubscription(WorkflowData data) {
-        SendEmailWorkflow workflow = instance.workflowId("the-workflow-id");
+        SendEmailWorkflow workflow = instance.workflowId("the-workflow-id"); // <1>
         workflow.run(data);
     }
 
 }
 ----
+
+<1> `TemporalInstance` is a factory, not a stub: `workflowId(...)` does not mutate the injected instance, it returns a new
+workflow stub bound to that workflow id
+
+[IMPORTANT]
+====
+Always work with the stub returned by `workflowId(...)`. Calling `instance.workflowId("the-workflow-id")` and then discarding
+the result has no effect, and the `TemporalInstance` itself cannot be passed to the Temporal APIs that expect a stub. Doing so,
+for example `WorkflowStub.fromTyped(instance)`, fails with:
+
+[source]
+----
+java.lang.IllegalArgumentException: arguments must be created through WorkflowClient.newWorkflowStub
+----
+====
+
+=== Task queue of an injected stub
+
+An injected stub always targets the task queue of the worker it is bound to, so there is no `quarkus.temporal.workflow.task-queue`
+property. The queue name defaults to the worker name, which is `<default>` for the default worker, and can be overridden per
+worker:
+
+[source,properties]
+----
+quarkus.temporal.worker.task-queue=emails # <1>
+quarkus.temporal.worker.namedWorker.task-queue=priority-emails # <2>
+----
+
+<1> task queue of the default worker, `<default>` when unset
+<2> task queue of the `namedWorker` worker, `namedWorker` when unset
+
+When a workflow is bound to several workers, the `worker` parameter of the qualifier selects the one whose task queue the stub
+uses:
+
+[source,java]
+----
+public class MyService {
+
+    @Inject
+    @TemporalWorkflowStub(worker = "namedWorker")
+    TemporalInstance<SendEmailWorkflow> instance; // <1>
+
+}
+----
+
+<1> the stub targets the task queue of `namedWorker`, that is `priority-emails` with the configuration above
 
 === Workflow options and configuration
 
@@ -298,18 +344,19 @@ public class MyService {
     TemporalInstance<SendEmailWorkflow> instance; // <1>
 
     public void addRecipient(WorkflowData data, String email) {
-        SendEmailWorkflow workflow = instance.workflowId(data.getEmail());
+        SendEmailWorkflow workflow = instance.workflowId(data.getEmail()); // <2>
 
-        WorkflowExecution execution = WorkflowStub.fromTyped(workflow) // <2>
-                .signalWithStart("addRecipient", new Object[] { email }, new Object[] { data }); // <3>
+        WorkflowExecution execution = WorkflowStub.fromTyped(workflow) // <3>
+                .signalWithStart("addRecipient", new Object[] { email }, new Object[] { data }); // <4>
     }
 
 }
 ----
 
 <1> A `TemporalInstance` is used so that the workflow id can be computed at runtime, a plain `@TemporalWorkflowStub` injection works too when the workflow id is static
-<2> The unwrapped stub carries the task queue, reuse policy, conflict policy, retry options and timeouts configured under `quarkus.temporal.workflow.*`
-<3> The first array holds the signal arguments, the second one the arguments of the `@WorkflowMethod` used if the workflow has to be started
+<2> `WorkflowStub.fromTyped(...)` takes the stub returned by `workflowId(...)`, passing the `TemporalInstance` itself throws `IllegalArgumentException: arguments must be created through WorkflowClient.newWorkflowStub`
+<3> The unwrapped stub carries the reuse policy, conflict policy, retry options and timeouts configured under `quarkus.temporal.workflow.*`, and the task queue of the worker the stub is bound to
+<4> The first array holds the signal arguments, the second one the arguments of the `@WorkflowMethod` used if the workflow has to be started
 
 If you would rather not refer to the signal by name, the same can be expressed with a `BatchRequest`:
 
