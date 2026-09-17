@@ -100,6 +100,7 @@ Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/d
     </tr>
     <tr>
       <td align="center" valign="top" width="14.28%"><a href="https://www.linkedin.com/in/michael-read-45a0262"><img src="https://avatars.githubusercontent.com/u/17915675?v=4?s=100" width="100px;" alt="Michael Read / Distributed Systems Expert / Consultant / Architect / Developer"/><br /><sub><b>Michael Read / Distributed Systems Expert / Consultant / Architect / Developer</b></sub></a><br /><a href="#ideas-michael-read" title="Ideas, Planning, & Feedback">🤔</a> <a href="https://github.com/quarkiverse/quarkus-temporal/commits?author=michael-read" title="Documentation">📖</a> <a href="https://github.com/quarkiverse/quarkus-temporal/commits?author=michael-read" title="Code">💻</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/matheusandre1"><img src="https://avatars.githubusercontent.com/u/92062874?v=4?s=100" width="100px;" alt="Matheus André"/><br /><sub><b>Matheus André</b></sub></a><br /><a href="https://github.com/quarkiverse/quarkus-temporal/commits?author=matheusandre1" title="Code">💻</a> <a href="#ideas-matheusandre1" title="Ideas, Planning, & Feedback">🤔</a></td>
     </tr>
   </tbody>
 </table>
