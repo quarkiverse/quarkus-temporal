@@ -211,13 +211,27 @@ public class WorkerFactoryRecorder {
         Worker worker = workerFactory.newWorker(createQueueName(name, workerRuntimeConfig),
                 createWorkerOptions(workerRuntimeConfig, workerBuildtimeConfig));
         for (var workflow : workflows) {
-            worker.registerWorkflowImplementationTypes(workflow);
+            registerWorkflow(worker, workflow);
         }
         if (buildtimeConfig.startWorkers()) {
             for (var activity : activities) {
                 worker.registerActivitiesImplementations(CDI.current().select(activity).get());
             }
         }
+    }
+
+    @SuppressWarnings({ "unchecked", "rawtypes" })
+    private static void registerWorkflow(Worker worker, Class<?> workflow) {
+        if (!ActivityStubInjector.hasInjectionPoints(workflow)) {
+            worker.registerWorkflowImplementationTypes(workflow);
+            return;
+        }
+        // Workflows with @TemporalActivityStub injection points are created by a factory so that the
+        // stubs can be created inside the workflow context before the workflow method runs. The factory
+        // receives the encoded workflow input so that @WorkflowInit constructors keep working.
+        ActivityStubInjector injector = ActivityStubInjector.forClass(workflow);
+        worker.registerWorkflowImplementationFactory((Class) injector.workflowInterface(), injector::newInstance,
+                WorkflowImplementationOptions.getDefaultInstance());
     }
 
     public void startWorkerFactory(ShutdownContext shutdownContext) {
