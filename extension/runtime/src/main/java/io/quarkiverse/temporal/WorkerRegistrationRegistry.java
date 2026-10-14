@@ -8,7 +8,8 @@ import java.util.concurrent.CopyOnWriteArrayList;
  * against a freshly created {@link io.temporal.worker.WorkerFactory} in test/mock mode.
  *
  * Populated unconditionally by {@link WorkerFactoryRecorder#createWorker}; only ever read
- * by the {@code quarkus-temporal-test} extension.
+ * by the {@code quarkus-temporal-test} extension. Each registration is removed again when the
+ * application that recorded it shuts down, so a stopped application is neither replayed nor kept reachable.
  */
 public final class WorkerRegistrationRegistry {
 
@@ -19,6 +20,14 @@ public final class WorkerRegistrationRegistry {
 
     public static void record(Runnable registration) {
         REGISTRATIONS.add(registration);
+    }
+
+    public static void remove(Runnable registration) {
+        REGISTRATIONS.remove(registration);
+    }
+
+    public static int size() {
+        return REGISTRATIONS.size();
     }
 
     public static void replayAll() {
