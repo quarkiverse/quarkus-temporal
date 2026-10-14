@@ -602,11 +602,12 @@ public class TemporalProcessor {
     @Produce(WorkerFactoryInitializedBuildItem.class)
     void setupWorkerFactory(
             List<WorkerBuildItem> workerBuildItems,
-            WorkerFactoryRecorder workerFactoryRecorder) {
+            WorkerFactoryRecorder workerFactoryRecorder,
+            ShutdownContextBuildItem shutdownContextBuildItem) {
 
         for (WorkerBuildItem workerBuildItem : workerBuildItems) {
             workerFactoryRecorder.createWorker(workerBuildItem.name,
-                    workerBuildItem.workflows, workerBuildItem.activities);
+                    workerBuildItem.workflows, workerBuildItem.activities, shutdownContextBuildItem);
         }
     }
 

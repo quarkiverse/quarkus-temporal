@@ -194,8 +194,11 @@ public class WorkerFactoryRecorder {
     }
 
     public void createWorker(String name, List<Class<?>> workflows,
-            List<Class<?>> activities) {
-        WorkerRegistrationRegistry.record(() -> doCreateWorker(name, workflows, activities));
+            List<Class<?>> activities, ShutdownContext shutdownContext) {
+        Runnable registration = () -> doCreateWorker(name, workflows, activities);
+        WorkerRegistrationRegistry.record(registration);
+        // Remove only this application's entry: the registry is static and may outlive this application.
+        shutdownContext.addShutdownTask(() -> WorkerRegistrationRegistry.remove(registration));
         doCreateWorker(name, workflows, activities);
     }
 
