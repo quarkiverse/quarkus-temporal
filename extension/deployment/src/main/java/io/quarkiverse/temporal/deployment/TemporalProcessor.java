@@ -47,6 +47,7 @@ import io.quarkiverse.temporal.TemporalWorkflow;
 import io.quarkiverse.temporal.TemporalWorkflowStub;
 import io.quarkiverse.temporal.WorkerFactoryRecorder;
 import io.quarkiverse.temporal.WorkflowClientRecorder;
+import io.quarkiverse.temporal.WorkflowServiceStubsDestroyer;
 import io.quarkiverse.temporal.WorkflowServiceStubsRecorder;
 import io.quarkiverse.temporal.WorkflowStubRecorder;
 import io.quarkiverse.temporal.config.TemporalBuildtimeConfig;
@@ -450,6 +451,7 @@ public class TemporalProcessor {
                     .unremovable()
                     .defaultBean()
                     .createWith(recorder.createWorkflowServiceStubs(micrometerSupported))
+                    .destroyer(WorkflowServiceStubsDestroyer.class)
                     .setRuntimeInit()
                     .done();
         }
@@ -463,6 +465,7 @@ public class TemporalProcessor {
                 .addInjectionPoint(ClassType.create(Channel.class),
                         AnnotationInstance.builder(GrpcClient.class).value("temporal-client").build())
                 .createWith(recorder.createQuarkusManagedWorkflowServiceStubs(micrometerSupported))
+                .destroyer(WorkflowServiceStubsDestroyer.class)
                 .setRuntimeInit()
                 .done();
 
