@@ -29,6 +29,7 @@ import jakarta.inject.Singleton;
 
 import org.jboss.jandex.AnnotationInstance;
 import org.jboss.jandex.AnnotationTarget;
+import org.jboss.jandex.AnnotationValue;
 import org.jboss.jandex.ClassInfo;
 import org.jboss.jandex.ClassType;
 import org.jboss.jandex.DotName;
@@ -358,27 +359,31 @@ public class TemporalProcessor {
     }
 
     String[] extractWorkersFromAnnotationAndSeenWorkers(AnnotationInstance annotation, Set<String> seenWorkers) {
-
-        if (annotation == null && seenWorkers.isEmpty()) {
-            return new String[] { DEFAULT_WORKER_NAME };
-        }
-        return Stream.concat(
-                Stream.ofNullable(annotation).flatMap(x -> Arrays.stream(x.value("workers").asStringArray())),
+        String[] workers = Stream.concat(
+                Arrays.stream(extractWorkersFromAnnotation(annotation)),
                 seenWorkers.stream())
                 .distinct()
                 .toArray(String[]::new);
+        return workers.length == 0 ? new String[] { DEFAULT_WORKER_NAME } : workers;
     }
 
     String[] extractWorkersFromAnnotationAndExplicitBinding(ClassInfo implementor, AnnotationInstance annotation,
             Map<DotName, Set<String>> explicitBinding) {
-        if (annotation == null && !explicitBinding.containsKey(implementor.name())) {
-            return new String[] { DEFAULT_WORKER_NAME };
-        }
-        return Stream.concat(
-                Stream.ofNullable(annotation).flatMap(x -> Arrays.stream(x.value("workers").asStringArray())),
+        String[] workers = Stream.concat(
+                Arrays.stream(extractWorkersFromAnnotation(annotation)),
                 Stream.ofNullable(explicitBinding.get(implementor.name())).flatMap(Collection::stream))
                 .distinct()
                 .toArray(String[]::new);
+        return workers.length == 0 ? new String[] { DEFAULT_WORKER_NAME } : workers;
+    }
+
+    /**
+     * Jandex stores no value for an annotation member left at its default, so {@code workers} is absent when the
+     * annotation is used without it. An absent or empty {@code workers} falls back to the default worker.
+     */
+    String[] extractWorkersFromAnnotation(AnnotationInstance annotation) {
+        AnnotationValue workers = annotation == null ? null : annotation.value("workers");
+        return workers == null ? new String[0] : workers.asStringArray();
     }
 
     @BuildStep
