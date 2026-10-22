@@ -33,8 +33,6 @@ public class MockTestWorkflowResetCallback implements QuarkusTestBeforeEachCallb
 
     private static final Logger log = Logger.getLogger(MockTestWorkflowResetCallback.class);
 
-    private TestWorkflowEnvironment inUseForCurrentTest;
-
     @Override
     public void beforeEach(QuarkusTestMethodContext context) {
         if (!isMockEnabled()) {
@@ -48,7 +46,6 @@ public class MockTestWorkflowResetCallback implements QuarkusTestBeforeEachCallb
         }
         QuarkusMock.installMockForType(current, TestWorkflowEnvironment.class);
         QuarkusMock.installMockForType(current.getWorkflowClient(), WorkflowClient.class);
-        this.inUseForCurrentTest = current;
     }
 
     @Override
@@ -56,8 +53,10 @@ public class MockTestWorkflowResetCallback implements QuarkusTestBeforeEachCallb
         if (!isMockEnabled()) {
             return;
         }
-        TestWorkflowEnvironment justUsed = this.inUseForCurrentTest;
-        this.inUseForCurrentTest = null;
+        // Quarkus loads before-each and after-each callbacks through separate ServiceLoader calls, so this
+        // instance never sees state set in beforeEach. The holder still has the environment the test used:
+        // it only changes in prepareNext().
+        TestWorkflowEnvironment justUsed = MockTestEnvironmentHolder.current();
         if (justUsed != null) {
             shutdownQuietly(justUsed);
         }
