@@ -13,7 +13,7 @@ import io.quarkiverse.temporal.deployment.config.DefaultSimpleActivityImpl;
 import io.quarkiverse.temporal.deployment.config.DefaultSimpleWorkflowImpl;
 import io.quarkiverse.temporal.deployment.config.SimpleActivity;
 import io.quarkiverse.temporal.deployment.config.SimpleWorkflow;
-import io.quarkus.test.QuarkusUnitTest;
+import io.quarkus.test.QuarkusExtensionTest;
 import io.temporal.worker.WorkerFactory;
 
 /**
@@ -26,7 +26,7 @@ import io.temporal.worker.WorkerFactory;
 class StartWorkersBackgroundRetryEnabledTest {
 
     @RegisterExtension
-    static final QuarkusUnitTest unitTest = new QuarkusUnitTest()
+    static final QuarkusExtensionTest unitTest = new QuarkusExtensionTest()
             .setArchiveProducer(() -> ShrinkWrap.create(JavaArchive.class)
                     .addClass(SimpleWorkflow.class)
                     .addClass(DefaultSimpleWorkflowImpl.class)

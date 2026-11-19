@@ -11,12 +11,12 @@ import io.quarkiverse.temporal.deployment.stubinjection.InitInjectedWorkflow;
 import io.quarkiverse.temporal.deployment.stubinjection.InjectedActivity;
 import io.quarkiverse.temporal.deployment.stubinjection.InvalidInitWorkflowImpl;
 import io.quarkus.runtime.configuration.ConfigurationException;
-import io.quarkus.test.QuarkusUnitTest;
+import io.quarkus.test.QuarkusExtensionTest;
 
 public class ActivityStubInjectionInvalidInitTest {
 
     @RegisterExtension
-    static final QuarkusUnitTest unitTest = new QuarkusUnitTest()
+    static final QuarkusExtensionTest unitTest = new QuarkusExtensionTest()
             .setExpectedException(ConfigurationException.class)
             .setArchiveProducer(() -> ShrinkWrap.create(JavaArchive.class)
                     .addClass(InjectedActivity.class)

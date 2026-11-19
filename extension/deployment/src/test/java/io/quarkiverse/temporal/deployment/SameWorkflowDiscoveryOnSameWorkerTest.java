@@ -10,12 +10,12 @@ import org.junit.jupiter.api.extension.RegisterExtension;
 import io.quarkiverse.temporal.deployment.discovery.DefaultSimpleWorkflowImpl;
 import io.quarkiverse.temporal.deployment.discovery.DuplicateDefaultSimpleWorkflowImpl;
 import io.quarkiverse.temporal.deployment.discovery.SimpleWorkflow;
-import io.quarkus.test.QuarkusUnitTest;
+import io.quarkus.test.QuarkusExtensionTest;
 
 public class SameWorkflowDiscoveryOnSameWorkerTest {
 
     @RegisterExtension
-    static final QuarkusUnitTest unitTest = new QuarkusUnitTest()
+    static final QuarkusExtensionTest unitTest = new QuarkusExtensionTest()
             .assertException(ex -> {
                 Assertions.assertEquals(IllegalStateException.class, ex.getClass());
                 Assertions.assertEquals(

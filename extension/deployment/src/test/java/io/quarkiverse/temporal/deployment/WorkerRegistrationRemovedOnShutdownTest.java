@@ -12,7 +12,7 @@ import org.junit.jupiter.api.extension.RegisterExtension;
 import io.quarkiverse.temporal.WorkerRegistrationRegistry;
 import io.quarkiverse.temporal.deployment.discovery.DefaultSimpleWorkflowImpl;
 import io.quarkiverse.temporal.deployment.discovery.SimpleWorkflow;
-import io.quarkus.test.QuarkusUnitTest;
+import io.quarkus.test.QuarkusExtensionTest;
 
 /**
  * Worker registrations recorded at startup are removed when the application stops, so a stopped application is
@@ -24,7 +24,7 @@ public class WorkerRegistrationRemovedOnShutdownTest {
     static final String REGISTRATIONS = "WorkerRegistrationRemovedOnShutdownTest.registrations";
 
     @RegisterExtension
-    static final QuarkusUnitTest unitTest = new QuarkusUnitTest()
+    static final QuarkusExtensionTest unitTest = new QuarkusExtensionTest()
             .setArchiveProducer(() -> ShrinkWrap.create(JavaArchive.class)
                     .addClass(SimpleWorkflow.class)
                     .addClass(DefaultSimpleWorkflowImpl.class)

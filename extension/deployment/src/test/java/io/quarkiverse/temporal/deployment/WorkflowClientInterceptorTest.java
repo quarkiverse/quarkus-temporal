@@ -11,14 +11,14 @@ import org.junit.jupiter.api.extension.RegisterExtension;
 
 import io.quarkiverse.temporal.deployment.discovery.LowerPriorityWorkflowClientInterceptor;
 import io.quarkiverse.temporal.deployment.discovery.TestWorkflowClientInterceptor;
-import io.quarkus.test.QuarkusUnitTest;
+import io.quarkus.test.QuarkusExtensionTest;
 import io.temporal.client.WorkflowClient;
 import io.temporal.common.interceptors.WorkflowClientInterceptor;
 
 public class WorkflowClientInterceptorTest {
 
     @RegisterExtension
-    static final QuarkusUnitTest unitTest = new QuarkusUnitTest()
+    static final QuarkusExtensionTest unitTest = new QuarkusExtensionTest()
             .setArchiveProducer(() -> ShrinkWrap.create(JavaArchive.class)
                     .addClass(LowerPriorityWorkflowClientInterceptor.class)
                     .addClass(TestWorkflowClientInterceptor.class)

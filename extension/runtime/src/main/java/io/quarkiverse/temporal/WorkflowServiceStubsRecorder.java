@@ -14,7 +14,6 @@ import com.uber.m3.tally.Scope;
 import com.uber.m3.tally.StatsReporter;
 
 import io.grpc.Channel;
-import io.grpc.ManagedChannel;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.Metrics;
 import io.quarkiverse.temporal.config.ConnectionRuntimeConfig;
@@ -117,8 +116,8 @@ public class WorkflowServiceStubsRecorder {
 
         WorkflowServiceStubsOptions.Builder builder = WorkflowServiceStubsOptions.newBuilder()
                 .setChannel(
-                        (ManagedChannel) context.getInjectedReference(Channel.class,
-                                GrpcClient.Literal.of("temporal-client")))
+                        QuarkusManagedChannel.of(context.getInjectedReference(Channel.class,
+                                GrpcClient.Literal.of("temporal-client"))))
                 .setMetricsScope(createScope(isMicrometerEnabled))
                 .setRpcRetryOptions(createRpcRetryOptions(connection.rpcRetry()));
 

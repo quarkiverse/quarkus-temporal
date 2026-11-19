@@ -15,7 +15,7 @@ import org.junit.jupiter.api.extension.RegisterExtension;
 
 import io.quarkiverse.temporal.deployment.config.DefaultSimpleActivityImpl;
 import io.quarkiverse.temporal.deployment.config.SimpleActivity;
-import io.quarkus.test.QuarkusUnitTest;
+import io.quarkus.test.QuarkusExtensionTest;
 import io.temporal.worker.Worker;
 import io.temporal.worker.WorkerFactory;
 import io.temporal.worker.WorkerOptions;
@@ -23,7 +23,7 @@ import io.temporal.worker.WorkerOptions;
 public class WorkerUnnamedConfigTest {
 
     @RegisterExtension
-    static final QuarkusUnitTest unitTest = new QuarkusUnitTest()
+    static final QuarkusExtensionTest unitTest = new QuarkusExtensionTest()
             .setArchiveProducer(() -> ShrinkWrap.create(JavaArchive.class)
                     .addClass(SimpleActivity.class)
                     .addClass(DefaultSimpleActivityImpl.class)

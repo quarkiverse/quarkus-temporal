@@ -16,7 +16,7 @@ import org.junit.jupiter.api.extension.RegisterExtension;
 
 import io.quarkiverse.temporal.deployment.config.DefaultSimpleActivityImpl;
 import io.quarkiverse.temporal.deployment.config.SimpleActivity;
-import io.quarkus.test.QuarkusUnitTest;
+import io.quarkus.test.QuarkusExtensionTest;
 import io.temporal.client.WorkflowClient;
 import io.temporal.client.WorkflowClientOptions;
 import io.temporal.serviceclient.RpcRetryOptions;
@@ -25,7 +25,7 @@ import io.temporal.serviceclient.WorkflowServiceStubsOptions;
 public class ClientConfigTest {
 
     @RegisterExtension
-    static final QuarkusUnitTest unitTest = new QuarkusUnitTest()
+    static final QuarkusExtensionTest unitTest = new QuarkusExtensionTest()
             .setArchiveProducer(() -> ShrinkWrap.create(JavaArchive.class)
                     .addClass(SimpleActivity.class)
                     .addClass(DefaultSimpleActivityImpl.class)

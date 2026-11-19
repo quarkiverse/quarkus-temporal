@@ -9,12 +9,12 @@ import org.junit.jupiter.api.extension.RegisterExtension;
 import io.quarkiverse.temporal.deployment.discovery.DefaultSimpleActivityImpl;
 import io.quarkiverse.temporal.deployment.discovery.NamedSimpleActivityImpl;
 import io.quarkiverse.temporal.deployment.discovery.SimpleActivity;
-import io.quarkus.test.QuarkusUnitTest;
+import io.quarkus.test.QuarkusExtensionTest;
 
 public class SameActivityDiscoveryOnDifferentWorkerTest {
 
     @RegisterExtension
-    static final QuarkusUnitTest unitTest = new QuarkusUnitTest()
+    static final QuarkusExtensionTest unitTest = new QuarkusExtensionTest()
             .setArchiveProducer(() -> ShrinkWrap.create(JavaArchive.class)
                     .addClass(SimpleActivity.class)
                     .addClass(DefaultSimpleActivityImpl.class)

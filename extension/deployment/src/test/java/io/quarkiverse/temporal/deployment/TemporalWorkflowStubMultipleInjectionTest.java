@@ -17,7 +17,7 @@ import io.quarkiverse.temporal.TemporalWorkflowStub;
 import io.quarkiverse.temporal.deployment.stub.NamedSimpleWorkflowImpl;
 import io.quarkiverse.temporal.deployment.stub.SimpleWorkflow;
 import io.quarkiverse.temporal.deployment.stub.UnnamedSimpleWorkflowImpl;
-import io.quarkus.test.QuarkusUnitTest;
+import io.quarkus.test.QuarkusExtensionTest;
 import io.temporal.api.common.v1.WorkflowExecution;
 import io.temporal.client.WorkflowClient;
 import io.temporal.testing.TestWorkflowEnvironment;
@@ -27,7 +27,7 @@ public class TemporalWorkflowStubMultipleInjectionTest {
     public static TestWorkflowEnvironment testWorkflowEnvironment = TestWorkflowEnvironment.newInstance();
 
     @RegisterExtension
-    static final QuarkusUnitTest unitTest = new QuarkusUnitTest()
+    static final QuarkusExtensionTest unitTest = new QuarkusExtensionTest()
             .setArchiveProducer(() -> ShrinkWrap.create(JavaArchive.class)
                     .addClass(SimpleWorkflow.class)
                     .addClass(UnnamedSimpleWorkflowImpl.class)

@@ -18,14 +18,14 @@ import org.junit.jupiter.api.extension.RegisterExtension;
 import io.quarkiverse.temporal.TemporalWorkflowStub;
 import io.quarkiverse.temporal.deployment.config.DefaultSimpleWorkflowImpl;
 import io.quarkiverse.temporal.deployment.config.SimpleWorkflow;
-import io.quarkus.test.QuarkusUnitTest;
+import io.quarkus.test.QuarkusExtensionTest;
 import io.temporal.client.WorkflowOptions;
 import io.temporal.client.WorkflowStub;
 
 public class WorkflowNamedConfigTest {
 
     @RegisterExtension
-    static final QuarkusUnitTest unitTest = new QuarkusUnitTest()
+    static final QuarkusExtensionTest unitTest = new QuarkusExtensionTest()
             .setArchiveProducer(() -> ShrinkWrap.create(JavaArchive.class)
                     .addClass(SimpleWorkflow.class)
                     .addClass(DefaultSimpleWorkflowImpl.class)
