@@ -8,6 +8,10 @@
     </parent>
     <artifactId>quarkus-temporal-deployment</artifactId>
     <name>Quarkus Temporal - Deployment</name>
+    <properties>
+        <!-- Main guide indexed by the Quarkus Agent MCP documentation search, generated with: mvn install -Drag -->
+        <quarkus-rag.guide>../../docs/modules/ROOT/pages/index.adoc</quarkus-rag.guide>
+    </properties>
     <dependencies>
         <dependency>
             <groupId>io.quarkus</groupId>
