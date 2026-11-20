@@ -9,9 +9,9 @@
 ### Dependency injection
 
 - Activity implementations are CDI beans: `@Inject` works in them.
-- Workflow implementations are NOT CDI beans. Never inject services into a workflow: it breaks replay and causes `NonDeterministicException`. Pass configuration through a Local Activity instead.
+- Workflow implementations are NOT CDI beans. `@Inject` does not work in them, and injecting state into a workflow risks `NonDeterministicException` on replay. Pass configuration through a Local Activity instead.
 - The one exception is activity stubs: `@TemporalActivityStub(startToCloseTimeout = "10s")` on a field of a workflow implementation (durations use Quarkus syntax: `10s`, `5m`, `PT1H`). Use `local = true` for local activities.
-- `@TemporalActivityStub` fields must be `@ActivityInterface` types (checked at build time). With a `@WorkflowInit` constructor, the stubs are available after the constructor returns, not inside it. The workflow must implement a single `@WorkflowInterface`.
+- `@TemporalActivityStub` fields must be `@ActivityInterface` types (checked at build time). With a `@WorkflowInit` constructor, the constructor must be public and take exactly the parameters of the `@WorkflowMethod` (checked at build time), and the stubs are available after it returns, not inside it. The workflow must implement a single `@WorkflowInterface`.
 - `WorkflowClient` is a CDI bean. Inject workflow stubs with `@Inject @TemporalWorkflowStub(workflowId = "...")`. If the workflow is bound to several workers, set `worker = "..."`.
 
 ### Pitfalls
@@ -20,9 +20,9 @@
 - `quarkus.temporal.workflow.*` options only apply to stubs created by the extension (`@TemporalWorkflowStub`). Stubs built by hand with `client.newWorkflowStub(...)` ignore them.
 - There is no `quarkus.temporal.workflow.task-queue`. An injected stub uses the task queue of the worker it is bound to: the worker name (`<default>` for the default worker), overridable with `quarkus.temporal.worker.task-queue` (default worker) or `quarkus.temporal.worker.<name>.task-queue`.
 - For `signalWithStart`, unwrap an injected stub: `WorkflowStub.fromTyped(instance.workflowId(id)).signalWithStart(...)`.
-- Invalid combinations of `workflow-id-conflict-policy` and `workflow-id-reuse-policy` throw a `ConfigurationException` when the stub is created.
-- By default workers start with the application and startup fails if Temporal is unreachable. For resilience set `quarkus.temporal.worker-factory.fail-on-startup-error=false` and, to keep retrying in the background, `startup-background-retry-enabled=true` (`startup-max-attempts` is then ignored).
-- Interceptors (`WorkflowClientInterceptor`, `WorkerInterceptor`), `ContextPropagator` and `DataConverter` are plugged in by producing a CDI bean (`@Unremovable` for beans nothing else injects). Order interceptors with `@Priority`.
+- These combinations of `quarkus.temporal.workflow.*` options throw a `ConfigurationException` when the stub is created: any `workflow-id-conflict-policy` with `workflow-id-reuse-policy=TERMINATE_IF_RUNNING`, and `TERMINATE_EXISTING` with `REJECT_DUPLICATE`.
+- By default workers start with the application and startup fails if Temporal is unreachable. For resilience set `quarkus.temporal.worker-factory.fail-on-startup-error=false` and, to keep retrying in the background, `quarkus.temporal.worker-factory.startup-background-retry-enabled=true` (`startup-max-attempts` is then ignored).
+- Interceptors (`WorkflowClientInterceptor`, `WorkerInterceptor`), `ContextPropagator` and `DataConverter` are plugged in by producing a CDI bean (the guide's examples annotate them with `@Unremovable`). Order interceptors with `@Priority`.
 
 ### Dev Services and the Web UI
 
@@ -32,19 +32,20 @@
 
 ### Testing
 
-- Prefer `@QuarkusTest` with Dev Services (a real Temporal dev server in a container) for end-to-end checks.
+- `@QuarkusTest` uses Dev Services, which starts a real Temporal dev server in a container.
 - For fast tests without a container add the `io.quarkiverse.temporal:quarkus-temporal-test` extension (test scope) and set:
 
 ```properties
 %test.quarkus.temporal.enable-mock=true
 %test.quarkus.temporal.start-workers=false
-%test.quarkus.devservices.enabled=false
 ```
 
+- `enable-mock=true` already turns off Temporal Dev Services. `start-workers=false` is only needed when the test registers mock activities.
 - `quarkus.temporal.enable-mock` is build-time. Enabling it without `quarkus-temporal-test` on the classpath fails the build.
 - In mock mode `WorkflowClient`, `WorkerFactory` and `TestWorkflowEnvironment` are backed by Temporal's in-memory test server. Inject `TestWorkflowEnvironment` for time skipping.
-- With `start-workers=false`, activities are NOT registered automatically. Register every activity the workflow calls (mock or real bean) before starting the `WorkerFactory`.
-- Extension build-time validation is tested with `QuarkusUnitTest`. Set `quarkus.temporal.start-workers: false` in its `application.properties` when no server is available.
+- With `start-workers=false`, activities are NOT registered automatically. Register every activity the workflow calls (mock or real bean) before starting the workers.
+- When you inject `TestWorkflowEnvironment`, start workers with `testEnv.start()`, not `workerFactory.start()`. It cleans up on its own.
+- `workerFactory.getWorker(...)` takes the task queue name, which is `<default>` for the default worker unless `quarkus.temporal.worker.task-queue` is set.
 
 ### Native
 
