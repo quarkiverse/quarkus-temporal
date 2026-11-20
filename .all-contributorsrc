@@ -178,6 +178,16 @@
         "code",
         "bug"
       ]
+    },
+    {
+      "login": "T-Celor",
+      "name": "TCelor",
+      "avatar_url": "https://avatars.githubusercontent.com/u/70716529?v=4",
+      "profile": "https://github.com/T-Celor",
+      "contributions": [
+        "code",
+        "doc"
+      ]
     }
   ],
   "contributorsPerLine": 7,
