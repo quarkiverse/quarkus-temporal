@@ -24,7 +24,7 @@
     </scm>
     <properties>
         <quarkus.version>4.0.0</quarkus.version>
-        <temporal.version>1.40.0</temporal.version>
+        <temporal.version>1.41.1</temporal.version>
     </properties>
     <dependencyManagement>
         <dependencies>
