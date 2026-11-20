@@ -11,13 +11,13 @@ import org.junit.jupiter.api.extension.RegisterExtension;
 import io.quarkiverse.temporal.deployment.discovery.DefaultSimpleWorkflowImpl;
 import io.quarkiverse.temporal.deployment.discovery.NamedSimpleWorkflowImpl;
 import io.quarkiverse.temporal.deployment.discovery.SimpleWorkflow;
-import io.quarkus.test.QuarkusUnitTest;
+import io.quarkus.test.QuarkusExtensionTest;
 import io.temporal.worker.WorkerFactory;
 
 public class SameWorkflowDiscoveryOnDifferentWorkerTest {
 
     @RegisterExtension
-    static final QuarkusUnitTest unitTest = new QuarkusUnitTest()
+    static final QuarkusExtensionTest unitTest = new QuarkusExtensionTest()
             .setArchiveProducer(() -> ShrinkWrap.create(JavaArchive.class)
                     .addClass(SimpleWorkflow.class)
                     .addClass(DefaultSimpleWorkflowImpl.class)

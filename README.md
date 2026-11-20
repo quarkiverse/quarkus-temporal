@@ -37,7 +37,7 @@ Read the full [Quarkus Temporal documentation](https://docs.quarkiverse.io/quark
 
 Create a new temporal project (with a base temporal starter code):
 
-- With [code.quarkus.io](https://code.quarkus.io/?a=temporal-bowl&j=17&e=io.quarkiverse.temporal%3Aquarkus-temporal)
+- With [code.quarkus.io](https://code.quarkus.io/?a=temporal-bowl&j=21&e=io.quarkiverse.temporal%3Aquarkus-temporal)
 - With the [Quarkus CLI](https://quarkus.io/guides/cli-tooling):
 
 ```bash
@@ -52,6 +52,15 @@ Or add to you pom.xml directly:
     <version>{project-version}</version>
 </dependency>
 ```
+
+## Compatibility
+
+| Quarkus Temporal version | Quarkus version |
+| ------------------------ | --------------- |
+| 1.0.x                    | 3.33.4+         |
+| 4.x                      | 4.0.0+          |
+
+4.x targets Quarkus 4 and requires JDK 21. If you are still on Quarkus 3, stay on 1.0.x, which is maintained from the `1.x` branch.
 
 ## Demonstration Use Case
 

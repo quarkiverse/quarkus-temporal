@@ -12,13 +12,13 @@ import org.junit.jupiter.api.extension.RegisterExtension;
 import io.grpc.netty.shaded.io.netty.handler.ssl.SslContext;
 import io.quarkiverse.temporal.deployment.config.DefaultSimpleActivityImpl;
 import io.quarkiverse.temporal.deployment.config.SimpleActivity;
-import io.quarkus.test.QuarkusUnitTest;
+import io.quarkus.test.QuarkusExtensionTest;
 import io.temporal.serviceclient.WorkflowServiceStubs;
 
 public class MTLSConfigTest {
 
     @RegisterExtension
-    static final QuarkusUnitTest unitTest = new QuarkusUnitTest()
+    static final QuarkusExtensionTest unitTest = new QuarkusExtensionTest()
             .setArchiveProducer(() -> ShrinkWrap.create(JavaArchive.class)
                     .addClass(SimpleActivity.class)
                     .addClass(DefaultSimpleActivityImpl.class)

@@ -19,14 +19,14 @@ import io.quarkiverse.temporal.deployment.stubinjection.FieldInjectedWorkflowImp
 import io.quarkiverse.temporal.deployment.stubinjection.InitInjectedWorkflow;
 import io.quarkiverse.temporal.deployment.stubinjection.InitInjectedWorkflowImpl;
 import io.quarkiverse.temporal.deployment.stubinjection.InjectedActivity;
-import io.quarkus.test.QuarkusUnitTest;
+import io.quarkus.test.QuarkusExtensionTest;
 import io.temporal.activity.ActivityCancellationType;
 import io.temporal.worker.WorkerFactory;
 
 public class ActivityStubInjectionTest {
 
     @RegisterExtension
-    static final QuarkusUnitTest unitTest = new QuarkusUnitTest()
+    static final QuarkusExtensionTest unitTest = new QuarkusExtensionTest()
             .setArchiveProducer(() -> ShrinkWrap.create(JavaArchive.class)
                     .addClass(InjectedActivity.class)
                     .addClass(FieldInjectedWorkflow.class)

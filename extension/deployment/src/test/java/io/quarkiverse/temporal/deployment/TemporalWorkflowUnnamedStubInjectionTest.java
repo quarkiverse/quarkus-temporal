@@ -14,14 +14,14 @@ import org.junit.jupiter.api.extension.RegisterExtension;
 import io.quarkiverse.temporal.TemporalWorkflowStub;
 import io.quarkiverse.temporal.deployment.stub.SimpleWorkflow;
 import io.quarkiverse.temporal.deployment.stub.UnnamedSimpleWorkflowImpl;
-import io.quarkus.test.QuarkusUnitTest;
+import io.quarkus.test.QuarkusExtensionTest;
 import io.temporal.client.WorkflowOptions;
 import io.temporal.client.WorkflowStub;
 
 public class TemporalWorkflowUnnamedStubInjectionTest {
 
     @RegisterExtension
-    static final QuarkusUnitTest unitTest = new QuarkusUnitTest()
+    static final QuarkusExtensionTest unitTest = new QuarkusExtensionTest()
             .setArchiveProducer(() -> ShrinkWrap.create(JavaArchive.class)
                     .addClass(SimpleWorkflow.class)
                     .addClass(UnnamedSimpleWorkflowImpl.class)

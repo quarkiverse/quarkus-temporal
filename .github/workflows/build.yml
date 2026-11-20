@@ -49,12 +49,11 @@ jobs:
         if: startsWith(matrix.os, 'windows')
 
       - uses: actions/checkout@v7
-      - name: Set up JDK 21
+      - name: Set up JDK 25
         uses: graalvm/setup-graalvm@v1
         with:
-          distribution: 'graalvm'
-          java-package: 'jdk+fx'
-          java-version: '21'
+          distribution: 'mandrel'
+          java-version: '25'
           github-token: ${{ secrets.GITHUB_TOKEN }}
           cache: 'maven'
 

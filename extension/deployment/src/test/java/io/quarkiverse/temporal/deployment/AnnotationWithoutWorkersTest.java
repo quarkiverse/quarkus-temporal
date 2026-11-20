@@ -14,7 +14,7 @@ import io.quarkiverse.temporal.deployment.defaultworker.SimpleActivity;
 import io.quarkiverse.temporal.deployment.defaultworker.SimpleActivityImpl;
 import io.quarkiverse.temporal.deployment.defaultworker.SimpleWorkflow;
 import io.quarkiverse.temporal.deployment.defaultworker.SimpleWorkflowImpl;
-import io.quarkus.test.QuarkusUnitTest;
+import io.quarkus.test.QuarkusExtensionTest;
 import io.temporal.worker.WorkerFactory;
 
 /**
@@ -23,7 +23,7 @@ import io.temporal.worker.WorkerFactory;
 public class AnnotationWithoutWorkersTest {
 
     @RegisterExtension
-    static final QuarkusUnitTest unitTest = new QuarkusUnitTest()
+    static final QuarkusExtensionTest unitTest = new QuarkusExtensionTest()
             .setArchiveProducer(() -> ShrinkWrap.create(JavaArchive.class)
                     .addClass(SimpleWorkflow.class)
                     .addClass(SimpleWorkflowImpl.class)

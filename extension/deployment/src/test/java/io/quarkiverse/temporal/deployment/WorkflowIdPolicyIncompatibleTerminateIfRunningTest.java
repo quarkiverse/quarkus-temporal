@@ -14,7 +14,7 @@ import io.quarkiverse.temporal.TemporalWorkflowStub;
 import io.quarkiverse.temporal.deployment.config.DefaultSimpleWorkflowImpl;
 import io.quarkiverse.temporal.deployment.config.SimpleWorkflow;
 import io.quarkus.runtime.configuration.ConfigurationException;
-import io.quarkus.test.QuarkusUnitTest;
+import io.quarkus.test.QuarkusExtensionTest;
 
 /**
  * TERMINATE_IF_RUNNING cannot be combined with an explicit conflict policy, the Temporal server rejects such a request with an
@@ -23,7 +23,7 @@ import io.quarkus.test.QuarkusUnitTest;
 public class WorkflowIdPolicyIncompatibleTerminateIfRunningTest {
 
     @RegisterExtension
-    static final QuarkusUnitTest unitTest = new QuarkusUnitTest()
+    static final QuarkusExtensionTest unitTest = new QuarkusExtensionTest()
             .setArchiveProducer(() -> ShrinkWrap.create(JavaArchive.class)
                     .addClass(SimpleWorkflow.class)
                     .addClass(DefaultSimpleWorkflowImpl.class)

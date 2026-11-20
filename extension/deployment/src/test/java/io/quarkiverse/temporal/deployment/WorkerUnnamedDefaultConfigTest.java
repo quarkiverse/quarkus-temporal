@@ -19,7 +19,7 @@ import io.quarkiverse.temporal.deployment.config.DefaultSimpleActivityImpl;
 import io.quarkiverse.temporal.deployment.config.SimpleActivity;
 import io.quarkus.info.GitInfo;
 import io.quarkus.test.Mock;
-import io.quarkus.test.QuarkusUnitTest;
+import io.quarkus.test.QuarkusExtensionTest;
 import io.temporal.worker.Worker;
 import io.temporal.worker.WorkerFactory;
 import io.temporal.worker.WorkerOptions;
@@ -27,7 +27,7 @@ import io.temporal.worker.WorkerOptions;
 public class WorkerUnnamedDefaultConfigTest {
 
     @RegisterExtension
-    static final QuarkusUnitTest unitTest = new QuarkusUnitTest()
+    static final QuarkusExtensionTest unitTest = new QuarkusExtensionTest()
             .setArchiveProducer(() -> ShrinkWrap.create(JavaArchive.class)
                     .addClass(Producers.class)
                     .addClass(SimpleActivity.class)

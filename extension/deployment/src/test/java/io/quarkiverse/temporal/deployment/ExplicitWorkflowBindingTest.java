@@ -12,13 +12,13 @@ import org.junit.jupiter.api.extension.RegisterExtension;
 import io.quarkiverse.temporal.Constants;
 import io.quarkiverse.temporal.deployment.binding.SimpleWorkflow;
 import io.quarkiverse.temporal.deployment.binding.SimpleWorkflowImpl;
-import io.quarkus.test.QuarkusUnitTest;
+import io.quarkus.test.QuarkusExtensionTest;
 import io.temporal.worker.WorkerFactory;
 
 public class ExplicitWorkflowBindingTest {
 
     @RegisterExtension
-    static final QuarkusUnitTest unitTest = new QuarkusUnitTest()
+    static final QuarkusExtensionTest unitTest = new QuarkusExtensionTest()
             .setArchiveProducer(() -> ShrinkWrap.create(JavaArchive.class)
                     .addClass(SimpleWorkflow.class)
                     .addClass(SimpleWorkflowImpl.class)
