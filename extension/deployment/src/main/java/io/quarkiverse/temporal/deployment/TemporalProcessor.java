@@ -39,35 +39,36 @@ import org.jboss.jandex.ParameterizedType;
 import org.jboss.jandex.Type;
 
 import io.grpc.Channel;
-import io.quarkiverse.temporal.OtelRecorder;
+import io.quarkiverse.temporal.OtelHandler;
 import io.quarkiverse.temporal.TemporalActivity;
 import io.quarkiverse.temporal.TemporalActivityStub;
 import io.quarkiverse.temporal.TemporalHealthCheck;
 import io.quarkiverse.temporal.TemporalInstance;
 import io.quarkiverse.temporal.TemporalWorkflow;
 import io.quarkiverse.temporal.TemporalWorkflowStub;
-import io.quarkiverse.temporal.WorkerFactoryRecorder;
-import io.quarkiverse.temporal.WorkflowClientRecorder;
+import io.quarkiverse.temporal.WorkerFactoryHandler;
+import io.quarkiverse.temporal.WorkflowClientHandler;
 import io.quarkiverse.temporal.WorkflowServiceStubsDestroyer;
-import io.quarkiverse.temporal.WorkflowServiceStubsRecorder;
-import io.quarkiverse.temporal.WorkflowStubRecorder;
+import io.quarkiverse.temporal.WorkflowServiceStubsHandler;
+import io.quarkiverse.temporal.WorkflowStubHandler;
 import io.quarkiverse.temporal.config.TemporalBuildtimeConfig;
+import io.quarkiverse.temporal.config.TemporalRuntimeConfig;
+import io.quarkus.arc.BeanCreator;
 import io.quarkus.arc.deployment.AdditionalBeanBuildItem;
 import io.quarkus.arc.deployment.SyntheticBeanBuildItem;
 import io.quarkus.arc.deployment.SyntheticBeansRuntimeInitBuildItem;
 import io.quarkus.arc.deployment.UnremovableBeanBuildItem;
+import io.quarkus.core.deployment.service.ServiceRegistrar;
+import io.quarkus.core.deployment.service.VoidServiceBuilder0;
 import io.quarkus.deployment.Capabilities;
 import io.quarkus.deployment.Capability;
 import io.quarkus.deployment.annotations.BuildProducer;
 import io.quarkus.deployment.annotations.BuildStep;
 import io.quarkus.deployment.annotations.Consume;
-import io.quarkus.deployment.annotations.ExecutionTime;
 import io.quarkus.deployment.annotations.Produce;
-import io.quarkus.deployment.annotations.Record;
 import io.quarkus.deployment.builditem.CombinedIndexBuildItem;
 import io.quarkus.deployment.builditem.FeatureBuildItem;
 import io.quarkus.deployment.builditem.ServiceStartBuildItem;
-import io.quarkus.deployment.builditem.ShutdownContextBuildItem;
 import io.quarkus.deployment.builditem.nativeimage.ReflectiveClassBuildItem;
 import io.quarkus.deployment.metrics.MetricsCapabilityBuildItem;
 import io.quarkus.deployment.pkg.builditem.ArtifactResultBuildItem;
@@ -94,6 +95,10 @@ import io.temporal.workflow.WorkflowMethod;
 public class TemporalProcessor {
 
     public static final DotName TEMPORAL_INSTANCE = DotName.createSimple(TemporalInstance.class);
+
+    static final String WORKER_SERVICE_PREFIX = "io.quarkiverse.temporal.worker.";
+    static final String OTEL_SERVICE = "io.quarkiverse.temporal.opentelemetry";
+    static final String START_WORKERS_SERVICE = "io.quarkiverse.temporal.start-workers";
 
     public static final DotName TEMPORAL_ACTIVITY = DotName.createSimple(TemporalActivity.class);
 
@@ -442,43 +447,32 @@ public class TemporalProcessor {
     }
 
     @BuildStep(onlyIfNot = EnableMock.class)
-    @Record(ExecutionTime.RUNTIME_INIT)
     SyntheticBeanBuildItem produceWorkflowServiceStubSyntheticBean(TemporalBuildtimeConfig config,
-            Optional<MetricsCapabilityBuildItem> metricsCapability,
-            WorkflowServiceStubsRecorder recorder) {
+            Optional<MetricsCapabilityBuildItem> metricsCapability) {
 
         boolean micrometerSupported = metricsCapability.isPresent() && metricsCapability.get().metricsSupported(MICROMETER);
+        boolean quarkusManaged = !BUILT_IN.equals(config.channelType());
 
-        if (BUILT_IN.equals(config.channelType())) {
-            return SyntheticBeanBuildItem
-                    .configure(WorkflowServiceStubs.class)
-                    .scope(ApplicationScoped.class)
-                    .unremovable()
-                    .defaultBean()
-                    .createWith(recorder.createWorkflowServiceStubs(micrometerSupported))
-                    .destroyer(WorkflowServiceStubsDestroyer.class)
-                    .setRuntimeInit()
-                    .done();
-        }
-
-        // QUARKUS_MANAGED
-        return SyntheticBeanBuildItem
+        SyntheticBeanBuildItem.ExtendedBeanConfigurator configurator = SyntheticBeanBuildItem
                 .configure(WorkflowServiceStubs.class)
                 .scope(ApplicationScoped.class)
                 .unremovable()
                 .defaultBean()
-                .addInjectionPoint(ClassType.create(Channel.class),
-                        AnnotationInstance.builder(GrpcClient.class).value("temporal-client").build())
-                .createWith(recorder.createQuarkusManagedWorkflowServiceStubs(micrometerSupported))
-                .destroyer(WorkflowServiceStubsDestroyer.class)
-                .setRuntimeInit()
-                .done();
+                .creator(WorkflowServiceStubsHandler.class)
+                .param(WorkflowServiceStubsHandler.PARAM_QUARKUS_MANAGED, quarkusManaged)
+                .param(WorkflowServiceStubsHandler.PARAM_MICROMETER_SUPPORTED, micrometerSupported)
+                .destroyer(WorkflowServiceStubsDestroyer.class);
 
+        if (quarkusManaged) {
+            configurator.addInjectionPoint(ClassType.create(Channel.class),
+                    AnnotationInstance.builder(GrpcClient.class).value("temporal-client").build());
+        }
+
+        return configurator.done();
     }
 
     @BuildStep(onlyIfNot = EnableMock.class)
-    @Record(ExecutionTime.RUNTIME_INIT)
-    SyntheticBeanBuildItem produceWorkflowClientSyntheticBean(WorkflowClientRecorder clientRecorder) {
+    SyntheticBeanBuildItem produceWorkflowClientSyntheticBean() {
 
         return SyntheticBeanBuildItem
                 .configure(WorkflowClient.class)
@@ -494,93 +488,90 @@ public class TemporalProcessor {
                 .addInjectionPoint(
                         ParameterizedType.create(Instance.class, ClassType.create(DataConverter.class)),
                         AnnotationInstance.builder(Any.class).build())
-                .createWith(clientRecorder.createWorkflowClient())
-                .setRuntimeInit()
+                .creator(WorkflowClientHandler.class)
                 .done();
 
     }
 
     @BuildStep(onlyIfNot = EnableMock.class)
-    @Record(ExecutionTime.RUNTIME_INIT)
     void produceWorkflowStubSyntheticBeans(
             BuildProducer<SyntheticBeanBuildItem> producer,
+            List<WorkflowBuildItem> workflowImplBuildItems) {
+
+        produceWorkflowStubSyntheticBeans(producer, workflowImplBuildItems, ClassType.create(WorkflowClient.class),
+                WorkflowStubHandler.InstanceCreator.class, WorkflowStubHandler.StubCreator.class);
+    }
+
+    /**
+     * Produces the {@code @TemporalWorkflowStub}-qualified {@code @Dependent} beans of every workflow: a
+     * {@link io.quarkiverse.temporal.TemporalInstance} and a plain workflow stub, per worker of the workflow, plus
+     * unqualified-worker variants when the workflow belongs to a single worker.
+     *
+     * @param clientInjectionPoint the injection point the creators use to resolve the workflow client
+     * @param instanceCreator the creator of the {@code TemporalInstance} beans
+     * @param stubCreator the creator of the workflow stub beans
+     */
+    public static void produceWorkflowStubSyntheticBeans(
+            BuildProducer<SyntheticBeanBuildItem> producer,
             List<WorkflowBuildItem> workflowImplBuildItems,
-            WorkflowStubRecorder recorder) {
+            Type clientInjectionPoint,
+            Class<? extends BeanCreator<Object>> instanceCreator,
+            Class<? extends BeanCreator<Object>> stubCreator) {
 
         for (WorkflowBuildItem workflowBuildItem : workflowImplBuildItems) {
             if (workflowBuildItem.workers.length == 1) {
-
-                producer.produce(
-                        SyntheticBeanBuildItem.configure(TEMPORAL_INSTANCE)
-                                .types(ParameterizedType.create(TEMPORAL_INSTANCE,
-                                        ClassType.create(workflowBuildItem.workflow)))
-                                .scope(Dependent.class)
-                                .addInjectionPoint(ClassType.create(InjectionPoint.class))
-                                .addInjectionPoint(ClassType.create(WorkflowClient.class))
-                                .addQualifier()
-                                .annotation(TemporalWorkflowStub.class)
-                                .addValue("worker", TemporalWorkflowStub.DEFAULT_WORKER)
-                                .done()
-                                .createWith(
-                                        recorder.createWorkflowInstance(workflowBuildItem.workflow,
-                                                workflowBuildItem.workers[0]))
-                                .setRuntimeInit()
-                                .done());
-
-                producer.produce(
-                        SyntheticBeanBuildItem.configure(workflowBuildItem.workflow)
-                                .scope(Dependent.class)
-                                .addInjectionPoint(ClassType.create(InjectionPoint.class))
-                                .addInjectionPoint(ClassType.create(WorkflowClient.class))
-                                .addQualifier()
-                                .annotation(TemporalWorkflowStub.class)
-                                .addValue("worker", TemporalWorkflowStub.DEFAULT_WORKER)
-                                .done()
-                                .createWith(
-                                        recorder.createWorkflowStub(workflowBuildItem.workflow, workflowBuildItem.workers[0]))
-                                .setRuntimeInit()
-                                .done());
+                produceWorkflowStubSyntheticBeans(producer, workflowBuildItem.workflow, workflowBuildItem.workers[0],
+                        TemporalWorkflowStub.DEFAULT_WORKER, clientInjectionPoint, instanceCreator, stubCreator);
             }
 
             for (String worker : workflowBuildItem.workers) {
-
-                producer.produce(
-                        SyntheticBeanBuildItem.configure(TEMPORAL_INSTANCE)
-                                .types(ParameterizedType.create(TEMPORAL_INSTANCE,
-                                        ClassType.create(workflowBuildItem.workflow)))
-                                .scope(Dependent.class)
-                                .addInjectionPoint(ClassType.create(InjectionPoint.class))
-                                .addInjectionPoint(ClassType.create(WorkflowClient.class))
-                                .addQualifier()
-                                .annotation(TemporalWorkflowStub.class)
-                                .addValue("worker", worker)
-                                .done()
-                                .createWith(
-                                        recorder.createWorkflowInstance(workflowBuildItem.workflow, worker))
-                                .setRuntimeInit()
-                                .done());
-
-                producer.produce(
-                        SyntheticBeanBuildItem.configure(workflowBuildItem.workflow)
-                                .scope(Dependent.class)
-                                .addInjectionPoint(ClassType.create(InjectionPoint.class))
-                                .addInjectionPoint(ClassType.create(WorkflowClient.class))
-                                .addQualifier()
-                                .annotation(TemporalWorkflowStub.class)
-                                .addValue("worker", worker)
-                                .done()
-                                .createWith(recorder.createWorkflowStub(workflowBuildItem.workflow, worker))
-                                .setRuntimeInit()
-                                .done());
+                produceWorkflowStubSyntheticBeans(producer, workflowBuildItem.workflow, worker, worker,
+                        clientInjectionPoint, instanceCreator, stubCreator);
             }
         }
+    }
 
+    private static void produceWorkflowStubSyntheticBeans(
+            BuildProducer<SyntheticBeanBuildItem> producer,
+            Class<?> workflow,
+            String worker,
+            String qualifierWorker,
+            Type clientInjectionPoint,
+            Class<? extends BeanCreator<Object>> instanceCreator,
+            Class<? extends BeanCreator<Object>> stubCreator) {
+
+        producer.produce(
+                SyntheticBeanBuildItem.configure(TEMPORAL_INSTANCE)
+                        .types(ParameterizedType.create(TEMPORAL_INSTANCE, ClassType.create(workflow)))
+                        .scope(Dependent.class)
+                        .addInjectionPoint(ClassType.create(InjectionPoint.class))
+                        .addInjectionPoint(clientInjectionPoint)
+                        .addQualifier()
+                        .annotation(TemporalWorkflowStub.class)
+                        .addValue("worker", qualifierWorker)
+                        .done()
+                        .creator(instanceCreator)
+                        .param(WorkflowStubHandler.PARAM_WORKFLOW, workflow)
+                        .param(WorkflowStubHandler.PARAM_WORKER, worker)
+                        .done());
+
+        producer.produce(
+                SyntheticBeanBuildItem.configure(workflow)
+                        .scope(Dependent.class)
+                        .addInjectionPoint(ClassType.create(InjectionPoint.class))
+                        .addInjectionPoint(clientInjectionPoint)
+                        .addQualifier()
+                        .annotation(TemporalWorkflowStub.class)
+                        .addValue("worker", qualifierWorker)
+                        .done()
+                        .creator(stubCreator)
+                        .param(WorkflowStubHandler.PARAM_WORKFLOW, workflow)
+                        .param(WorkflowStubHandler.PARAM_WORKER, worker)
+                        .done());
     }
 
     @BuildStep(onlyIfNot = EnableMock.class)
-    @Record(ExecutionTime.RUNTIME_INIT)
-    SyntheticBeanBuildItem produceWorkerFactorySyntheticBean(
-            WorkerFactoryRecorder workerFactoryRecorder) {
+    SyntheticBeanBuildItem produceWorkerFactorySyntheticBean() {
         return SyntheticBeanBuildItem
                 .configure(WorkerFactory.class)
                 .scope(Singleton.class)
@@ -589,49 +580,75 @@ public class TemporalProcessor {
                 .addInjectionPoint(ClassType.create(WorkflowClient.class))
                 .addInjectionPoint(ParameterizedType.create(Instance.class, ClassType.create(WorkerInterceptor.class)),
                         AnnotationInstance.builder(Any.class).build())
-                .createWith(workerFactoryRecorder.createWorkerFactory())
-                .setRuntimeInit()
+                .creator(WorkerFactoryHandler.class)
                 .done();
     }
 
+    /**
+     * Registers the runtime services that create the workers, bridge OpenTracing to OpenTelemetry and start the
+     * workers, in that order. They are stopped in the reverse order.
+     */
+    @SuppressWarnings("deprecation")
     @BuildStep
-    @Record(ExecutionTime.RUNTIME_INIT)
     @Consume(MockingValidatedBuildItem.class)
     @Consume(ActivityStubInjectionValidatedBuildItem.class)
-    @Consume(SyntheticBeansRuntimeInitBuildItem.class)
-    @Produce(WorkerFactoryInitializedBuildItem.class)
-    void setupWorkerFactory(
+    void registerWorkerServices(
+            ServiceRegistrar registrar,
+            TemporalBuildtimeConfig config,
+            Capabilities capabilities,
             List<WorkerBuildItem> workerBuildItems,
-            WorkerFactoryRecorder workerFactoryRecorder,
-            ShutdownContextBuildItem shutdownContextBuildItem) {
+            BuildProducer<ServiceStartBuildItem> serviceStart) {
 
+        // Build-and-run-time-fixed config cannot be required by a service: capture its values instead.
+        boolean startWorkers = config.startWorkers();
+
+        // Workers are created one after the other, in the order they were discovered.
+        String previousWorkerService = null;
         for (WorkerBuildItem workerBuildItem : workerBuildItems) {
-            workerFactoryRecorder.createWorker(workerBuildItem.name,
-                    workerBuildItem.workflows, workerBuildItem.activities, shutdownContextBuildItem);
+            String name = workerBuildItem.name;
+            String buildId = config.worker().get(name).buildId().orElse(null);
+            List<Class<?>> workflows = List.copyOf(workerBuildItem.workflows);
+            List<Class<?>> activities = List.copyOf(workerBuildItem.activities);
+            String workerService = WORKER_SERVICE_PREFIX + name;
+
+            VoidServiceBuilder0 builder = registrar.forService(workerService)
+                    // workers resolve the WorkerFactory and the activity beans from CDI
+                    .afterBuildItem(SyntheticBeansRuntimeInitBuildItem.class);
+            if (previousWorkerService != null) {
+                builder = builder.after(previousWorkerService);
+            }
+            builder.require(TemporalRuntimeConfig.class)
+                    .onStart((ctx, runtimeConfig) -> WorkerFactoryHandler.createWorker(ctx, runtimeConfig, name, buildId,
+                            startWorkers, workflows, activities));
+            previousWorkerService = workerService;
         }
-    }
 
-    @BuildStep(onlyIf = EnableTelemetry.class)
-    @Record(ExecutionTime.RUNTIME_INIT)
-    @Consume(WorkerFactoryInitializedBuildItem.class)
-    void bindOpenTelemetry(
-            ShutdownContextBuildItem shutdownContextBuildItem,
-            OtelRecorder otelRecorder,
-            Capabilities capabilities) {
-
-        if (capabilities.isPresent(OPENTELEMETRY_TRACER)) {
-            otelRecorder.bindOpenTracing(shutdownContextBuildItem);
+        boolean bindOpenTracing = config.telemetryEnabled() && capabilities.isPresent(OPENTELEMETRY_TRACER);
+        if (bindOpenTracing) {
+            VoidServiceBuilder0 builder = registrar.forService(OTEL_SERVICE)
+                    // the OpenTelemetry bean may be a runtime-init synthetic bean
+                    .afterBuildItem(SyntheticBeansRuntimeInitBuildItem.class);
+            if (previousWorkerService != null) {
+                builder = builder.after(previousWorkerService);
+            }
+            builder.onStart(ctx -> OtelHandler.bindOpenTracing(ctx));
         }
-    }
 
-    @BuildStep(onlyIf = StartWorkers.class)
-    @Record(ExecutionTime.RUNTIME_INIT)
-    @Consume(WorkerFactoryInitializedBuildItem.class)
-    ServiceStartBuildItem startWorkers(
-            WorkerFactoryRecorder workerFactoryRecorder,
-            ShutdownContextBuildItem shutdownContextBuildItem) {
-        workerFactoryRecorder.startWorkerFactory(shutdownContextBuildItem);
-        return new ServiceStartBuildItem("TemporalWorkers");
+        if (!startWorkers) {
+            return;
+        }
+
+        VoidServiceBuilder0 builder = registrar.forService(START_WORKERS_SERVICE)
+                .afterBuildItem(SyntheticBeansRuntimeInitBuildItem.class);
+        if (previousWorkerService != null) {
+            builder = builder.after(previousWorkerService);
+        }
+        if (bindOpenTracing) {
+            builder = builder.after(OTEL_SERVICE);
+        }
+        builder.require(TemporalRuntimeConfig.class)
+                .onStart((ctx, runtimeConfig) -> WorkerFactoryHandler.startWorkerFactory(ctx, runtimeConfig));
+        serviceStart.produce(new ServiceStartBuildItem("TemporalWorkers"));
     }
 
     Class<?> loadClass(ClassInfo classInfo) {

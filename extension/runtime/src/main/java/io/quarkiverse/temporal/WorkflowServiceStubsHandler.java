@@ -5,7 +5,6 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Duration;
-import java.util.function.Function;
 
 import javax.net.ssl.SSLException;
 
@@ -20,10 +19,9 @@ import io.quarkiverse.temporal.config.ConnectionRuntimeConfig;
 import io.quarkiverse.temporal.config.MTLSRuntimeConfig;
 import io.quarkiverse.temporal.config.RpcRetryRuntimeConfig;
 import io.quarkiverse.temporal.config.TemporalRuntimeConfig;
+import io.quarkus.arc.BeanCreator;
 import io.quarkus.arc.SyntheticCreationalContext;
 import io.quarkus.grpc.GrpcClient;
-import io.quarkus.runtime.RuntimeValue;
-import io.quarkus.runtime.annotations.Recorder;
 import io.quarkus.runtime.configuration.ConfigurationException;
 import io.quarkus.runtime.util.ClassPathUtils;
 import io.temporal.common.reporter.MicrometerClientStatsReporter;
@@ -32,40 +30,46 @@ import io.temporal.serviceclient.SimpleSslContextBuilder;
 import io.temporal.serviceclient.WorkflowServiceStubs;
 import io.temporal.serviceclient.WorkflowServiceStubsOptions;
 
-@Recorder
-public class WorkflowServiceStubsRecorder {
+/**
+ * Creates the {@link WorkflowServiceStubs} synthetic bean, either with a built-in gRPC channel or with the Quarkus
+ * managed {@code temporal-client} gRPC channel.
+ * <p>
+ * Bean parameters:
+ * <ul>
+ * <li>{@value #PARAM_QUARKUS_MANAGED}: whether the Quarkus managed gRPC channel is used</li>
+ * <li>{@value #PARAM_MICROMETER_SUPPORTED}: whether Micrometer metrics are supported by the application</li>
+ * </ul>
+ */
+public class WorkflowServiceStubsHandler implements BeanCreator<WorkflowServiceStubs> {
 
-    final RuntimeValue<TemporalRuntimeConfig> runtimeConfig;
+    public static final String PARAM_QUARKUS_MANAGED = "quarkusManaged";
+    public static final String PARAM_MICROMETER_SUPPORTED = "micrometerSupported";
 
-    public WorkflowServiceStubsRecorder(RuntimeValue<TemporalRuntimeConfig> runtimeConfig) {
-        this.runtimeConfig = runtimeConfig;
+    @Override
+    public WorkflowServiceStubs create(SyntheticCreationalContext<WorkflowServiceStubs> context) {
+        TemporalRuntimeConfig runtimeConfig = TemporalConfigs.runtime();
+        boolean quarkusManaged = Boolean.TRUE.equals(context.getParams().get(PARAM_QUARKUS_MANAGED));
+        boolean micrometerSupported = Boolean.TRUE.equals(context.getParams().get(PARAM_MICROMETER_SUPPORTED));
+        boolean isMicrometerEnabled = micrometerSupported && runtimeConfig.metricsEnabled();
+
+        if (quarkusManaged) {
+            return WorkflowServiceStubs.newServiceStubs(
+                    createQuarkusManagedWorkflowServiceStubsOptions(context, runtimeConfig, isMicrometerEnabled));
+        }
+        return WorkflowServiceStubs.newServiceStubs(createWorkflowServiceStubsOptions(runtimeConfig, isMicrometerEnabled));
     }
 
-    public Function<SyntheticCreationalContext<WorkflowServiceStubs>, WorkflowServiceStubs> createWorkflowServiceStubs(
-            boolean micrometerSupported) {
-        boolean isMicrometerEnabled = micrometerSupported && runtimeConfig.getValue().metricsEnabled();
-        return context -> WorkflowServiceStubs
-                .newServiceStubs(createWorkflowServiceStubsOptions(runtimeConfig.getValue().connection(), isMicrometerEnabled));
-    }
-
-    public Function<SyntheticCreationalContext<WorkflowServiceStubs>, WorkflowServiceStubs> createQuarkusManagedWorkflowServiceStubs(
-            boolean micrometerSupported) {
-        boolean isMicrometerEnabled = micrometerSupported && runtimeConfig.getValue().metricsEnabled();
-        return context -> WorkflowServiceStubs
-                .newServiceStubs(createQuarkusManagedWorkflowServiceStubsOptions(context, runtimeConfig.getValue().connection(),
-                        isMicrometerEnabled));
-    }
-
-    WorkflowServiceStubsOptions createWorkflowServiceStubsOptions(
-            ConnectionRuntimeConfig connection,
+    static WorkflowServiceStubsOptions createWorkflowServiceStubsOptions(
+            TemporalRuntimeConfig runtimeConfig,
             boolean isMicrometerEnabled) {
+        ConnectionRuntimeConfig connection = runtimeConfig.connection();
         if (connection == null) {
             return WorkflowServiceStubsOptions.getDefaultInstance();
         }
 
         WorkflowServiceStubsOptions.Builder builder = WorkflowServiceStubsOptions.newBuilder()
                 .setRpcRetryOptions(createRpcRetryOptions(connection.rpcRetry()))
-                .setMetricsScope(createScope(isMicrometerEnabled))
+                .setMetricsScope(createScope(runtimeConfig, isMicrometerEnabled))
                 .setTarget(connection.target())
                 .setEnableHttps(connection.enableHttps());
 
@@ -106,10 +110,11 @@ public class WorkflowServiceStubsRecorder {
         return builder.build();
     }
 
-    WorkflowServiceStubsOptions createQuarkusManagedWorkflowServiceStubsOptions(
+    static WorkflowServiceStubsOptions createQuarkusManagedWorkflowServiceStubsOptions(
             SyntheticCreationalContext<WorkflowServiceStubs> context,
-            ConnectionRuntimeConfig connection,
+            TemporalRuntimeConfig runtimeConfig,
             boolean isMicrometerEnabled) {
+        ConnectionRuntimeConfig connection = runtimeConfig.connection();
         if (connection == null) {
             return WorkflowServiceStubsOptions.getDefaultInstance();
         }
@@ -118,7 +123,7 @@ public class WorkflowServiceStubsRecorder {
                 .setChannel(
                         QuarkusManagedChannel.of(context.getInjectedReference(Channel.class,
                                 GrpcClient.Literal.of("temporal-client"))))
-                .setMetricsScope(createScope(isMicrometerEnabled))
+                .setMetricsScope(createScope(runtimeConfig, isMicrometerEnabled))
                 .setRpcRetryOptions(createRpcRetryOptions(connection.rpcRetry()));
 
         connection.rpcLongPollTimeout().ifPresent(builder::setRpcLongPollTimeout);
@@ -133,7 +138,7 @@ public class WorkflowServiceStubsRecorder {
         return builder.build();
     }
 
-    RpcRetryOptions createRpcRetryOptions(RpcRetryRuntimeConfig rpcRetry) {
+    static RpcRetryOptions createRpcRetryOptions(RpcRetryRuntimeConfig rpcRetry) {
         if (rpcRetry == null) {
             return RpcRetryOptions.getDefaultInstance();
         }
@@ -151,8 +156,8 @@ public class WorkflowServiceStubsRecorder {
         return builder.build();
     }
 
-    private Scope createScope(boolean isMicrometerEnabled) {
-        Duration reportDuration = runtimeConfig.getValue().metricsReportInterval();
+    private static Scope createScope(TemporalRuntimeConfig runtimeConfig, boolean isMicrometerEnabled) {
+        Duration reportDuration = runtimeConfig.metricsReportInterval();
         if (isMicrometerEnabled && reportDuration.getSeconds() > 0) {
             MeterRegistry registry = Metrics.globalRegistry;
             StatsReporter reporter = new MicrometerClientStatsReporter(registry);

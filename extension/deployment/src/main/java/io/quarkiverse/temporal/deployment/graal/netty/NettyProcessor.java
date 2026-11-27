@@ -28,16 +28,17 @@ import io.grpc.netty.shaded.io.netty.util.internal.logging.InternalLoggerFactory
 import io.quarkiverse.temporal.graal.netty.BossEventLoopGroup;
 import io.quarkiverse.temporal.graal.netty.MainEventLoopGroup;
 import io.quarkiverse.temporal.graal.netty.runtime.EmptyByteBufStub;
+import io.quarkiverse.temporal.graal.netty.runtime.EventLoopGroupSupplier;
 import io.quarkiverse.temporal.graal.netty.runtime.MachineIdGenerator;
-import io.quarkiverse.temporal.graal.netty.runtime.NettyRecorder;
+import io.quarkiverse.temporal.graal.netty.runtime.NettyHandler;
 import io.quarkiverse.temporal.graal.netty.runtime.NettySharable;
 import io.quarkus.arc.deployment.AdditionalBeanBuildItem;
 import io.quarkus.arc.deployment.SyntheticBeanBuildItem;
 import io.quarkus.bootstrap.classloading.QuarkusClassLoader;
+import io.quarkus.core.Phase;
+import io.quarkus.core.deployment.service.ServiceRegistrar;
 import io.quarkus.deployment.annotations.BuildProducer;
 import io.quarkus.deployment.annotations.BuildStep;
-import io.quarkus.deployment.annotations.ExecutionTime;
-import io.quarkus.deployment.annotations.Record;
 import io.quarkus.deployment.builditem.BytecodeTransformerBuildItem;
 import io.quarkus.deployment.builditem.CombinedIndexBuildItem;
 import io.quarkus.deployment.builditem.GeneratedRuntimeSystemPropertyBuildItem;
@@ -74,6 +75,9 @@ class NettyProcessor {
     private static final Logger log = Logger.getLogger(NettyProcessor.class);
 
     private static final int DEFAULT_NETTY_ALLOCATOR_MAX_ORDER = 3;
+
+    private static final String BOSS_EVENT_LOOP_GROUP = "io.quarkiverse.temporal.netty.boss-event-loop-group";
+    private static final String MAIN_EVENT_LOOP_GROUP = "io.quarkiverse.temporal.netty.main-event-loop-group";
 
     static {
         InternalLoggerFactory.setDefaultFactory(new JBossNettyLoggerFactory());
@@ -379,12 +383,11 @@ class NettyProcessor {
                 .build();
     }
 
-    @SuppressWarnings({ "unchecked", "rawtypes" })
+    @SuppressWarnings({ "unchecked", "rawtypes", "deprecation" })
     @BuildStep
-    @Record(ExecutionTime.RUNTIME_INIT)
     void registerEventLoopBeans(BuildProducer<SyntheticBeanBuildItem> syntheticBeans,
             Optional<EventLoopSupplierBuildItem> loopSupplierBuildItem,
-            NettyRecorder recorder,
+            ServiceRegistrar serviceRegistrar,
             BuildProducer<EventLoopGroupBuildItem> eventLoopGroups) {
         Supplier<EventLoopGroup> boss;
         Supplier<EventLoopGroup> main;
@@ -392,8 +395,15 @@ class NettyProcessor {
             boss = (Supplier) loopSupplierBuildItem.get().getBossSupplier();
             main = (Supplier) loopSupplierBuildItem.get().getMainSupplier();
         } else {
-            boss = recorder.createEventLoop(1);
-            main = recorder.createEventLoop(0);
+            // The services publish lazy suppliers, so the event loop groups are only created on first use.
+            serviceRegistrar.forService(EventLoopGroupSupplier.class, BOSS_EVENT_LOOP_GROUP)
+                    .atPhase(Phase.INFRASTRUCTURE)
+                    .onStart(ctx -> NettyHandler.createEventLoop(ctx, 1));
+            serviceRegistrar.forService(EventLoopGroupSupplier.class, MAIN_EVENT_LOOP_GROUP)
+                    .atPhase(Phase.INFRASTRUCTURE)
+                    .onStart(ctx -> NettyHandler.createEventLoop(ctx, 0));
+            boss = serviceRegistrar.getRecorderProxy(EventLoopGroupSupplier.class, BOSS_EVENT_LOOP_GROUP);
+            main = serviceRegistrar.getRecorderProxy(EventLoopGroupSupplier.class, MAIN_EVENT_LOOP_GROUP);
         }
 
         // IMPLEMENTATION NOTE:
@@ -978,9 +988,7 @@ class NettyProcessor {
     }
 
     @BuildStep
-    @Record(ExecutionTime.STATIC_INIT)
     void transformIsSharable(CombinedIndexBuildItem indexBuildItem,
-            NettyRecorder recorder,
             BuildProducer<BytecodeTransformerBuildItem> producer) {
         IndexView index = indexBuildItem.getIndex();
 

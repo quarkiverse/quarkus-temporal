@@ -4,13 +4,19 @@ import jakarta.enterprise.inject.spi.CDI;
 
 import io.opentelemetry.api.OpenTelemetry;
 import io.opentelemetry.opentracingshim.OpenTracingShim;
-import io.quarkus.runtime.ShutdownContext;
-import io.quarkus.runtime.annotations.Recorder;
+import io.quarkus.core.StartContext;
 
-@Recorder
-public class OtelRecorder {
+/**
+ * Bridges Temporal's OpenTracing instrumentation to OpenTelemetry.
+ * <p>
+ * Invoked from a {@code ServiceRegistrar} service registered by the deployment processor.
+ */
+public final class OtelHandler {
 
-    public void bindOpenTracing(ShutdownContext shutdownContext) {
+    private OtelHandler() {
+    }
+
+    public static void bindOpenTracing(StartContext ctx) {
         // bridge Temporal OpenTracing to OpenTelemetry
         OpenTelemetry openTelemetry = CDI.current().select(OpenTelemetry.class).get();
         if (openTelemetry == null) {
@@ -19,7 +25,6 @@ public class OtelRecorder {
 
         io.opentracing.Tracer tracer = OpenTracingShim.createTracerShim(openTelemetry);
         io.opentracing.util.GlobalTracer.registerIfAbsent(tracer);
-        shutdownContext.addShutdownTask(tracer::close);
-
+        ctx.onStop(tracer::close);
     }
 }

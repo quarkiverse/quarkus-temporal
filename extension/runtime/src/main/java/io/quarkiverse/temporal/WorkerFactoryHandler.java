@@ -7,7 +7,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.function.Function;
 
 import jakarta.enterprise.inject.Any;
 import jakarta.enterprise.inject.Instance;
@@ -17,11 +16,10 @@ import jakarta.enterprise.util.TypeLiteral;
 import org.jboss.logging.Logger;
 
 import io.quarkiverse.temporal.config.*;
+import io.quarkus.arc.BeanCreator;
 import io.quarkus.arc.SyntheticCreationalContext;
+import io.quarkus.core.StartContext;
 import io.quarkus.info.GitInfo;
-import io.quarkus.runtime.RuntimeValue;
-import io.quarkus.runtime.ShutdownContext;
-import io.quarkus.runtime.annotations.Recorder;
 import io.temporal.client.WorkflowClient;
 import io.temporal.common.VersioningBehavior;
 import io.temporal.common.WorkerDeploymentVersion;
@@ -29,48 +27,40 @@ import io.temporal.common.interceptors.WorkerInterceptor;
 import io.temporal.worker.*;
 
 /**
- * Quarkus recorder responsible for creating and starting Temporal {@link WorkerFactory} instances.
+ * Handler responsible for creating and starting Temporal {@link WorkerFactory} instances.
  *
- * In Quarkus extensions, recorders are invoked from deployment build steps at runtime init to
- * perform runtime wiring that cannot be done at augmentation time. This recorder handles:
+ * The {@link WorkerFactory} synthetic bean is created by this class acting as a {@link BeanCreator}. The remaining
+ * runtime wiring is performed by {@code ServiceRegistrar} services registered by the deployment processor, which call
+ * the static methods of this class:
  *
  * <ul>
  * <li>Building worker factory/worker options from extension config</li>
  * <li>Creating workers and registering discovered workflow/activity implementations</li>
  * <li>Starting workers with configurable startup resilience (blocking retries or background retries)</li>
- * <li>Registering graceful shutdown behavior with {@link ShutdownContext}</li>
+ * <li>Registering graceful shutdown behavior with the service {@link StartContext}</li>
  * </ul>
  */
-@Recorder
-public class WorkerFactoryRecorder {
+public class WorkerFactoryHandler implements BeanCreator<WorkerFactory> {
 
-    private static final Logger log = Logger.getLogger(WorkerFactoryRecorder.class);
+    private static final Logger log = Logger.getLogger(WorkerFactoryHandler.class);
 
-    /**
-     * The runtime configuration for Temporal.
-     */
-    final RuntimeValue<TemporalRuntimeConfig> runtimeConfig;
-
-    /**
-     * The build-time configuration for Temporal.
-     */
-    final TemporalBuildtimeConfig buildtimeConfig;
-
-    public WorkerFactoryRecorder(RuntimeValue<TemporalRuntimeConfig> runtimeConfig, TemporalBuildtimeConfig buildtimeConfig) {
-        this.runtimeConfig = runtimeConfig;
-        this.buildtimeConfig = buildtimeConfig;
+    @Override
+    public WorkerFactory create(SyntheticCreationalContext<WorkerFactory> context) {
+        // Actual start happens in a separate runtime service.
+        return WorkerFactory.newInstance(context.getInjectedReference(WorkflowClient.class),
+                createWorkerFactoryOptions(context, TemporalConfigs.runtime()));
     }
 
     /**
      * Builds {@link WorkerFactoryOptions} from runtime config and CDI-discovered worker interceptors.
      *
-     * This method is invoked by the synthetic bean creator during runtime init.
+     * This method is invoked by the synthetic bean creator.
      */
-    WorkerFactoryOptions createWorkerFactoryOptions(
-            SyntheticCreationalContext<WorkerFactory> context) {
+    static WorkerFactoryOptions createWorkerFactoryOptions(
+            SyntheticCreationalContext<WorkerFactory> context, TemporalRuntimeConfig runtimeConfig) {
         WorkerFactoryOptions.Builder options = WorkerFactoryOptions.newBuilder();
 
-        var wf = runtimeConfig.getValue().workerFactory();
+        var wf = runtimeConfig.workerFactory();
         options.setUsingVirtualWorkflowThreads(wf.usingVirtualWorkflowThreads());
         options.setMaxWorkflowThreadCount(wf.maxWorkflowThreadCount());
         options.setWorkflowCacheSize(wf.workflowCacheSize());
@@ -83,17 +73,11 @@ public class WorkerFactoryRecorder {
         return options.validateAndBuildWithDefaults();
     }
 
-    public Function<SyntheticCreationalContext<WorkerFactory>, WorkerFactory> createWorkerFactory() {
-        // Synthetic bean creator for WorkerFactory. Actual start happens in a separate runtime build step.
-        return context -> WorkerFactory.newInstance(context.getInjectedReference(WorkflowClient.class),
-                createWorkerFactoryOptions(context));
-    }
-
     /**
      * Builds {@link WorkerOptions} for a specific worker name from extension config.
      */
-    WorkerOptions createWorkerOptions(WorkerRuntimeConfig workerRuntimeConfig,
-            WorkerBuildtimeConfig workerBuildtimeConfig) {
+    static WorkerOptions createWorkerOptions(WorkerRuntimeConfig workerRuntimeConfig,
+            Optional<String> configuredBuildId) {
         if (workerRuntimeConfig == null) {
             return WorkerOptions.getDefaultInstance();
         }
@@ -114,12 +98,12 @@ public class WorkerFactoryRecorder {
                 .setDisableEagerExecution(workerRuntimeConfig.disableEagerExecution())
                 .setStickyTaskQueueDrainTimeout(workerRuntimeConfig.stickyTaskQueueDrainTimeout());
 
-        WorkerDeploymentOptions workerDeploymentOptions = this.createWorkerDeploymentOptions(workerRuntimeConfig);
+        WorkerDeploymentOptions workerDeploymentOptions = createWorkerDeploymentOptions(workerRuntimeConfig);
 
         if (workerDeploymentOptions != null) {
             builder.setDeploymentOptions(workerDeploymentOptions);
 
-            boolean legacyWorkerVersioningConfigured = workerBuildtimeConfig.buildId().isPresent() ||
+            boolean legacyWorkerVersioningConfigured = configuredBuildId.isPresent() ||
                     workerRuntimeConfig.useBuildIdForVersioning();
 
             if (legacyWorkerVersioningConfigured) {
@@ -131,7 +115,7 @@ public class WorkerFactoryRecorder {
         } else {
             builder.setUseBuildIdForVersioning(workerRuntimeConfig.useBuildIdForVersioning());
             // try configured id, then Git commit hash, then last resort UUID
-            String buildId = workerBuildtimeConfig.buildId()
+            String buildId = configuredBuildId
                     .orElseGet(() -> {
                         Instance<GitInfo> gitInfoInstance = CDI.current().select(GitInfo.class);
                         if (!gitInfoInstance.isUnsatisfied()) {
@@ -154,7 +138,7 @@ public class WorkerFactoryRecorder {
 
     }
 
-    private WorkerDeploymentOptions createWorkerDeploymentOptions(WorkerRuntimeConfig workerRuntimeConfig) {
+    private static WorkerDeploymentOptions createWorkerDeploymentOptions(WorkerRuntimeConfig workerRuntimeConfig) {
         Optional<WorkerDeploymentOptionsRuntimeConfig> workerDeploymentOptionsRuntimeConfig = workerRuntimeConfig
                 .deploymentOptions();
 
@@ -193,30 +177,42 @@ public class WorkerFactoryRecorder {
         return workerDeploymentOptionsBuilder.build();
     }
 
-    public void createWorker(String name, List<Class<?>> workflows,
-            List<Class<?>> activities, ShutdownContext shutdownContext) {
-        Runnable registration = () -> doCreateWorker(name, workflows, activities);
+    /**
+     * Creates a worker and registers its workflow/activity implementations.
+     *
+     * @param ctx the start context of the service creating the worker
+     * @param runtimeConfig the Temporal runtime configuration
+     * @param name the worker name
+     * @param buildId the build-time configured build id of the worker, or {@code null} if none is configured
+     * @param startWorkers whether workers are started, in which case the activity implementations are registered
+     * @param workflows the workflow implementations
+     * @param activities the activity implementations
+     */
+    public static void createWorker(StartContext ctx, TemporalRuntimeConfig runtimeConfig, String name,
+            String buildId, boolean startWorkers, List<Class<?>> workflows, List<Class<?>> activities) {
+        Optional<String> configuredBuildId = Optional.ofNullable(buildId);
+        Runnable registration = () -> doCreateWorker(runtimeConfig, name, configuredBuildId, startWorkers, workflows,
+                activities);
         WorkerRegistrationRegistry.record(registration);
         // Remove only this application's entry: the registry is static and may outlive this application.
-        shutdownContext.addShutdownTask(() -> WorkerRegistrationRegistry.remove(registration));
-        doCreateWorker(name, workflows, activities);
+        ctx.onStop(() -> WorkerRegistrationRegistry.remove(registration));
+        doCreateWorker(runtimeConfig, name, configuredBuildId, startWorkers, workflows, activities);
     }
 
-    private void doCreateWorker(String name, List<Class<?>> workflows,
-            List<Class<?>> activities) {
+    private static void doCreateWorker(TemporalRuntimeConfig runtimeConfig, String name, Optional<String> buildId,
+            boolean startWorkers, List<Class<?>> workflows, List<Class<?>> activities) {
         // Workers are created during runtime init (or replayed per test in mock mode) and
         // registered with workflow/activity implementations.
         // Starting polling threads is intentionally deferred to startWorkerFactory(...).
         WorkerFactory workerFactory = CDI.current().select(WorkerFactory.class).get();
-        WorkerRuntimeConfig workerRuntimeConfig = runtimeConfig.getValue().worker().get(name);
-        WorkerBuildtimeConfig workerBuildtimeConfig = buildtimeConfig.worker().get(name);
+        WorkerRuntimeConfig workerRuntimeConfig = runtimeConfig.worker().get(name);
 
         Worker worker = workerFactory.newWorker(createQueueName(name, workerRuntimeConfig),
-                createWorkerOptions(workerRuntimeConfig, workerBuildtimeConfig));
+                createWorkerOptions(workerRuntimeConfig, buildId));
         for (var workflow : workflows) {
             registerWorkflow(worker, workflow);
         }
-        if (buildtimeConfig.startWorkers()) {
+        if (startWorkers) {
             for (var activity : activities) {
                 worker.registerActivitiesImplementations(CDI.current().select(activity).get());
             }
@@ -237,11 +233,11 @@ public class WorkerFactoryRecorder {
                 WorkflowImplementationOptions.getDefaultInstance());
     }
 
-    public void startWorkerFactory(ShutdownContext shutdownContext) {
-        // This method is invoked from TemporalProcessor.startWorkers(...) during runtime init.
+    public static void startWorkerFactory(StartContext ctx, TemporalRuntimeConfig runtimeConfig) {
+        // This method is invoked from the service registered by TemporalProcessor.registerWorkerServices(...).
         // Any exception thrown here can fail Quarkus startup.
         WorkerFactory workerFactory = CDI.current().select(WorkerFactory.class).get();
-        var workerFactoryConfig = runtimeConfig.getValue().workerFactory();
+        var workerFactoryConfig = runtimeConfig.workerFactory();
         boolean failOnStartupError = workerFactoryConfig.failOnStartupError();
         int maxAttempts = Math.max(workerFactoryConfig.startupMaxAttempts(), 1);
         long retryDelayMillis = Math.max(workerFactoryConfig.startupRetryDelay().toMillis(), 0);
@@ -251,7 +247,7 @@ public class WorkerFactoryRecorder {
         if (startupBackgroundRetryEnabled) {
             if (!failOnStartupError) {
                 // In this mode Quarkus startup proceeds immediately while worker startup is retried asynchronously.
-                startWorkerFactoryInBackground(shutdownContext, workerFactory, retryDelayMillis);
+                startWorkerFactoryInBackground(ctx, runtimeConfig, workerFactory, retryDelayMillis);
                 return;
             }
             log.warn(
@@ -264,9 +260,9 @@ public class WorkerFactoryRecorder {
             try {
                 // Temporal SDK contacts server capabilities as part of start(); this can fail if server is unavailable.
                 workerFactory.start();
-                shutdownContext.addShutdownTask(() -> {
+                ctx.onStop(() -> {
                     workerFactory.shutdown();
-                    runtimeConfig.getValue().terminationTimeout()
+                    runtimeConfig.terminationTimeout()
                             .ifPresent(timeout -> workerFactory.awaitTermination(timeout.toMillis(), TimeUnit.MILLISECONDS));
                 });
                 return;
@@ -315,7 +311,8 @@ public class WorkerFactoryRecorder {
      *
      * Used when startup should not block waiting for Temporal availability.
      */
-    void startWorkerFactoryInBackground(ShutdownContext shutdownContext, WorkerFactory workerFactory, long retryDelayMillis) {
+    static void startWorkerFactoryInBackground(StartContext ctx, TemporalRuntimeConfig runtimeConfig,
+            WorkerFactory workerFactory, long retryDelayMillis) {
         // Keep retrying on a daemon thread until startup succeeds or Quarkus shuts down.
         AtomicBoolean running = new AtomicBoolean(true);
         AtomicBoolean started = new AtomicBoolean(false);
@@ -351,14 +348,14 @@ public class WorkerFactoryRecorder {
             }
         });
 
-        shutdownContext.addShutdownTask(() -> {
+        ctx.onStop(() -> {
             // Stop background retries first so no new start attempts race with shutdown.
             running.set(false);
             startupExecutor.shutdownNow();
             // Avoid calling shutdown on a factory that never managed to start.
             if (started.get()) {
                 workerFactory.shutdown();
-                runtimeConfig.getValue().terminationTimeout()
+                runtimeConfig.terminationTimeout()
                         .ifPresent(timeout -> workerFactory.awaitTermination(timeout.toMillis(), TimeUnit.MILLISECONDS));
             }
         });
