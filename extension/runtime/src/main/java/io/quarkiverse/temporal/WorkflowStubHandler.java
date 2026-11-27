@@ -1,21 +1,17 @@
 package io.quarkiverse.temporal;
 
-import static io.quarkiverse.temporal.WorkerFactoryRecorder.createQueueName;
-
-import java.util.function.Function;
+import static io.quarkiverse.temporal.WorkerFactoryHandler.createQueueName;
 
 import jakarta.enterprise.inject.spi.InjectionPoint;
 
 import io.quarkiverse.temporal.config.RetryRuntimeConfig;
-import io.quarkiverse.temporal.config.TemporalBuildtimeConfig;
 import io.quarkiverse.temporal.config.TemporalRuntimeConfig;
 import io.quarkiverse.temporal.config.WorkerRuntimeConfig;
 import io.quarkiverse.temporal.config.WorkflowRuntimeConfig;
 import io.quarkiverse.temporal.config.WorkflowRuntimeConfig.TemporalWorkflowIdConflictPolicy;
 import io.quarkiverse.temporal.config.WorkflowRuntimeConfig.TemporalWorkflowIdReusePolicy;
+import io.quarkus.arc.BeanCreator;
 import io.quarkus.arc.SyntheticCreationalContext;
-import io.quarkus.runtime.RuntimeValue;
-import io.quarkus.runtime.annotations.Recorder;
 import io.quarkus.runtime.configuration.ConfigurationException;
 import io.temporal.api.enums.v1.WorkflowIdConflictPolicy;
 import io.temporal.api.enums.v1.WorkflowIdReusePolicy;
@@ -23,25 +19,60 @@ import io.temporal.client.WorkflowClient;
 import io.temporal.client.WorkflowOptions;
 import io.temporal.common.RetryOptions;
 
-@Recorder
-public class WorkflowStubRecorder {
+/**
+ * Creates the {@code @TemporalWorkflowStub}-qualified synthetic beans: plain workflow stubs ({@link StubCreator}) and
+ * {@link TemporalInstance} factories ({@link InstanceCreator}).
+ * <p>
+ * Both creators read the {@value #PARAM_WORKFLOW} (workflow interface class) and {@value #PARAM_WORKER} (worker name)
+ * bean parameters.
+ */
+public final class WorkflowStubHandler {
 
-    /**
-     * The runtime configuration for Temporal.
-     */
-    final RuntimeValue<TemporalRuntimeConfig> runtimeConfig;
+    public static final String PARAM_WORKFLOW = "workflow";
+    public static final String PARAM_WORKER = "worker";
 
-    /**
-     * The build-time configuration for Temporal.
-     */
-    final TemporalBuildtimeConfig buildtimeConfig;
-
-    public WorkflowStubRecorder(RuntimeValue<TemporalRuntimeConfig> runtimeConfig, TemporalBuildtimeConfig buildtimeConfig) {
-        this.runtimeConfig = runtimeConfig;
-        this.buildtimeConfig = buildtimeConfig;
+    private WorkflowStubHandler() {
     }
 
-    RetryOptions createRetryOptions(RetryRuntimeConfig config) {
+    /**
+     * Creates a workflow stub bound to the {@link WorkflowClient} bean.
+     */
+    public static class StubCreator implements BeanCreator<Object> {
+
+        @Override
+        public Object create(SyntheticCreationalContext<Object> context) {
+            Class<?> workflow = workflowParam(context);
+            String worker = workerParam(context);
+            return context.getInjectedReference(WorkflowClient.class).newWorkflowStub(workflow,
+                    createWorkflowOptions(context, TemporalConfigs.runtime(), worker, null));
+        }
+    }
+
+    /**
+     * Creates a {@link TemporalInstance} that builds workflow stubs bound to the {@link WorkflowClient} bean.
+     */
+    public static class InstanceCreator implements BeanCreator<Object> {
+
+        @Override
+        public Object create(SyntheticCreationalContext<Object> context) {
+            Class<?> workflow = workflowParam(context);
+            String worker = workerParam(context);
+            TemporalRuntimeConfig runtimeConfig = TemporalConfigs.runtime();
+            WorkflowClient workflowClient = context.getInjectedReference(WorkflowClient.class);
+            return (TemporalInstance<Object>) workflowId -> workflowClient.newWorkflowStub(workflow,
+                    createWorkflowOptions(context, runtimeConfig, worker, workflowId));
+        }
+    }
+
+    public static Class<?> workflowParam(SyntheticCreationalContext<?> context) {
+        return (Class<?>) context.getParams().get(PARAM_WORKFLOW);
+    }
+
+    public static String workerParam(SyntheticCreationalContext<?> context) {
+        return (String) context.getParams().get(PARAM_WORKER);
+    }
+
+    static RetryOptions createRetryOptions(RetryRuntimeConfig config) {
         if (config == null) {
             return RetryOptions.getDefaultInstance();
         }
@@ -57,13 +88,14 @@ public class WorkflowStubRecorder {
         return builder.build();
     }
 
-    public <T> WorkflowOptions createWorkflowOptions(SyntheticCreationalContext<T> context, String worker, String workflowId) {
+    public static WorkflowOptions createWorkflowOptions(SyntheticCreationalContext<?> context,
+            TemporalRuntimeConfig runtimeConfig, String worker, String workflowId) {
 
         InjectionPoint injectionPoint = context.getInjectedReference(InjectionPoint.class);
         TemporalWorkflowStub annotation = extractAnnotationFromInjectionPoint(injectionPoint);
 
-        WorkerRuntimeConfig workerRuntimeConfig = runtimeConfig.getValue().worker().get(worker);
-        WorkflowRuntimeConfig workflowRuntimeConfig = runtimeConfig.getValue().workflow().get(annotation.group());
+        WorkerRuntimeConfig workerRuntimeConfig = runtimeConfig.worker().get(worker);
+        WorkflowRuntimeConfig workflowRuntimeConfig = runtimeConfig.workflow().get(annotation.group());
 
         TemporalWorkflowIdReusePolicy reusePolicy = workflowRuntimeConfig.workflowIdReusePolicy();
         TemporalWorkflowIdConflictPolicy conflictPolicy = workflowRuntimeConfig.workflowIdConflictPolicy();
@@ -100,22 +132,11 @@ public class WorkflowStubRecorder {
         return options.validateBuildWithDefaults();
     }
 
-    public <T> Function<SyntheticCreationalContext<TemporalInstance<T>>, TemporalInstance<T>> createWorkflowInstance(
-            Class<T> workflow, String worker) {
-        return context -> workflowId -> context.getInjectedReference(WorkflowClient.class).newWorkflowStub(workflow,
-                createWorkflowOptions(context, worker, workflowId));
-    }
-
-    public <T> Function<SyntheticCreationalContext<T>, T> createWorkflowStub(Class<T> workflow, String worker) {
-        return context -> context.getInjectedReference(WorkflowClient.class).newWorkflowStub(workflow,
-                createWorkflowOptions(context, worker, null));
-    }
-
     /**
      * Rejects the workflow id policy combinations that the Temporal server refuses with an InvalidArgument error, so that a
      * misconfiguration surfaces as a readable error instead of a gRPC failure on the first workflow start.
      */
-    void validateWorkflowIdPolicies(String group, TemporalWorkflowIdReusePolicy reusePolicy,
+    static void validateWorkflowIdPolicies(String group, TemporalWorkflowIdReusePolicy reusePolicy,
             TemporalWorkflowIdConflictPolicy conflictPolicy) {
         if (conflictPolicy == TemporalWorkflowIdConflictPolicy.UNSPECIFIED) {
             return;
@@ -140,7 +161,7 @@ public class WorkflowStubRecorder {
                 : "quarkus.temporal.workflow." + group + "." + property;
     }
 
-    TemporalWorkflowStub extractAnnotationFromInjectionPoint(InjectionPoint injectionPoint) {
+    static TemporalWorkflowStub extractAnnotationFromInjectionPoint(InjectionPoint injectionPoint) {
         return (TemporalWorkflowStub) injectionPoint.getQualifiers().stream()
                 .filter(x -> x instanceof TemporalWorkflowStub).findFirst().orElseThrow(
                         () -> new IllegalStateException("workflow stub should always be qualified with TemporalWorkflowStub"));

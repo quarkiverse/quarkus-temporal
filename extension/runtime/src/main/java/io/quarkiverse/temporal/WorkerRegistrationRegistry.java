@@ -7,7 +7,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
  * Captures worker/workflow-type registrations performed at boot so they can be replayed
  * against a freshly created {@link io.temporal.worker.WorkerFactory} in test/mock mode.
  *
- * Populated unconditionally by {@link WorkerFactoryRecorder#createWorker}; only ever read
+ * Populated unconditionally by {@link WorkerFactoryHandler#createWorker}; only ever read
  * by the {@code quarkus-temporal-test} extension. Each registration is removed again when the
  * application that recorded it shuts down, so a stopped application is neither replayed nor kept reachable.
  */
